@@ -1,0 +1,10 @@
+// q11/a: a str literal's bytes as a *u8 (freestanding)
+export fn q11() -> *u8 {
+    // # Safety: probe.
+    unsafe {
+        "muzzle" as *u8
+    }
+}
+
+export fn wolf_trap(kind: i32, file: *u8, file_len: i64, line: i64, col: i64) {
+}

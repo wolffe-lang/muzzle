@@ -1,0 +1,18 @@
+== q11/a: muzzle as *u8
+error[E0805]: `str` does not cast to `*u8`
+wolf build: the package does not compile; fix the errors above (`wolf --explain E0805` explains this code, or any other, by name)
+exit=2
+== q11/b: s.as_ptr()
+error[E0301]: `as_ptr` is not a builtin method of `str`
+wolf build: the package does not compile; fix the errors above (`wolf --explain E0301` explains this code, or any other, by name)
+exit=2
+== q11/c: let n = s.len()
+error[E0301]: `len` is not a builtin method of `str`
+error[E0805]: `<error>` does not cast to `*u8`
+wolf build: the package does not compile; fix the errors above (`wolf --explain E0301` explains this code, or any other, by name)
+exit=2
+== q11/d: let b = s[0]
+error[E0411]: `str` has no character indexing
+error[E0805]: `<error>` does not cast to `*u8`
+wolf build: the package does not compile; fix the errors above (`wolf --explain E0411` explains this code, or any other, by name)
+exit=2
