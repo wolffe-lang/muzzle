@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# The differential (lc00's method, pure mode): every case in
+# tests/cases/ is compiled twice, against the host glibc (the reference,
+# a black box) and statically against muzzle alone, run, and its stdout
+# and exit status compared. Exits 1 on any disagreement, on a case that
+# fails to build in either column, and when no case ran.
+#   tools/difftest native|release [case.c ...]
+set -uo pipefail
+tier=${1:?usage: tools/difftest native|release [case.c ...]}; shift
+root=$(cd "$(dirname "$0")/.." && pwd)
+lib="$root/build/$tier"
+out="$root/out/$tier"
+rm -rf "$out"; mkdir -p "$out"
+cases=("$@"); [ ${#cases[@]} -gt 0 ] || cases=("$root"/tests/cases/*.c)
+CFLAGS=(-std=c17 -O1 -Wall -Werror -fno-builtin -fno-stack-protector -I "$root/tests/lib")
+echo "difftest: tier=$tier glibc=$(getconf GNU_LIBC_VERSION 2>/dev/null) $(clang --version | head -1)"
+pass=0; fail=0
+for c in "${cases[@]}"; do
+  n=$(basename "$c" .c)
+  ok=1
+  clang "${CFLAGS[@]}" "$c" -o "$out/$n.glibc" 2>"$out/$n.glibc.cc" || { echo "FAIL $n: glibc column does not build"; cat "$out/$n.glibc.cc"; ok=0; }
+  clang "${CFLAGS[@]}" -nostdinc -isystem "$root/include" -nostdlib -static \
+    "$lib/crt0.o" "$c" "$lib/libmuzzle.a" -o "$out/$n.muzzle" 2>"$out/$n.muzzle.cc" \
+    || { echo "FAIL $n: muzzle column does not build"; cat "$out/$n.muzzle.cc"; ok=0; }
+  if [ $ok = 1 ] && readelf -lW "$out/$n.muzzle" | grep -q INTERP; then
+    echo "FAIL $n: the muzzle binary has an interpreter (not pure)"; ok=0
+  fi
+  if [ $ok = 1 ]; then
+    timeout 20 "$out/$n.glibc" >"$out/$n.glibc.out" 2>/dev/null; rg=$?
+    timeout 20 "$out/$n.muzzle" >"$out/$n.muzzle.out" 2>"$out/$n.muzzle.err"; rm_=$?
+    if [ ! -s "$out/$n.glibc.out" ]; then
+      echo "FAIL $n: the reference printed nothing"; ok=0
+    elif [ $rg != $rm_ ]; then
+      echo "FAIL $n: exit glibc=$rg muzzle=$rm_"; ok=0
+    fi
+    if ! diff -u --label "$n (glibc)" --label "$n (muzzle $tier)" "$out/$n.glibc.out" "$out/$n.muzzle.out" >"$out/$n.diff"; then
+      echo "FAIL $n: stdout differs"; head -20 "$out/$n.diff"; ok=0
+    fi
+    [ -s "$out/$n.muzzle.err" ] && { echo "note $n: muzzle stderr:"; head -5 "$out/$n.muzzle.err"; }
+  fi
+  if [ $ok = 1 ]; then
+    echo "PASS $n exit=$rg lines=$(wc -l <"$out/$n.glibc.out")"; pass=$((pass+1))
+  else
+    fail=$((fail+1))
+  fi
+done
+echo "difftest: tier=$tier pass=$pass fail=$fail"
+[ $((pass+fail)) -gt 0 ] || { echo "difftest: no case ran" >&2; exit 1; }
+[ $fail = 0 ]
