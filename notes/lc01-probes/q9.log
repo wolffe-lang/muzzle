@@ -1,0 +1,8 @@
+== q9 tier=native
+noread=0 (want 99)
+reread=99 (want 99)
+run=0
+== q9 tier=--release
+noread=0 (want 99)
+reread=99 (want 99)
+run=0

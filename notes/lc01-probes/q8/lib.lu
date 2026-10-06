@@ -1,0 +1,91 @@
+// q8: a module var read, a call that writes it, the var read again.
+var v: uint = 0
+
+fn bump() {
+    // # Safety: probe; one thread.
+    unsafe {
+        v = 99
+    }
+}
+
+/// Reads v, calls bump (v = 99), reads v again: wants 99.
+export fn q8_reread() -> i64 {
+    var a: uint = 0
+    var b: uint = 0
+    // # Safety: probe; one thread.
+    unsafe {
+        v = 0
+        a = v
+    }
+    bump()
+    // # Safety: probe; one thread.
+    unsafe {
+        b = v
+    }
+    (a + b) as i64
+}
+
+/// The same with no read before the call: wants 99.
+export fn q8_noread() -> i64 {
+    var b: uint = 0
+    // # Safety: probe; one thread.
+    unsafe {
+        v = 0
+    }
+    bump()
+    // # Safety: probe; one thread.
+    unsafe {
+        b = v
+    }
+    b as i64
+}
+
+export fn wolf_trap(kind: i32, file: *u8, file_len: i64, line: i64, col: i64) {
+}
+
+/// Sets v from C.
+export fn q8_set(x: i64) {
+    // # Safety: probe; one thread.
+    unsafe {
+        v = x as uint
+    }
+}
+
+/// Reads v for C.
+export fn q8_get() -> i64 {
+    var b: uint = 0
+    // # Safety: probe; one thread.
+    unsafe {
+        b = v
+    }
+    b as i64
+}
+
+/// Writes v, reads it back in the same block.
+export fn q8_same(x: i64) -> i64 {
+    var b: uint = 0
+    // # Safety: probe; one thread.
+    unsafe {
+        v = x as uint
+        b = v
+    }
+    b as i64
+}
+
+fn bump_i(x: uint) {
+    // # Safety: probe; one thread.
+    unsafe {
+        v = x
+    }
+}
+
+/// Calls a writer with an argument, then reads: wants x.
+export fn q8_call_arg(x: i64) -> i64 {
+    bump_i(x as uint)
+    var b: uint = 0
+    // # Safety: probe; one thread.
+    unsafe {
+        b = v
+    }
+    b as i64
+}

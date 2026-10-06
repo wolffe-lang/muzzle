@@ -1,0 +1,64 @@
+== q8 tier=native
+reread=0 (want 99)
+noread=0 (want 99)
+set(5) then get=5 (want 5)
+same(6)=6 (want 6)
+get after same(6)=6 (want 6)
+call_arg(8)=8 (want 8)
+get after call_arg(8)=8 (want 8)
+run=0
+== q8 tier=--release
+reread=0 (want 99)
+noread=0 (want 99)
+set(5) then get=5 (want 5)
+same(6)=6 (want 6)
+get after same(6)=6 (want 6)
+call_arg(8)=8 (want 8)
+get after call_arg(8)=8 (want 8)
+run=0
+== native disassembly of bump and q8_noread
+0000000000000000 <_Wbump$0f84eb3c4c1b08ad>:
+   0:	push   %rbp
+   1:	mov    %rsp,%rbp
+   4:	mov    0x0(%rip),%rax        # b <_Wbump$0f84eb3c4c1b08ad+0xb>
+			7: R_X86_64_GOTPCREL	_Wv.s67b8e9b4f34ebd9-0x4
+   b:	movq   $0x63,(%rax)
+  12:	mov    %rbp,%rsp
+  15:	pop    %rbp
+  16:	ret
+
+0000000000000070 <q8_noread>:
+  70:	push   %rbp
+  71:	mov    %rsp,%rbp
+  74:	sub    $0x20,%rsp
+  78:	mov    %r12,0x10(%rsp)
+  7d:	xor    %rax,%rax
+  80:	mov    %rax,%r12
+  83:	movq   $0x0,(%rsp)
+  8b:	movq   $0x0,(%rsp)
+  93:	mov    0x0(%rip),%rsi        # 9a <q8_noread+0x2a>
+			96: R_X86_64_GOTPCREL	_Wv.s67b8e9b4f34ebd9-0x4
+  9a:	movq   $0x0,(%rsi)
+  a1:	call   a6 <q8_noread+0x36>
+			a2: R_X86_64_PLT32	_Wbump$0f84eb3c4c1b08ad-0x4
+  a6:	mov    %r12,%rax
+  a9:	mov    0x10(%rsp),%r12
+  ae:	add    $0x20,%rsp
+  b2:	mov    %rbp,%rsp
+  b5:	pop    %rbp
+  b6:	ret
+
+0000000000000228 <_Wbump_i$568a4e32dab41b85>:
+ 228:	push   %rbp
+ 229:	mov    %rsp,%rbp
+ 22c:	sub    $0x10,%rsp
+ 230:	mov    %rdi,(%rsp)
+ 234:	mov    0x0(%rip),%rsi        # 23b <_Wbump_i$568a4e32dab41b85+0x13>
+			237: R_X86_64_GOTPCREL	_Wv.s67b8e9b4f34ebd9-0x4
+ 23b:	mov    %rdi,(%rsi)
+ 23e:	add    $0x10,%rsp
+ 242:	mov    %rbp,%rsp
+ 245:	pop    %rbp
+ 246:	ret
+	...
+

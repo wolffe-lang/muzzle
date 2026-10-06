@@ -1,0 +1,5 @@
+pkg {
+    name: "lc01/q9"
+    version: "0.0.1"
+    asm: ["cell.S"]
+}

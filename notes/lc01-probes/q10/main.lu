@@ -1,0 +1,25 @@
+// q10: q8's shape on the hosted target. A module var is stored, a
+// callee writes it, the caller loads it again.
+var v: int = 0
+
+fn bump() {
+    // # Safety: one thread.
+    unsafe {
+        v = 99
+    }
+}
+
+fn main() -> int {
+    var b = 0
+    // # Safety: one thread.
+    unsafe {
+        v = 0
+    }
+    bump()
+    // # Safety: one thread.
+    unsafe {
+        b = v
+    }
+    print("{b}")
+    0
+}

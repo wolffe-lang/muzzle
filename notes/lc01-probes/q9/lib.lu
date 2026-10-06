@@ -1,0 +1,44 @@
+// q9: q8's two shapes through a raw pointer to assembly storage
+// (`extern "c" let`) instead of a module var.
+extern "c" let q9_cell: *u64
+
+fn bump() {
+    // # Safety: probe; one thread; q9_cell is 16 bytes (cell.S).
+    unsafe {
+        q9_cell[0] = 99
+    }
+}
+
+/// Stores 0, calls bump (99), loads: wants 99.
+export fn q9_noread() -> i64 {
+    var b: u64 = 0
+    // # Safety: as bump.
+    unsafe {
+        q9_cell[0] = 0
+    }
+    bump()
+    // # Safety: as bump.
+    unsafe {
+        b = q9_cell[0]
+    }
+    b as i64
+}
+
+/// Loads, calls bump (99), loads again: wants 99.
+export fn q9_reread() -> i64 {
+    var a: u64 = 0
+    var b: u64 = 0
+    // # Safety: as bump.
+    unsafe {
+        a = q9_cell[0]
+    }
+    bump()
+    // # Safety: as bump.
+    unsafe {
+        b = q9_cell[0]
+    }
+    (a * 0 + b) as i64
+}
+
+export fn wolf_trap(kind: i32, file: *u8, file_len: i64, line: i64, col: i64) {
+}

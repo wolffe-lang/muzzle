@@ -1,0 +1,13 @@
+== native
+0
+exit=0
+== release
+0
+exit=0
+== checked (conform-run --json --checked)
+{"commit":"294d626","diagnostics":[],"file":"./main.lu","impl":"wolfgang","impl_version":"0.2.24","phase_reached":"run","protocol":1,"seeded":false,"stdout_inline":"99\n","stdout_sha256":"7e332bcee418f7d700927c946d36341f0651d6d90997b58d3d5441dec96b2e74","verdict":"exit(0)","warnings":[]}
+
+exit=0
+== lupin 0.1.47
+99
+exit=0
