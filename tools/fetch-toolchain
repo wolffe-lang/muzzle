@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# Stage the pinned wolf release archive into .wolf-bin/, by digest.
+#   tools/fetch-toolchain              download from the release
+#   WOLF_ARCHIVE=path tools/fetch-toolchain   use a local copy (verified)
+# Exits non-zero on any mismatch; prints the staged driver's path.
+set -euo pipefail
+root=$(cd "$(dirname "$0")/.." && pwd)
+pin="$root/wolf-toolchain.toml"
+key() { sed -n "s/^$1 = \"\(.*\)\"$/\1/p" "$pin" | head -1; }
+ver=$(key version); repo=$(key repo); line=$(key version_line)
+host=x86_64-unknown-linux-gnu
+want=$(key "$host")
+[ -n "$ver" ] && [ -n "$want" ] && [ -n "$line" ] || { echo "fetch-toolchain: pin incomplete" >&2; exit 2; }
+name="wolf-$ver-$host.tar.gz"
+dest="$root/.wolf-bin"
+mkdir -p "$dest"
+if [ -n "${WOLF_ARCHIVE:-}" ]; then
+  cp "$WOLF_ARCHIVE" "$dest/$name"
+else
+  curl -sSfL -o "$dest/$name" "https://github.com/$repo/releases/download/v$ver/$name"
+fi
+got=$(sha256sum "$dest/$name" | cut -d' ' -f1)
+if [ "$got" != "$want" ]; then
+  echo "fetch-toolchain: $name digest $got, pin wants $want" >&2
+  exit 1
+fi
+rm -rf "$dest/wolf-$ver-$host"
+tar xzf "$dest/$name" -C "$dest"
+w="$dest/wolf-$ver-$host/wolf"
+first=$("$w" --version | head -1)
+if [ "$first" != "$line" ]; then
+  echo "fetch-toolchain: '$first' is not the pinned '$line'" >&2
+  exit 1
+fi
+echo "fetch-toolchain: $name ${got:0:16}… -> $w"
