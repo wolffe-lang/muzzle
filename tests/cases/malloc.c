@@ -100,7 +100,7 @@ int main(void) {
     unsigned char *r = realloc(NULL, 10);
     t_kv("realloc.null_nonnull", r != NULL);
     for (int i = 0; i < 10; i++)
-        r[i] = (unsigned char)i;
+        r[i] = (unsigned char)(i * 3);
     /* Growing keeps the old contents, through the small sizes and past
      * the small-block ceiling. */
     size_t sizes[] = {20, 100, 1000, 5000, 65536, 70000, 300000, 1 << 21};
@@ -117,9 +117,6 @@ int main(void) {
                 kept = 0;
         for (size_t i = have; i < sizes[k]; i++)
             r[i] = (unsigned char)(i * 3);
-        if (k == 0)
-            for (size_t i = 0; i < 10; i++)
-                r[i] = (unsigned char)(i * 3);
         have = sizes[k];
     }
     t_kv("realloc.grow_kept", kept);
