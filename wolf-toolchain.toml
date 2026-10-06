@@ -1,0 +1,19 @@
+# muzzle: the pinned toolchain.
+#
+# wolf comes from its RELEASE ARCHIVE, pinned by sha256 digest, never
+# from a source build. `tools/fetch-toolchain` downloads the archive for
+# this host, refuses on a digest mismatch, and stages it whole into
+# `.wolf-bin/` (gitignored). Identity is the first line of
+# `wolf --version`, checked against `version_line`.
+#
+# muzzle builds on x86_64-unknown-none (the freestanding target) from an
+# x86-64 Linux host; the archive's libwolf_rt.a is never linked
+# (README, design rule 1). lupin is not pinned: it has no C membrane,
+# no assembly and no freestanding target, so it can answer nothing here.
+
+[wolf]
+version = "0.2.24"
+repo = "wolffe-lang/wolf-lang"
+rev = "294d626dd596122285d5df954762e3aee3e5db71"
+version_line = "wolf 0.2.24 (wolfgang, pin 294d626)"
+x86_64-unknown-linux-gnu = "501d6d3f45124c84708b410dac62af5d358d24c1746323f17d42378b043519c7"
