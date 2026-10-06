@@ -87,72 +87,68 @@ fn map(len: uint) -> uint {
     r as uint
 }
 
-/// Make room for `total` more bytes at heap_cur. False when neither
-/// brk nor mmap gives it.
-fn grow(total: uint) -> bool {
-    let want = round_up(if total > GROW_MIN { total } else { GROW_MIN }, PAGE)
+/// `total` bytes from the heap, 16-aligned, or 0, growing the heap
+/// first when it is short: by brk(2) while the heap is the break's top,
+/// else (or when brk refuses) by a fresh mmap(2) chunk, leaving the old
+/// tail unused.
+///
+/// The heap state is loaded once into locals, and stored once at the
+/// end, and nothing called in between writes it. This shape is load
+/// bearing: wolf 0.2.24 forwards a module var's value across a call
+/// that writes it (wolf-lang#598), so a carve that called a separate
+/// grow and then re-read heap_cur got the stale 0 and the first malloc
+/// of every process failed.
+fn carve(total: uint) -> uint {
     var cur: uint = 0
     var end: uint = 0
     var top: uint = 0
     // # Safety: one thread; scalars only.
     unsafe {
-        if brk_end == 0 {
-            // The first break, rounded up to 16: the heap starts empty
-            // there, and every later brk asks for a goal at or above it.
-            brk_end = round_up(sys.raw(SYS_BRK, 0, 0, 0, 0, 0, 0) as uint, HDR)
-            heap_cur = brk_end
-            heap_end = brk_end
-        }
         cur = heap_cur
         end = heap_end
         top = brk_end
     }
-    if end == top {
-        // The heap is the brk heap's top: extend it in place.
-        let goal = round_up(cur + total, PAGE)
-        let goal2 = if goal - end < want { end + want } else { goal }
-        let got = sys.raw(SYS_BRK, goal2 as i64, 0, 0, 0, 0, 0) as uint
-        if got == goal2 {
-            // # Safety: one thread; scalars only.
-            unsafe {
-                brk_end = got
-                heap_end = got
-            }
-            return true
-        }
+    if top == 0 {
+        // The first break, rounded up to 16: the heap starts empty
+        // there, and every later brk asks for a goal at or above it.
+        top = round_up(sys.raw(SYS_BRK, 0, 0, 0, 0, 0, 0) as uint, HDR)
+        cur = top
+        end = top
     }
-    let m = map(want)
-    if m == 0 {
-        return false
-    }
-    // # Safety: one thread; scalars only. The old heap's tail is left
-    // unused.
-    unsafe {
-        heap_cur = m
-        heap_end = m + want
-    }
-    true
-}
-
-/// `total` bytes from the heap, 16-aligned, or 0.
-fn carve(total: uint) -> uint {
-    var cur: uint = 0
-    var end: uint = 0
-    // # Safety: one thread; scalars only.
-    unsafe {
-        cur = heap_cur
-        end = heap_end
-    }
+    var ok = true
     if end - cur < total {
-        if !grow(total) {
-            return 0
+        let want = round_up(if total > GROW_MIN { total } else { GROW_MIN }, PAGE)
+        var grown = false
+        if end == top {
+            let goal = round_up(cur + total, PAGE)
+            let goal2 = if goal - end < want { end + want } else { goal }
+            let got = sys.raw(SYS_BRK, goal2 as i64, 0, 0, 0, 0, 0) as uint
+            if got == goal2 {
+                top = got
+                end = got
+                grown = true
+            }
+        }
+        if !grown {
+            let m = map(want)
+            if m == 0 {
+                ok = false
+            } else {
+                cur = m
+                end = m + want
+            }
         }
     }
     var at: uint = 0
+    if ok {
+        at = cur
+        cur = cur + total
+    }
     // # Safety: one thread; scalars only.
     unsafe {
-        at = heap_cur
-        heap_cur = at + total
+        heap_cur = cur
+        heap_end = end
+        brk_end = top
     }
     at
 }
