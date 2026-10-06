@@ -1,0 +1,163 @@
+//! muzzle's kernel boundary: the one syscall routine (sys.S), the
+//! kernel's error convention, errno, and the trap hook.
+//!
+//! Sources: syscall(2) (the register table; a raw syscall returns
+//! -errno, in -4095..-1, on failure), C17 7.5 (errno), the uapi
+//! asm/unistd_64.h for the numbers, and wolf's spec
+//! `[abi.target.none.hooks]` for `wolf_trap`.
+
+extern "c" fn __muzzle_syscall6(n: i64, a1: i64, a2: i64, a3: i64, a4: i64, a5: i64, a6: i64) -> i64
+
+/// errno's int, reserved in sys.S. It should be a module `var` (ruling
+/// R4's single-threaded first cut), but a `var` has no address for
+/// `__errno_location` to return (wolf-lang#597).
+extern "c" let __muzzle_errno: *i32
+
+/// 32 bytes the trap hook formats a number into (sys.S).
+extern "c" let __muzzle_scratch: *u8
+
+const SYS_WRITE: i64 = 1
+
+const SYS_EXIT_GROUP: i64 = 231
+
+/// The status a wolf trap inside muzzle exits with: 128 + SIGABRT, what
+/// a shell reports for a C abort(), until muzzle has signals.
+const TRAP_STATUS: i32 = 134
+
+/// "muzzle: " for put_text.
+const TEXT_MUZZLE: u64 = 2322280074448631149
+
+/// "trap " for put_text.
+const TEXT_TRAP: u64 = 139324387956
+
+/// " at " for put_text.
+const TEXT_AT: u64 = 544497952
+
+/// ":" for put_text.
+const TEXT_COLON: u64 = 58
+
+/// A newline for put_text.
+const TEXT_NL: u64 = 10
+
+/// One system call, six arguments, the kernel's raw answer.
+pub fn raw(n: i64, a1: i64, a2: i64, a3: i64, a4: i64, a5: i64, a6: i64) -> i64 {
+    var r: i64 = 0
+    // # Safety: sys.S's routine moves the arguments into the kernel's
+    // registers and returns rax; it touches no wolf memory. What the
+    // call does with memory is the caller's contract with the kernel.
+    unsafe {
+        r = __muzzle_syscall6(n, a1, a2, a3, a4, a5, a6)
+    }
+    r
+}
+
+/// The kernel's error convention: -4095..-1 is -errno. Sets errno and
+/// answers -1 for those; passes every other value through.
+pub fn ret(r: i64) -> i64 {
+    if r < 0 && r > -4096 {
+        set_errno((0 - r) as i32)
+        return -1
+    }
+    r
+}
+
+/// True when `r` is a raw kernel answer in the error range.
+pub fn failed(r: i64) -> bool {
+    r < 0 && r > -4096
+}
+
+/// Sets errno to e.
+pub fn set_errno(e: i32) {
+    // # Safety: one thread (R4's first cut); __muzzle_errno is sys.S's
+    // 4-byte, 16-aligned int.
+    unsafe {
+        __muzzle_errno[0] = e
+    }
+}
+
+/// Ends the process: exit_group(2), every thread, `status & 0xff`.
+pub fn exit_group(status: i32) {
+    let r = raw(SYS_EXIT_GROUP, status as i64, 0, 0, 0, 0, 0)
+}
+
+/// C17 7.5: `errno` is `(*__errno_location())`.
+export fn __errno_location() -> *i32 {
+    __muzzle_errno
+}
+
+fn put(p: *u8, n: i64) {
+    var at: i64 = 0
+    // # Safety: reads p's address only; the kernel reads the bytes.
+    unsafe {
+        at = p.addr() as wrapping[i64] as i64
+    }
+    let r = raw(SYS_WRITE, 2, at, n, 0, 0, 0)
+}
+
+/// Writes the ASCII text packed into w, low byte first, up to its
+/// first zero byte (at most 8). The hook's fixed text is spelled this
+/// way because a `str` literal has no address to hand the kernel on
+/// the freestanding target (its bytes are a runtime `List`).
+fn put_text(w: u64) {
+    var v = w
+    var k = 0
+    // # Safety: k < 8, inside the 32-byte scratch buffer (sys.S).
+    unsafe {
+        while v != 0 {
+            __muzzle_scratch[k] = (v % 256) as u8
+            v = v / 256
+            k += 1
+        }
+    }
+    put(__muzzle_scratch, k as i64)
+}
+
+fn put_number(v: i64) {
+    var u = if v < 0 { 0 - v } else { v }
+    var at = 31
+    // # Safety: at stays in 0..31, inside the 32-byte scratch buffer;
+    // an i64's digits and sign need at most 20.
+    unsafe {
+        __muzzle_scratch[at] = 48 + (u % 10) as u8
+        u = u / 10
+        while u > 0 {
+            at -= 1
+            __muzzle_scratch[at] = 48 + (u % 10) as u8
+            u = u / 10
+        }
+        if v < 0 {
+            at -= 1
+            __muzzle_scratch[at] = 45
+        }
+    }
+    var from = __muzzle_scratch
+    // # Safety: at is in 0..31, so from stays inside the scratch buffer.
+    unsafe {
+        from = __muzzle_scratch.with_addr(__muzzle_scratch.addr() + at as uint)
+    }
+    put(from, (32 - at) as i64)
+}
+
+/// The trap hook ([abi.target.none.hooks]): a wolf trap inside muzzle
+/// (an overflow, a bounds check) writes one line to fd 2 and ends the
+/// process with 134. It must not return.
+export fn wolf_trap(kind: i32, file: *u8, file_len: i64, line: i64, col: i64) {
+    put_text(TEXT_MUZZLE)
+    put_text(TEXT_TRAP)
+    put_number(kind as i64)
+    if file_len > 0 {
+        put_text(TEXT_AT)
+        put(file, file_len)
+        put_text(TEXT_COLON)
+        put_number(line)
+    }
+    put_text(TEXT_NL)
+    exit_group(TRAP_STATUS)
+}
+
+/// True. The package root calls it so the build reaches this module:
+/// a module only C calls into is otherwise never compiled, and an
+/// import nothing uses is E0305 (wolf-lang#599).
+pub fn linked() -> bool {
+    true
+}
