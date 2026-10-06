@@ -1,0 +1,80 @@
+// q7: a bool from a fn whose `return true` sits inside an `if`, read by
+// the caller through `!` in an `if` with an early return.
+var state: uint = 0
+
+fn grow_like(total: uint) -> bool {
+    var top: uint = 0
+    // # Safety: probe; one thread.
+    unsafe {
+        if state == 0 {
+            state = 4096
+        }
+        top = state
+    }
+    if top == 4096 {
+        // # Safety: probe; one thread.
+        unsafe {
+            state = top + total
+        }
+        return true
+    }
+    false
+}
+
+fn carve_not(total: uint) -> uint {
+    if !grow_like(total) {
+        return 0
+    }
+    7
+}
+
+fn carve_let(total: uint) -> uint {
+    let g = grow_like(total)
+    if !g {
+        return 0
+    }
+    7
+}
+
+fn carve_eq(total: uint) -> uint {
+    if grow_like(total) == false {
+        return 0
+    }
+    7
+}
+
+fn plain_true(total: uint) -> bool {
+    if total > 0 {
+        return true
+    }
+    false
+}
+
+fn carve_plain(total: uint) -> uint {
+    if !plain_true(total) {
+        return 0
+    }
+    7
+}
+
+/// k selects the variant; state is reset first. Every answer wants 7.
+export fn q7(k: i32) -> i64 {
+    // # Safety: probe; one thread.
+    unsafe {
+        state = 0
+    }
+    var r: uint = 0
+    if k == 0 {
+        r = carve_not(32)
+    } else if k == 1 {
+        r = carve_let(32)
+    } else if k == 2 {
+        r = carve_eq(32)
+    } else {
+        r = carve_plain(32)
+    }
+    r as i64
+}
+
+export fn wolf_trap(kind: i32, file: *u8, file_len: i64, line: i64, col: i64) {
+}

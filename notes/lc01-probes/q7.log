@@ -1,0 +1,12 @@
+== q7 tier=native
+if !f(x) {return}              -> 7 (want 7)
+let g = f(x); if !g            -> 7 (want 7)
+if f(x) == false               -> 7 (want 7)
+if !plain(x), no unsafe/var    -> 7 (want 7)
+run=0
+== q7 tier=--release
+if !f(x) {return}              -> 7 (want 7)
+let g = f(x); if !g            -> 7 (want 7)
+if f(x) == false               -> 7 (want 7)
+if !plain(x), no unsafe/var    -> 7 (want 7)
+run=0
