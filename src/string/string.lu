@@ -27,7 +27,7 @@ pub export fn memmove(d: *u8, s: *u8, n: uint) -> *u8 {
     unsafe {
         if d.addr() < s.addr() {
             var i: uint = 0
-            while i < n {
+            while i + 1 < n {
                 d[i as int] = s[i as int]
                 i += 1
             }
