@@ -1,0 +1,181 @@
+//! <string.h>, the memory and string core: C17 7.24.2.1 memcpy,
+//! 7.24.2.2 memmove, 7.24.6.1 memset, 7.24.4.1 memcmp, 7.24.6.3 strlen,
+//! 7.24.4.2 strcmp, 7.24.4.4 strncmp, 7.24.5.2 strchr, 7.24.2.3 strcpy.
+//!
+//! Every comparison reads bytes as unsigned char (C17 7.24.1p3). Byte
+//! loops throughout: correctness first; word-at-a-time is a later lane.
+//! A pointer C hands in is C's promise that its bytes are there
+//! (the functions' preconditions); each `unsafe` block rests on it.
+
+/// C17 7.24.2.1: copies n bytes from s to d; the objects do not overlap.
+pub export fn memcpy(d: *u8, s: *u8, n: uint) -> *u8 {
+    var i: uint = 0
+    // # Safety: C's precondition: d and s each address n bytes.
+    unsafe {
+        while i < n {
+            d[i as int] = s[i as int]
+            i += 1
+        }
+    }
+    d
+}
+
+/// C17 7.24.2.2: copies n bytes from s to d as if through a temporary,
+/// so the objects may overlap: forward when d is below s, else backward.
+pub export fn memmove(d: *u8, s: *u8, n: uint) -> *u8 {
+    // # Safety: C's precondition: d and s each address n bytes.
+    unsafe {
+        if d.addr() < s.addr() {
+            var i: uint = 0
+            while i < n {
+                d[i as int] = s[i as int]
+                i += 1
+            }
+        } else {
+            var i: uint = n
+            while i > 0 {
+                i -= 1
+                d[i as int] = s[i as int]
+            }
+        }
+    }
+    d
+}
+
+/// C17 7.24.6.1: c converted to unsigned char into each of n bytes.
+pub export fn memset(d: *u8, c: i32, n: uint) -> *u8 {
+    let b = c as wrapping[u8] as u8
+    var i: uint = 0
+    // # Safety: C's precondition: d addresses n bytes.
+    unsafe {
+        while i < n {
+            d[i as int] = b
+            i += 1
+        }
+    }
+    d
+}
+
+/// C17 7.24.4.1: the sign of the first differing byte pair.
+export fn memcmp(a: *u8, b: *u8, n: uint) -> i32 {
+    var i: uint = 0
+    // # Safety: C's precondition: a and b each address n bytes.
+    unsafe {
+        while i < n {
+            let x = a[i as int]
+            let y = b[i as int]
+            if x != y {
+                return x as i32 - y as i32
+            }
+            i += 1
+        }
+    }
+    0
+}
+
+/// C17 7.24.6.3: the bytes before the terminating null.
+export fn strlen(s: *u8) -> uint {
+    var n: uint = 0
+    // # Safety: C's precondition: s is a string, null-terminated.
+    unsafe {
+        while s[n as int] != 0 {
+            n += 1
+        }
+    }
+    n
+}
+
+/// C17 7.24.4.2.
+export fn strcmp(a: *u8, b: *u8) -> i32 {
+    var i: uint = 0
+    var r: i32 = 0
+    var going = true
+    // # Safety: C's precondition: a and b are strings; the loop stops at
+    // the first difference or at a's null, which is then b's too.
+    unsafe {
+        while going {
+            let x = a[i as int]
+            let y = b[i as int]
+            if x != y || x == 0 {
+                r = x as i32 - y as i32
+                going = false
+            } else {
+                i += 1
+            }
+        }
+    }
+    r
+}
+
+/// C17 7.24.4.4: at most n bytes; nothing after a null is compared.
+export fn strncmp(a: *u8, b: *u8, n: uint) -> i32 {
+    var i: uint = 0
+    // # Safety: C's precondition: a and b are arrays of at least n bytes
+    // or strings; the loop stops at n, a difference, or a's null.
+    unsafe {
+        while i < n {
+            let x = a[i as int]
+            let y = b[i as int]
+            if x != y || x == 0 {
+                return x as i32 - y as i32
+            }
+            i += 1
+        }
+    }
+    0
+}
+
+/// C17 7.24.5.2: the first c (converted to char) in s, the terminating
+/// null included; a null pointer when there is none.
+export fn strchr(s: *u8, c: i32) -> *u8 {
+    let ch = c as wrapping[u8] as u8
+    var i: uint = 0
+    var found = false
+    var going = true
+    // # Safety: C's precondition: s is a string; the loop stops at its
+    // null, and the answer points into it or is null.
+    unsafe {
+        while going {
+            let x = s[i as int]
+            if x == ch {
+                found = true
+                going = false
+            } else if x == 0 {
+                going = false
+            } else {
+                i += 1
+            }
+        }
+        if found {
+            s.with_addr(s.addr() + i)
+        } else {
+            0 as *u8
+        }
+    }
+}
+
+/// C17 7.24.2.3: copies s, its null included, into d; answers d.
+export fn strcpy(d: *u8, s: *u8) -> *u8 {
+    var i: uint = 0
+    var going = true
+    // # Safety: C's precondition: s is a string and d has room for it.
+    unsafe {
+        while going {
+            let x = s[i as int]
+            d[i as int] = x
+            if x == 0 {
+                going = false
+            } else {
+                i += 1
+            }
+        }
+    }
+    d
+}
+
+/// True. The package root calls it so the build reaches this module:
+/// a module only C calls into is otherwise never compiled, and an
+/// import nothing uses is E0305 (wolf-lang#599).
+pub fn linked() -> bool {
+    true
+}
