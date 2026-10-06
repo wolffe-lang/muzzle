@@ -1,0 +1,10 @@
+// muzzle, the wolf C library. Built for x86_64-unknown-none and linked
+// by C programs with clang -nostdlib (tools/build). sys.S is the one
+// listed assembly: the syscall routine and the static storage wolf
+// cannot hold yet ([abi.asm.link]). crt0.S is not listed: wolf never
+// calls _start; the C program's link takes crt0.o first.
+pkg {
+    name: "muzzle"
+    version: "0.0.1"
+    asm: ["sys.S"]
+}
