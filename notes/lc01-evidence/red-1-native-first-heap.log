@@ -1,0 +1,35 @@
+difftest: tier=native glibc=glibc 2.44 clang version 23.1.1
+PASS errno exit=0 lines=10
+PASS exit exit=42 lines=1
+PASS exit_c17 exit=250 lines=1
+PASS exit_posix exit=3 lines=1
+PASS main_return exit=7 lines=1
+tools/difftest: line 18: 1996399 Segmentation fault         timeout 20 "$out/$n.muzzle" > "$out/$n.muzzle.out" 2> "$out/$n.muzzle.err"
+FAIL malloc: exit glibc=0 muzzle=139
+FAIL malloc: stdout differs
+--- malloc (glibc)
++++ malloc (muzzle native)
+@@ -1,20 +1,2 @@
+-malloc0.nonnull=1
++malloc0.nonnull=0
+ free.null=1
+-malloc.aligned=1
+-malloc.intact=1
+-malloc.reuse_intact=1
+-calloc.nonnull=1
+-calloc.zero=1
+-calloc.large_zero=1
+-calloc.overflow_null=1
+-calloc.overflow_errno_is_ENOMEM=1
+-malloc.huge_null=1
+-malloc.huge_errno_is_ENOMEM=1
+-malloc.max_null=1
+-malloc.max_errno_is_ENOMEM=1
+-realloc.null_nonnull=1
+-realloc.grow_kept=0
+note malloc: muzzle stderr:
+timeout: the monitored command dumped core
+PASS mem exit=0 lines=38
+PASS str exit=0 lines=29
+PASS write exit=0 lines=9
+difftest: tier=native pass=8 fail=1
