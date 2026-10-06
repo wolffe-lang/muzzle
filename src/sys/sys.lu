@@ -96,8 +96,9 @@ fn put(p: *u8, n: i64) {
 
 /// Writes the ASCII text packed into w, low byte first, up to its
 /// first zero byte (at most 8). The hook's fixed text is spelled this
-/// way because a `str` literal has no address to hand the kernel on
-/// the freestanding target (its bytes are a runtime `List`).
+/// way because a `str` literal's bytes cannot be reached as a `*u8`
+/// (wolf-lang#604; on the freestanding target `bytes()` is a runtime
+/// `List`).
 fn put_text(w: u64) {
     var v = w
     var k = 0
