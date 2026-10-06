@@ -1,0 +1,29 @@
+head fed35494b4bd52d526dd06e4a71d6ffe106a4823
+wolf wolf 0.2.24 (wolfgang, pin 294d626)
+lupin lupin 0.1.47 (wolf-interp, reference interpreter at pin 8e36bc1)
+fetch-toolchain: wolf-0.2.24-x86_64-unknown-linux-gnu.tar.gz 501d6d3f45124c84… -> /home/mfwolffe/lanes/lc01/muzzle/.wolf-bin/wolf-0.2.24-x86_64-unknown-linux-gnu/wolf
+build: native: 6 objects, 19 exports defined, 19 internal references, 0 imports -> /home/mfwolffe/lanes/lc01/muzzle/build/native/libmuzzle.a
+difftest: tier=native glibc=glibc 2.44 clang version 23.1.1
+PASS errno exit=0 lines=10
+PASS exit exit=42 lines=1
+PASS exit_c17 exit=250 lines=1
+PASS exit_posix exit=3 lines=1
+PASS main_return exit=7 lines=1
+PASS malloc exit=0 lines=20
+PASS mem exit=0 lines=38
+PASS str exit=0 lines=29
+PASS write exit=0 lines=9
+difftest: tier=native pass=9 fail=0
+build: release: 4 objects, 19 exports defined, 5 internal references, 0 imports -> /home/mfwolffe/lanes/lc01/muzzle/build/release/libmuzzle.a
+difftest: tier=release glibc=glibc 2.44 clang version 23.1.1
+PASS errno exit=0 lines=10
+PASS exit exit=42 lines=1
+PASS exit_c17 exit=250 lines=1
+PASS exit_posix exit=3 lines=1
+PASS main_return exit=7 lines=1
+PASS malloc exit=0 lines=20
+PASS mem exit=0 lines=38
+PASS str exit=0 lines=29
+PASS write exit=0 lines=9
+difftest: tier=release pass=9 fail=0
+STATUS fetch=0 build.native=0 difftest.native=0 build.release=0 difftest.release=0
