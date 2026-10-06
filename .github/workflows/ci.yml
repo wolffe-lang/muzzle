@@ -1,0 +1,59 @@
+# muzzle CI: build the library on both compiling tiers and run the glibc
+# differential (tools/difftest) against each, on ubuntu x86-64.
+#
+# The toolchain is the pinned wolf release archive, by digest
+# (tools/fetch-toolchain refuses on a mismatch); nothing is built from
+# source. The reference column is the runner's own glibc, a black box,
+# its version printed in the log. Every step runs bare and its exit
+# status is read directly: no pipes, so nothing can mask a failure.
+
+name: ci
+
+on:
+  push:
+    branches: [trunk]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  difftest:
+    strategy:
+      fail-fast: false
+      matrix:
+        tier: [native, release]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: host
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v clang || { sudo apt-get update -qq && sudo apt-get install -y -qq clang; }
+          clang --version
+          getconf GNU_LIBC_VERSION
+          uname -srm
+
+      - name: the pinned wolf, by digest
+        shell: bash
+        run: tools/fetch-toolchain
+
+      - name: build (${{ matrix.tier }})
+        shell: bash
+        run: tools/build ${{ matrix.tier }}
+
+      - name: difftest (${{ matrix.tier }})
+        shell: bash
+        run: tools/difftest ${{ matrix.tier }}
+
+      - name: keep the outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: difftest-${{ matrix.tier }}
+          path: out/${{ matrix.tier }}
+          if-no-files-found: ignore
