@@ -1,0 +1,16 @@
+//! muzzle, the wolf C library: the package root. Each module is one
+//! layer of the library and its exports are C symbols under their own
+//! names ([abi.c.export]); this file only gathers them.
+
+use sys
+use string
+use heap
+use process
+
+/// Reaches every module. A library's modules are called by C, never by
+/// wolf, and wolf 0.2.24 compiles only the modules the root's code uses:
+/// without an import a module's exports are missing from the object,
+/// and an import nothing uses is E0305 (wolf-lang#599). Never called.
+fn reach() -> bool {
+    sys.linked() && string.linked() && heap.linked() && process.linked()
+}
