@@ -58,7 +58,7 @@ int main(void) {
     memset(buf, 7, sizeof buf);
     t_kv("memset.ret", memset(buf + 3, 0x1ff, 10) == buf + 3);
     memset(buf + 20, -2, 5);
-    memset(buf + 40, 'x', 0);
+    memset(buf + 40, 'x', (0)); /* n = 0, parenthesized for -Wmemset-transposed-args */
     t_kv("memset.b2", buf[2]);
     t_kv("memset.b3", buf[3]);
     t_kv("memset.b12", buf[12]);
