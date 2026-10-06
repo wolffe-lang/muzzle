@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# Build muzzle on one compiling tier into build/<tier>/:
+#   libmuzzle.a  the wolf object and sys.S's object
+#   crt0.o       _start, linked first by the C program
+# then gate the archive: every export is defined, and the wolf object
+# imports nothing but sys.S's symbols and the trap hook.
+#   tools/build native|release
+set -euo pipefail
+tier=${1:?usage: tools/build native|release}
+root=$(cd "$(dirname "$0")/.." && pwd)
+W=${WOLF:-$(ls "$root"/.wolf-bin/wolf-*/wolf 2>/dev/null | head -1)}
+[ -x "$W" ] || { echo "build: no wolf driver (run tools/fetch-toolchain, or set WOLF)" >&2; exit 2; }
+case $tier in native) fl=();; release) fl=(--release);; *) echo "build: tier '$tier'" >&2; exit 2;; esac
+out="$root/build/$tier"
+rm -rf "$out"; mkdir -p "$out"
+cd "$root/src"
+"$W" build muzzle.lu --target x86_64-unknown-none --emit=obj --deny-warnings "${fl[@]}" -o "$out/muzzle.o"
+clang -c crt0.S -o "$out/crt0.o"
+objs=("$out"/muzzle*.o)
+ar rcs "$out/libmuzzle.a" "${objs[@]}"
+
+# The gate. EXPORTS is the C surface this layer promises.
+EXPORTS="memcpy memmove memset memcmp strlen strcmp strncmp strchr strcpy
+malloc free calloc realloc exit _Exit _exit write __errno_location wolf_trap"
+ALLOWED_U="__muzzle_syscall6 __muzzle_errno __muzzle_bins __muzzle_scratch wolf_trap"
+defined=$(nm --defined-only -g "$out/libmuzzle.a" | awk 'NF==3 && $2 ~ /[TDBR]/ {print $3}' | sort -u)
+fail=0
+for e in $EXPORTS; do
+  grep -qx "$e" <<<"$defined" || { echo "build: $tier: export '$e' is not defined" >&2; fail=1; }
+done
+for u in $(nm -u "$out/muzzle.o" | awk '{print $2}' | sort -u); do
+  case " $ALLOWED_U " in *" $u "*) ;; *) echo "build: $tier: muzzle.o imports '$u'" >&2; fail=1;; esac
+done
+[ "$fail" = 0 ] || exit 1
+echo "build: $tier: $(wc -w <<<"$EXPORTS") exports defined, imports clean -> $out/libmuzzle.a"
