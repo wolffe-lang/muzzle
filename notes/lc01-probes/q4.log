@@ -1,0 +1,16 @@
+== q4 tier=native
+build=1
+0000000000000013 T q_errno_get
+0000000000000000 T q_errno_loc
+0000000000000000 D _Werrno_v.s23fa9a3cc4c9cd7
+0000000000000037 T wolf_trap
+q_errno_loc=0x4d q_errno_get=77
+run=0
+== q4 tier=--release
+build=1
+0000000000000010 T q_errno_get
+0000000000000000 T q_errno_loc
+0000000000000000 D _Werrno_v.s23fa9a3cc4c9cd7
+0000000000000020 T wolf_trap
+q_errno_loc=0x4d q_errno_get=77
+run=0

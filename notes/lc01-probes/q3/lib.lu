@@ -1,0 +1,21 @@
+export fn memcpy(d: *u8, s: *u8, n: uint) -> *u8 {
+    var i: uint = 0
+    unsafe {
+        while i < n {
+            d[i as int] = s[i as int]
+            i += 1
+        }
+    }
+    d
+}
+export fn memset(d: *u8, c: i32, n: uint) -> *u8 {
+    var i: uint = 0
+    let b = c as wrapping[u8] as u8
+    unsafe {
+        while i < n {
+            d[i as int] = b
+            i += 1
+        }
+    }
+    d
+}

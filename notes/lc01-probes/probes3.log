@@ -1,0 +1,123 @@
+== q2 (native)
+$ /home/mfwolffe/lanes/lc01/dist/wolf/wolf-0.2.24-x86_64-unknown-linux-gnu/wolf build lib.lu --target x86_64-unknown-none --emit=obj -o lib.o
+warning[W1301]: this `unsafe` block does not state its invariant
+ --> ./lib.lu:6:5
+  |
+6 |     unsafe {
+  |     ^^^^^^ add a `# Safety:` comment
+  |
+  = note: the block discharges a proof obligation the checker cannot; write the invariant down for
+    the auditors who will read this ring (`// # Safety: …` above the block).
+
+warning[W1301]: this `unsafe` block does not state its invariant
+  --> ./lib.lu:13:5
+   |
+13 |     unsafe {
+   |     ^^^^^^ add a `# Safety:` comment
+   |
+
+warning[W1301]: this `unsafe` block does not state its invariant
+  --> ./lib.lu:24:5
+   |
+24 |     unsafe {
+   |     ^^^^^^ add a `# Safety:` comment
+   |
+
+warning[W1301]: this `unsafe` block does not state its invariant
+  --> ./lib.lu:35:5
+   |
+35 |     unsafe {
+   |     ^^^^^^ add a `# Safety:` comment
+   |
+
+warning[W1301]: this `unsafe` block does not state its invariant
+  --> ./lib.lu:43:5
+   |
+43 |     unsafe {
+   |     ^^^^^^ add a `# Safety:` comment
+   |
+
+exit=0
+lib.asm-sys.o
+lib.o
+-- nm lib.o
+0000000000000216 T __errno_value
+00000000000001c8 T _exit
+00000000000001fd T exit
+                 U q_syscall3
+0000000000000240 T strlen
+0000000000000000 B _Werrno_v.s23fa9a3cc4c9cd7
+0000000000000000 T wolf_trap
+0000000000000080 T write
+0000000000000000 r _W.site.1
+$ clang -c crt0.S -o crt0.o
+exit=0
+$ clang -c main.c -O1 -ffreestanding -fno-builtin -fno-stack-protector -o main.o
+exit=0
+$ clang -nostdlib -static -o q2 crt0.o main.o lib.o lib.asm-sys.o
+exit=0
+$ ./q2
+q2 hello
+errno=9
+exit=7
+== q2 (release)
+$ /home/mfwolffe/lanes/lc01/dist/wolf/wolf-0.2.24-x86_64-unknown-linux-gnu/wolf build lib.lu --target x86_64-unknown-none --emit=obj --release -o lib.o
+warning[W1301]: this `unsafe` block does not state its invariant
+ --> ./lib.lu:6:5
+  |
+6 |     unsafe {
+  |     ^^^^^^ add a `# Safety:` comment
+  |
+  = note: the block discharges a proof obligation the checker cannot; write the invariant down for
+    the auditors who will read this ring (`// # Safety: …` above the block).
+
+warning[W1301]: this `unsafe` block does not state its invariant
+  --> ./lib.lu:13:5
+   |
+13 |     unsafe {
+   |     ^^^^^^ add a `# Safety:` comment
+   |
+
+warning[W1301]: this `unsafe` block does not state its invariant
+  --> ./lib.lu:24:5
+   |
+24 |     unsafe {
+   |     ^^^^^^ add a `# Safety:` comment
+   |
+
+warning[W1301]: this `unsafe` block does not state its invariant
+  --> ./lib.lu:35:5
+   |
+35 |     unsafe {
+   |     ^^^^^^ add a `# Safety:` comment
+   |
+
+warning[W1301]: this `unsafe` block does not state its invariant
+  --> ./lib.lu:43:5
+   |
+43 |     unsafe {
+   |     ^^^^^^ add a `# Safety:` comment
+   |
+
+exit=0
+lib.asm-sys.o
+lib.o
+-- nm lib.o
+00000000000000c0 T __errno_value
+0000000000000080 T _exit
+00000000000000a0 T exit
+                 U q_syscall3
+00000000000000d0 T strlen
+0000000000000000 B _Werrno_v.s23fa9a3cc4c9cd7
+0000000000000000 T wolf_trap
+0000000000000020 T write
+$ clang -c crt0.S -o crt0.o
+exit=0
+$ clang -c main.c -O1 -ffreestanding -fno-builtin -fno-stack-protector -o main.o
+exit=0
+$ clang -nostdlib -static -o q2 crt0.o main.o lib.o lib.asm-sys.o
+exit=0
+$ ./q2
+q2 hello
+errno=9
+exit=7

@@ -1,0 +1,182 @@
+== q2 (native)
+$ /home/mfwolffe/lanes/lc01/dist/wolf/wolf-0.2.24-x86_64-unknown-linux-gnu/wolf build lib.lu --target x86_64-unknown-none --emit=obj -o lib.o
+warning[W1301]: this `unsafe` block does not state its invariant
+ --> ./lib.lu:6:5
+  |
+6 |     unsafe {
+  |     ^^^^^^ add a `# Safety:` comment
+  |
+  = note: the block discharges a proof obligation the checker cannot; write the invariant down for
+    the auditors who will read this ring (`// # Safety: …` above the block).
+
+warning[W1301]: this `unsafe` block does not state its invariant
+  --> ./lib.lu:13:5
+   |
+13 |     unsafe {
+   |     ^^^^^^ add a `# Safety:` comment
+   |
+
+warning[W1301]: this `unsafe` block does not state its invariant
+  --> ./lib.lu:24:5
+   |
+24 |     unsafe {
+   |     ^^^^^^ add a `# Safety:` comment
+   |
+
+warning[W1301]: this `unsafe` block does not state its invariant
+  --> ./lib.lu:35:5
+   |
+35 |     unsafe {
+   |     ^^^^^^ add a `# Safety:` comment
+   |
+
+warning[W1301]: this `unsafe` block does not state its invariant
+  --> ./lib.lu:43:5
+   |
+43 |     unsafe {
+   |     ^^^^^^ add a `# Safety:` comment
+   |
+
+exit=0
+lib.asm-sys.o
+lib.o
+-- nm lib.o
+0000000000000216 T __errno_value
+00000000000001c8 T _exit
+00000000000001fd T exit
+                 U q_syscall3
+0000000000000240 T strlen
+0000000000000000 B _Werrno_v.s23fa9a3cc4c9cd7
+0000000000000000 T wolf_trap
+0000000000000080 T write
+0000000000000000 r _W.site.1
+$ clang -c crt0.S -o crt0.o
+exit=0
+$ clang -c main.c -O1 -ffreestanding -fno-builtin -o main.o
+exit=0
+$ clang -nostdlib -static -o q2 crt0.o main.o lib.o lib.asm-sys.o
+/usr/bin/ld: main.o: in function `main':
+main.c:(.text+0xab): undefined reference to `__stack_chk_fail'
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+exit=1
+$ ./q2
+/home/mfwolffe/lanes/lc01/probes/run2.sh: line 4: ./q2: No such file or directory
+exit=127
+== q3 (native): disassembly of memcpy/memset, any call or jmp to a symbol
+  76:	jmp    22 <memcpy+0x22>
+			83: R_X86_64_GOTPCREL	_W.site.0-0x4
+			9a: R_X86_64_GOTPCREL	wolf_trap-0x4
+  9e:	call   *%rax
+			aa: R_X86_64_GOTPCREL	_W.site.0-0x4
+			c1: R_X86_64_GOTPCREL	wolf_trap-0x4
+  c5:	call   *%rax
+			d1: R_X86_64_GOTPCREL	_W.site.0-0x4
+			e8: R_X86_64_GOTPCREL	wolf_trap-0x4
+  ec:	call   *%rax
+ 161:	jmp    121 <memset+0x29>
+			16e: R_X86_64_GOTPCREL	_W.site.0-0x4
+			185: R_X86_64_GOTPCREL	wolf_trap-0x4
+ 189:	call   *%rax
+			195: R_X86_64_GOTPCREL	_W.site.0-0x4
+			1ac: R_X86_64_GOTPCREL	wolf_trap-0x4
+ 1b0:	call   *%rax
+== q4 (native): what 'errno_v as *i32' yields (hosted C caller)
+$ /home/mfwolffe/lanes/lc01/dist/wolf/wolf-0.2.24-x86_64-unknown-linux-gnu/wolf build lib.lu --target x86_64-unknown-none --emit=obj -o lib.o
+error[E1301]: a pointer cast needs an `unsafe` block
+ --> ./lib.lu:4:19
+  |
+4 |     var p: *i32 = 0 as *i32
+  |                   ^^^^^^^^^ raw-tier operation in safe code
+  |
+  = note: raw pointers are inert data anywhere — only the tier's operations need the ring. Wrap
+    this in `unsafe { }` and state the invariant in a `# Safety:` comment; the rules inside
+    are simpler than the safe tier's, not stricter.
+
+wolf build: the package does not compile; fix the errors above (`wolf --explain E1301` explains this code, or any other, by name)
+exit=2
+nm: 'lib.o': No such file
+== q2 (release)
+$ /home/mfwolffe/lanes/lc01/dist/wolf/wolf-0.2.24-x86_64-unknown-linux-gnu/wolf build lib.lu --target x86_64-unknown-none --emit=obj --release -o lib.o
+warning[W1301]: this `unsafe` block does not state its invariant
+ --> ./lib.lu:6:5
+  |
+6 |     unsafe {
+  |     ^^^^^^ add a `# Safety:` comment
+  |
+  = note: the block discharges a proof obligation the checker cannot; write the invariant down for
+    the auditors who will read this ring (`// # Safety: …` above the block).
+
+warning[W1301]: this `unsafe` block does not state its invariant
+  --> ./lib.lu:13:5
+   |
+13 |     unsafe {
+   |     ^^^^^^ add a `# Safety:` comment
+   |
+
+warning[W1301]: this `unsafe` block does not state its invariant
+  --> ./lib.lu:24:5
+   |
+24 |     unsafe {
+   |     ^^^^^^ add a `# Safety:` comment
+   |
+
+warning[W1301]: this `unsafe` block does not state its invariant
+  --> ./lib.lu:35:5
+   |
+35 |     unsafe {
+   |     ^^^^^^ add a `# Safety:` comment
+   |
+
+warning[W1301]: this `unsafe` block does not state its invariant
+  --> ./lib.lu:43:5
+   |
+43 |     unsafe {
+   |     ^^^^^^ add a `# Safety:` comment
+   |
+
+exit=0
+lib.asm-sys.o
+lib.o
+-- nm lib.o
+00000000000000c0 T __errno_value
+0000000000000080 T _exit
+00000000000000a0 T exit
+                 U q_syscall3
+00000000000000d0 T strlen
+0000000000000000 B _Werrno_v.s23fa9a3cc4c9cd7
+0000000000000000 T wolf_trap
+0000000000000020 T write
+$ clang -c crt0.S -o crt0.o
+exit=0
+$ clang -c main.c -O1 -ffreestanding -fno-builtin -o main.o
+exit=0
+$ clang -nostdlib -static -o q2 crt0.o main.o lib.o lib.asm-sys.o
+/usr/bin/ld: main.o: in function `main':
+main.c:(.text+0xab): undefined reference to `__stack_chk_fail'
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+exit=1
+$ ./q2
+/home/mfwolffe/lanes/lc01/probes/run2.sh: line 4: ./q2: No such file or directory
+exit=127
+== q3 (release): disassembly of memcpy/memset, any call or jmp to a symbol
+			32: R_X86_64_PC32	.L_W.site.0-0x4
+  4b:	call   50 <memcpy+0x50>
+			4c: R_X86_64_PLT32	wolf_trap-0x4
+			8f: R_X86_64_PC32	.L_W.site.0-0x4
+  a8:	call   ad <memset+0x4d>
+			a9: R_X86_64_PLT32	wolf_trap-0x4
+== q4 (release): what 'errno_v as *i32' yields (hosted C caller)
+$ /home/mfwolffe/lanes/lc01/dist/wolf/wolf-0.2.24-x86_64-unknown-linux-gnu/wolf build lib.lu --target x86_64-unknown-none --emit=obj --release -o lib.o
+error[E1301]: a pointer cast needs an `unsafe` block
+ --> ./lib.lu:4:19
+  |
+4 |     var p: *i32 = 0 as *i32
+  |                   ^^^^^^^^^ raw-tier operation in safe code
+  |
+  = note: raw pointers are inert data anywhere — only the tier's operations need the ring. Wrap
+    this in `unsafe { }` and state the invariant in a `# Safety:` comment; the rules inside
+    are simpler than the safe tier's, not stricter.
+
+wolf build: the package does not compile; fix the errors above (`wolf --explain E1301` explains this code, or any other, by name)
+exit=2
+nm: 'lib.o': No such file

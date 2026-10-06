@@ -1,0 +1,49 @@
+extern "c" fn q_syscall3(n: i64, a: i64, b: i64, c: i64) -> i64
+
+var errno_v: i32 = 0
+
+export fn wolf_trap(kind: i32, file: *u8, file_len: i64, line: i64, col: i64) {
+    unsafe {
+        let r = q_syscall3(231, 100 + kind as i64, 0, 0)
+    }
+}
+
+export fn write(fd: i32, buf: *u8, n: uint) -> i64 {
+    var r: i64 = 0
+    unsafe {
+        r = q_syscall3(1, fd as i64, buf.addr() as i64, n as i64)
+        if r < 0 {
+            errno_v = (0 - r) as i32
+            r = -1
+        }
+    }
+    r
+}
+
+export fn _exit(status: i32) {
+    unsafe {
+        let r = q_syscall3(231, status as i64, 0, 0)
+    }
+}
+
+export fn exit(status: i32) {
+    _exit(status)
+}
+
+export fn __errno_value() -> i32 {
+    var e: i32 = 0
+    unsafe {
+        e = errno_v
+    }
+    e
+}
+
+export fn strlen(s: *u8) -> uint {
+    var n: uint = 0
+    unsafe {
+        while s[n as int] != 0 {
+            n += 1
+        }
+    }
+    n
+}

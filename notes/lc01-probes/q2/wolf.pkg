@@ -1,0 +1,5 @@
+pkg {
+    name: "lc01/q2"
+    version: "0.0.1"
+    asm: ["sys.S"]
+}

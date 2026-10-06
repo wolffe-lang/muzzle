@@ -1,0 +1,155 @@
+== host
+$ /home/mfwolffe/lanes/lc01/dist/wolf/wolf-0.2.24-x86_64-unknown-linux-gnu/wolf --version
+wolf 0.2.24 (wolfgang, pin 294d626)
+paired with lupin 0.1.47 (reference interpreter), pin 8e36bc1
+exit=0
+$ clang --version
+clang version 23.1.1
+Target: x86_64-pc-linux-gnu
+Thread model: posix
+InstalledDir: /usr/bin
+exit=0
+7.2.8-1-cachyos
+== q1: the address of a module var
+-- q1/a
+4:        &errno_v as *i32
+$ /home/mfwolffe/lanes/lc01/dist/wolf/wolf-0.2.24-x86_64-unknown-linux-gnu/wolf build q1/a/lib.lu --target x86_64-unknown-none --emit=obj -o q1/a/lib.o
+wolf build: cannot compile this yet — borrow expressions @76..84 (pipeline is honest through `resolve`; the conservatism ledger, not a bug in your program)
+exit=4
+-- q1/b
+4:        errno_v as *i32
+$ /home/mfwolffe/lanes/lc01/dist/wolf/wolf-0.2.24-x86_64-unknown-linux-gnu/wolf build q1/b/lib.lu --target x86_64-unknown-none --emit=obj -o q1/b/lib.o
+warning[W1301]: this `unsafe` block does not state its invariant
+ --> q1/b/lib.lu:3:5
+  |
+3 |     unsafe {
+  |     ^^^^^^ add a `# Safety:` comment
+  |
+  = note: the block discharges a proof obligation the checker cannot; write the invariant down for
+    the auditors who will read this ring (`// # Safety: …` above the block).
+
+exit=0
+-- q1/c
+4:        addr_of(errno_v)
+$ /home/mfwolffe/lanes/lc01/dist/wolf/wolf-0.2.24-x86_64-unknown-linux-gnu/wolf build q1/c/lib.lu --target x86_64-unknown-none --emit=obj -o q1/c/lib.o
+error[E0301]: nothing named `addr_of` is in scope
+ --> q1/c/lib.lu:4:9
+  |
+4 |         addr_of(errno_v)
+  |         ^^^^^^^ not found
+  |
+
+wolf build: the package does not compile; fix the errors above (`wolf --explain E0301` explains this code, or any other, by name)
+exit=2
+-- q1/d
+4:        &raw errno_v
+$ /home/mfwolffe/lanes/lc01/dist/wolf/wolf-0.2.24-x86_64-unknown-linux-gnu/wolf build q1/d/lib.lu --target x86_64-unknown-none --emit=obj -o q1/d/lib.o
+error[E0201]: expected the line to end after the expression
+ --> q1/d/lib.lu:4:14
+  |
+4 |         &raw errno_v
+  |              ^^^^^^^
+  |
+
+wolf build: the package does not compile; fix the errors above (`wolf --explain E0201` explains this code, or any other, by name)
+exit=2
+== q2 (native): C-named exports, a listed .S syscall, wolf_trap, a module var
+$ /home/mfwolffe/lanes/lc01/dist/wolf/wolf-0.2.24-x86_64-unknown-linux-gnu/wolf build lib.lu --target x86_64-unknown-none --emit=obj -o lib.o
+error[E0401]: this is `i64`, but `wolf_trap` must return `()`
+ --> ./lib.lu:7:9
+  |
+5 | export fn wolf_trap(kind: i32, file: *u8, file_len: i64, line: i64, col: i64) {
+  |           --------- the return type is declared here
+6 |     unsafe {
+7 |         q_syscall3(231, 100 + kind as i64, 0, 0)
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ found `i64` here
+  |
+  = note: expected `()`, found `i64`
+
+error[E0401]: this is `i64`, but `_exit` must return `()`
+  --> ./lib.lu:25:9
+   |
+23 | export fn _exit(status: i32) {
+   |           ----- the return type is declared here
+24 |     unsafe {
+25 |         q_syscall3(231, status as i64, 0, 0)
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ found `i64` here
+   |
+
+wolf build: the package does not compile; fix the errors above (`wolf --explain E0401` explains this code, or any other, by name)
+exit=2
+ls: cannot access '*.o': No such file or directory
+== q3 (native): a copy loop named memcpy
+$ /home/mfwolffe/lanes/lc01/dist/wolf/wolf-0.2.24-x86_64-unknown-linux-gnu/wolf build lib.lu --target x86_64-unknown-none --emit=obj -o lib.o
+warning[W1301]: this `unsafe` block does not state its invariant
+ --> ./lib.lu:3:5
+  |
+3 |     unsafe {
+  |     ^^^^^^ add a `# Safety:` comment
+  |
+  = note: the block discharges a proof obligation the checker cannot; write the invariant down for
+    the auditors who will read this ring (`// # Safety: …` above the block).
+
+warning[W1301]: this `unsafe` block does not state its invariant
+  --> ./lib.lu:14:5
+   |
+14 |     unsafe {
+   |     ^^^^^^ add a `# Safety:` comment
+   |
+
+exit=0
+-- nm lib.o
+0000000000000000 T memcpy
+00000000000000f8 T memset
+                 U wolf_trap
+0000000000000000 r _W.site.0
+== q2 (release): C-named exports, a listed .S syscall, wolf_trap, a module var
+$ /home/mfwolffe/lanes/lc01/dist/wolf/wolf-0.2.24-x86_64-unknown-linux-gnu/wolf build lib.lu --target x86_64-unknown-none --emit=obj --release -o lib.o
+error[E0401]: this is `i64`, but `wolf_trap` must return `()`
+ --> ./lib.lu:7:9
+  |
+5 | export fn wolf_trap(kind: i32, file: *u8, file_len: i64, line: i64, col: i64) {
+  |           --------- the return type is declared here
+6 |     unsafe {
+7 |         q_syscall3(231, 100 + kind as i64, 0, 0)
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ found `i64` here
+  |
+  = note: expected `()`, found `i64`
+
+error[E0401]: this is `i64`, but `_exit` must return `()`
+  --> ./lib.lu:25:9
+   |
+23 | export fn _exit(status: i32) {
+   |           ----- the return type is declared here
+24 |     unsafe {
+25 |         q_syscall3(231, status as i64, 0, 0)
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ found `i64` here
+   |
+
+wolf build: the package does not compile; fix the errors above (`wolf --explain E0401` explains this code, or any other, by name)
+exit=2
+ls: cannot access '*.o': No such file or directory
+== q3 (release): a copy loop named memcpy
+$ /home/mfwolffe/lanes/lc01/dist/wolf/wolf-0.2.24-x86_64-unknown-linux-gnu/wolf build lib.lu --target x86_64-unknown-none --emit=obj --release -o lib.o
+warning[W1301]: this `unsafe` block does not state its invariant
+ --> ./lib.lu:3:5
+  |
+3 |     unsafe {
+  |     ^^^^^^ add a `# Safety:` comment
+  |
+  = note: the block discharges a proof obligation the checker cannot; write the invariant down for
+    the auditors who will read this ring (`// # Safety: …` above the block).
+
+warning[W1301]: this `unsafe` block does not state its invariant
+  --> ./lib.lu:14:5
+   |
+14 |     unsafe {
+   |     ^^^^^^ add a `# Safety:` comment
+   |
+
+exit=0
+-- nm lib.o
+0000000000000000 r .L_W.site.0
+0000000000000000 T memcpy
+0000000000000060 T memset
+                 U wolf_trap

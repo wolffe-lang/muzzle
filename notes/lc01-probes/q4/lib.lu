@@ -1,0 +1,20 @@
+var errno_v: i32 = 77
+
+export fn q_errno_loc() -> *i32 {
+    // # Safety: probe only.
+    unsafe {
+        errno_v as *i32
+    }
+}
+
+export fn q_errno_get() -> i32 {
+    var e: i32 = 0
+    // # Safety: probe only.
+    unsafe {
+        e = errno_v
+    }
+    e
+}
+
+export fn wolf_trap(kind: i32, file: *u8, file_len: i64, line: i64, col: i64) {
+}
