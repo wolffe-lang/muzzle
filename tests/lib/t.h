@@ -9,9 +9,9 @@
 #include <string.h>
 #include <unistd.h>
 
-static void t_str(const char *s) { write(1, s, strlen(s)); }
+static inline void t_str(const char *s) { write(1, s, strlen(s)); }
 
-static void t_int(long v) {
+static inline void t_int(long v) {
     char b[24];
     int i = 23;
     unsigned long u = v < 0 ? 0UL - (unsigned long)v : (unsigned long)v;
@@ -25,17 +25,17 @@ static void t_int(long v) {
     t_str(b + i);
 }
 
-static void t_kv(const char *k, long v) {
+static inline void t_kv(const char *k, long v) {
     t_str(k);
     t_str("=");
     t_int(v);
     t_str("\n");
 }
 
-static int t_sign(int v) { return (v > 0) - (v < 0); }
+static inline int t_sign(int v) { return (v > 0) - (v < 0); }
 
 /* A bytewise digest of a buffer, so a long result is one line. */
-static unsigned long t_digest(const void *p, size_t n) {
+static inline unsigned long t_digest(const void *p, size_t n) {
     const unsigned char *s = p;
     unsigned long h = 14695981039346656037UL;
     for (size_t i = 0; i < n; i++) {
