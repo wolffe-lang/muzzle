@@ -1,8 +1,8 @@
 //! <stdlib.h> memory management, C17 7.22.3: malloc, calloc, realloc,
 //! free, over brk(2) and mmap(2). Single-threaded (R4's first cut).
 //!
-//! Sources: C17 7.22.3 (and C23 7.24.3 for realloc), POSIX.1-2024 XSH
-//! malloc/calloc/realloc/free (ENOMEM on failure), malloc(3), brk(2)
+//! Sources: C17 7.22.3, POSIX.1-2024 XSH malloc/calloc/realloc/free
+//! (the 3p pages: ENOMEM on failure), malloc(3), brk(2)
 //! ("the actual Linux system call returns the new program break on
 //! success; on failure, the system call returns the current break"),
 //! mmap(2), munmap(2). The design is muzzle's own; no allocator's code
@@ -253,9 +253,9 @@ export fn calloc(nmemb: uint, size: uint) -> *u8 {
 }
 
 /// C17 7.22.3.5. realloc(NULL, n) is malloc(n). A size of 0 frees the
-/// block and answers a null pointer, as malloc(3) describes (C17 leaves
-/// it implementation-defined; C23 makes it undefined; no case relies on
-/// it). On failure the block is untouched and errno is ENOMEM.
+/// block and answers a null pointer, as malloc(3) describes; realloc(3p)
+/// makes it implementation-defined, and no case relies on it. On
+/// failure the block is untouched and errno is ENOMEM.
 export fn realloc(p: *u8, n: uint) -> *u8 {
     if p.is_null() {
         return malloc(n)
