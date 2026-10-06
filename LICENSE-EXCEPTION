@@ -1,0 +1,25 @@
+muzzle Library Exception, version 1.0
+
+(an additional permission under section 7 of the GNU General Public
+License, version 3, modeled on the wolf Runtime Library Exception and
+the GCC Runtime Library Exception)
+
+You have permission to propagate a work of Target Code formed by
+combining the Library with Independent Modules, even if such
+propagation would otherwise violate the terms of GPLv3, provided that
+the Independent Modules were not derived from or based on the Library.
+You may then convey such a combination under terms of your choice,
+consistent with the licensing of the Independent Modules.
+
+Definitions: "Library" means muzzle (its source, its headers, and the
+archives built from them), or a work based on it. "Independent Modules"
+means modules, in any language and built by any compiler, that are not
+derived from or based on the Library; a program that only includes the
+Library's headers and calls the interfaces they declare is not derived
+from the Library by doing so. "Target Code" means object code,
+executables, or intermediate forms produced by compiling and linking.
+
+In plain words: a program you link against muzzle, statically or
+dynamically, is yours, under any license you choose. Changes to muzzle
+itself stay under the GPL. The exception exists so a C library's
+copyleft never reaches through the linker into the programs it serves.

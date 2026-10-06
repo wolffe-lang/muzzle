@@ -87,6 +87,10 @@ records every source consulted.
 
 ## Licence
 
-muzzle is **GPL-3.0-or-later** (see `LICENSE`). The wolf Training Data
+muzzle is **GPL-3.0-or-later** (see `LICENSE`) **with the muzzle Library
+Exception** (see `LICENSE-EXCEPTION`): a program you link against muzzle,
+statically or dynamically, is yours under any license; changes to muzzle
+itself stay under the GPL. The exception is modeled on the wolf Runtime
+Library Exception and the GCC Runtime Library Exception. The wolf Training Data
 Permission (see `LICENSE-TRAINING-DATA`) lets you train models on this
 repository's text and ship excerpts of it in datasets under CC BY 4.0.
