@@ -1,0 +1,29 @@
+difftest: tier=native glibc=glibc 2.44 clang version 23.1.1
+FAIL errno: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/lc01/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/lc01/muzzle/build/native/libmuzzle.a'
+FAIL exit: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/lc01/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/lc01/muzzle/build/native/libmuzzle.a'
+FAIL exit_c17: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/lc01/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/lc01/muzzle/build/native/libmuzzle.a'
+FAIL exit_posix: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/lc01/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/lc01/muzzle/build/native/libmuzzle.a'
+FAIL main_return: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/lc01/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/lc01/muzzle/build/native/libmuzzle.a'
+FAIL malloc: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/lc01/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/lc01/muzzle/build/native/libmuzzle.a'
+FAIL mem: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/lc01/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/lc01/muzzle/build/native/libmuzzle.a'
+FAIL str: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/lc01/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/lc01/muzzle/build/native/libmuzzle.a'
+FAIL write: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/lc01/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/lc01/muzzle/build/native/libmuzzle.a'
+difftest: tier=native pass=0 fail=9
