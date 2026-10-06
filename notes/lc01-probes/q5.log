@@ -1,0 +1,18 @@
+== q5 tier=native
+build=0
+gt(big,cap)=1 want 1
+gt(cap,big)=0 want 0
+gt(mid,cap)=1 want 1
+div(big,3)=6148914691236517202 want 6148914691236517202
+add(mid)=9223372036854775809 want 9223372036854775809
+as_i64(big)=-9 want -9
+run=0
+== q5 tier=--release
+build=0
+gt(big,cap)=1 want 1
+gt(cap,big)=0 want 0
+gt(mid,cap)=1 want 1
+div(big,3)=6148914691236517202 want 6148914691236517202
+add(mid)=9223372036854775809 want 9223372036854775809
+as_i64(big)=-9 want -9
+run=0

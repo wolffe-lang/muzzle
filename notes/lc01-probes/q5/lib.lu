@@ -1,0 +1,23 @@
+// q5: uint arithmetic above i64::MAX across the C membrane (#551's neighbourhood).
+export fn q_gt(a: uint, b: uint) -> i32 {
+    if a > b {
+        1
+    } else {
+        0
+    }
+}
+
+export fn q_div(a: uint, b: uint) -> uint {
+    a / b
+}
+
+export fn q_add_small(a: uint) -> uint {
+    a + 1
+}
+
+export fn q_as_i64(a: uint) -> i64 {
+    a as wrapping[i64] as i64
+}
+
+export fn wolf_trap(kind: i32, file: *u8, file_len: i64, line: i64, col: i64) {
+}
