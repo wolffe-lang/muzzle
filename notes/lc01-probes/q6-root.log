@@ -1,0 +1,15 @@
+== root: none
+0
+== root: pub
+      1 error[E0305]: the import `heap` is never used
+      1 error[E0305]: the import `process` is never used
+      1 error[E0305]: the import `string` is never used
+      1 error[E0305]: the import `sys` is never used
+      4 warning[W0313]: this `pub` item has no doc comment
+      1 wolf build: the package does not compile; fix the errors above (`wolf --explain E0305` explains this code, or any other, by name)
+0
+== root: private fn touching sys only
+      1 error[E0305]: the import `heap` is never used
+      1 error[E0305]: the import `process` is never used
+      1 error[E0305]: the import `string` is never used
+      1 wolf build: the package does not compile; fix the errors above (`wolf --explain E0305` explains this code, or any other, by name)
