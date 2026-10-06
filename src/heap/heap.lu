@@ -1,0 +1,292 @@
+//! <stdlib.h> memory management, C17 7.22.3: malloc, calloc, realloc,
+//! free, over brk(2) and mmap(2). Single-threaded (R4's first cut).
+//!
+//! Sources: C17 7.22.3 (and C23 7.24.3 for realloc), POSIX.1-2024 XSH
+//! malloc/calloc/realloc/free (ENOMEM on failure), malloc(3), brk(2)
+//! ("the actual Linux system call returns the new program break on
+//! success; on failure, the system call returns the current break"),
+//! mmap(2), munmap(2). The design is muzzle's own; no allocator's code
+//! was read.
+//!
+//! Every block starts 16 bytes after a header, so it is aligned for
+//! any object (max_align_t is 16 on x86-64):
+//!   word 0: the size class 0..12 (a usable size of 16 << class), or
+//!           LARGE for a block mapped on its own;
+//!   word 1: MAGIC for a small block, the mapping's length for a large.
+//! Small blocks (up to 64 KiB) are carved from the heap and recycled
+//! through one free list per class (heads in sys.S's __muzzle_bins;
+//! the link sits in a free block's first word). The heap grows by
+//! brk(2); when brk refuses, by an mmap(2) chunk. Larger blocks are an
+//! mmap(2) each and go back by munmap(2).
+
+use sys
+use string
+
+extern "c" let __muzzle_bins: *u64
+
+const SYS_MMAP: i64 = 9
+
+const SYS_MUNMAP: i64 = 11
+
+const SYS_BRK: i64 = 12
+
+const ENOMEM: i32 = 12
+
+const HDR: uint = 16
+
+const SMALL_MAX: uint = 65536
+
+const LARGE: u64 = 4294967295
+
+const MAGIC: u64 = 7809638854244528237
+
+const PAGE: uint = 4096
+
+const GROW_MIN: uint = 262144
+
+/// Above this no request is attempted: 64 TiB, more than the x86-64
+/// user half can map, and small enough that rounding cannot overflow.
+const MAX_REQ: uint = 70368744177664
+
+var heap_cur: uint = 0
+
+var heap_end: uint = 0
+
+var brk_end: uint = 0
+
+fn round_up(n: uint, to: uint) -> uint {
+    (n + to - 1) / to * to
+}
+
+fn class_of(n: uint) -> int {
+    var c = 0
+    var size: uint = 16
+    while size < n {
+        size *= 2
+        c += 1
+    }
+    c
+}
+
+fn class_size(c: int) -> uint {
+    var size: uint = 16
+    var i = 0
+    while i < c {
+        size *= 2
+        i += 1
+    }
+    size
+}
+
+/// An anonymous private read-write mapping of len bytes, or 0.
+fn map(len: uint) -> uint {
+    let r = sys.raw(SYS_MMAP, 0, len as i64, 3, 34, -1, 0)
+    if sys.failed(r) {
+        return 0
+    }
+    r as uint
+}
+
+/// Make room for `total` more bytes at heap_cur. False when neither
+/// brk nor mmap gives it.
+fn grow(total: uint) -> bool {
+    let want = round_up(if total > GROW_MIN { total } else { GROW_MIN }, PAGE)
+    var cur: uint = 0
+    var end: uint = 0
+    var top: uint = 0
+    // # Safety: one thread; scalars only.
+    unsafe {
+        if brk_end == 0 {
+            // The first break, rounded up to 16: the heap starts empty
+            // there, and every later brk asks for a goal at or above it.
+            brk_end = round_up(sys.raw(SYS_BRK, 0, 0, 0, 0, 0, 0) as uint, HDR)
+            heap_cur = brk_end
+            heap_end = brk_end
+        }
+        cur = heap_cur
+        end = heap_end
+        top = brk_end
+    }
+    if end == top {
+        // The heap is the brk heap's top: extend it in place.
+        let goal = round_up(cur + total, PAGE)
+        let goal2 = if goal - end < want { end + want } else { goal }
+        let got = sys.raw(SYS_BRK, goal2 as i64, 0, 0, 0, 0, 0) as uint
+        if got == goal2 {
+            // # Safety: one thread; scalars only.
+            unsafe {
+                brk_end = got
+                heap_end = got
+            }
+            return true
+        }
+    }
+    let m = map(want)
+    if m == 0 {
+        return false
+    }
+    // # Safety: one thread; scalars only. The old heap's tail is left
+    // unused.
+    unsafe {
+        heap_cur = m
+        heap_end = m + want
+    }
+    true
+}
+
+/// `total` bytes from the heap, 16-aligned, or 0.
+fn carve(total: uint) -> uint {
+    var cur: uint = 0
+    var end: uint = 0
+    // # Safety: one thread; scalars only.
+    unsafe {
+        cur = heap_cur
+        end = heap_end
+    }
+    if end - cur < total {
+        if !grow(total) {
+            return 0
+        }
+    }
+    var at: uint = 0
+    // # Safety: one thread; scalars only.
+    unsafe {
+        at = heap_cur
+        heap_cur = at + total
+    }
+    at
+}
+
+fn fail() -> *u8 {
+    sys.set_errno(ENOMEM)
+    // # Safety: the null pointer.
+    unsafe {
+        0 as *u8
+    }
+}
+
+/// The block's header address and its usable size.
+fn usable(p: *u8) -> uint {
+    // # Safety: p came from malloc (C's precondition for realloc), so a
+    // header sits 16 bytes below it.
+    unsafe {
+        let h = (p.addr() - HDR) as *u64
+        if h[0] == LARGE {
+            h[1] as uint - HDR
+        } else {
+            class_size(h[0] as int)
+        }
+    }
+}
+
+/// C17 7.22.3.4. malloc(0) answers a unique block of the smallest
+/// class, as glibc does (C17 allows either that or a null pointer).
+pub export fn malloc(n: uint) -> *u8 {
+    if n > MAX_REQ {
+        return fail()
+    }
+    if n <= SMALL_MAX {
+        let c = class_of(n)
+        // # Safety: one thread; __muzzle_bins holds 16 heads (sys.S),
+        // c <= 12; a head is a free block whose first word links the next.
+        unsafe {
+            let head = __muzzle_bins[c]
+            if head != 0 {
+                __muzzle_bins[c] = (head as *u64)[0]
+                return head as *u8
+            }
+        }
+        let base = carve(HDR + class_size(c))
+        if base == 0 {
+            return fail()
+        }
+        // # Safety: carve answered HDR + class_size(c) fresh bytes at base.
+        unsafe {
+            let h = base as *u64
+            h[0] = c as u64
+            h[1] = MAGIC
+            return (base + HDR) as *u8
+        }
+    }
+    let len = round_up(n + HDR, PAGE)
+    let base = map(len)
+    if base == 0 {
+        return fail()
+    }
+    // # Safety: map answered len fresh bytes at base.
+    unsafe {
+        let h = base as *u64
+        h[0] = LARGE
+        h[1] = len as u64
+        (base + HDR) as *u8
+    }
+}
+
+/// C17 7.22.3.3. A null pointer is no operation.
+pub export fn free(p: *u8) {
+    if p.is_null() {
+        return
+    }
+    // # Safety: p came from malloc (C's precondition), so its header is
+    // 16 bytes below; one thread.
+    unsafe {
+        let base = p.addr() - HDR
+        let h = base as *u64
+        if h[0] == LARGE {
+            let r = sys.raw(SYS_MUNMAP, base as i64, h[1] as i64, 0, 0, 0, 0)
+        } else {
+            let c = h[0] as int
+            (p.addr() as *u64)[0] = __muzzle_bins[c]
+            __muzzle_bins[c] = p.addr() as u64
+        }
+    }
+}
+
+/// C17 7.22.3.2: zeroed room for nmemb objects of size bytes; a product
+/// that does not fit is ENOMEM.
+export fn calloc(nmemb: uint, size: uint) -> *u8 {
+    if nmemb != 0 && size > MAX_REQ / nmemb {
+        return fail()
+    }
+    let n = nmemb * size
+    let p = malloc(n)
+    if !p.is_null() {
+        let z = string.memset(p, 0, n)
+    }
+    p
+}
+
+/// C17 7.22.3.5. realloc(NULL, n) is malloc(n). A size of 0 frees the
+/// block and answers a null pointer, as malloc(3) describes (C17 leaves
+/// it implementation-defined; C23 makes it undefined; no case relies on
+/// it). On failure the block is untouched and errno is ENOMEM.
+export fn realloc(p: *u8, n: uint) -> *u8 {
+    if p.is_null() {
+        return malloc(n)
+    }
+    if n == 0 {
+        free(p)
+        // # Safety: the null pointer.
+        unsafe {
+            return 0 as *u8
+        }
+    }
+    let have = usable(p)
+    if n <= have {
+        return p
+    }
+    let q = malloc(n)
+    if q.is_null() {
+        return q
+    }
+    let c = string.memcpy(q, p, have)
+    free(p)
+    q
+}
+
+/// True. The package root calls it so the build reaches this module:
+/// a module only C calls into is otherwise never compiled, and an
+/// import nothing uses is E0305 (wolf-lang#599).
+pub fn linked() -> bool {
+    true
+}
