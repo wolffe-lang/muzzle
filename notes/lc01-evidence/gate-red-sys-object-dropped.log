@@ -1,0 +1,1 @@
+build: native: the archive imports: __muzzle_bins __muzzle_errno __muzzle_scratch __muzzle_syscall6

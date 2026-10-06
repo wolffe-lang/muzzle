@@ -16,20 +16,28 @@ rm -rf "$out"; mkdir -p "$out"
 cd "$root/src"
 "$W" build muzzle.lu --target x86_64-unknown-none --emit=obj --deny-warnings "${fl[@]}" -o "$out/muzzle.o"
 clang -c crt0.S -o "$out/crt0.o"
-objs=("$out"/muzzle*.o)
+objs=("$out"/muzzle.*.o)
 ar rcs "$out/libmuzzle.a" "${objs[@]}"
 
-# The gate. EXPORTS is the C surface this layer promises.
+# The gate. EXPORTS is the C surface this layer promises; every one
+# must be defined. The archive must be self-contained: every symbol any
+# of its objects leaves undefined is defined by another of them (no
+# runtime, no libc, no compiler-emitted import such as wolf-lang#522's
+# memcpy from outside). Both checks fail loudly on an empty object set.
 EXPORTS="memcpy memmove memset memcmp strlen strcmp strncmp strchr strcpy
 malloc free calloc realloc exit _Exit _exit write __errno_location wolf_trap"
-ALLOWED_U="__muzzle_syscall6 __muzzle_errno __muzzle_bins __muzzle_scratch wolf_trap"
-defined=$(nm --defined-only -g "$out/libmuzzle.a" | awk 'NF==3 && $2 ~ /[TDBR]/ {print $3}' | sort -u)
 fail=0
+[ ${#objs[@]} -ge 2 ] || { echo "build: $tier: expected wolf's objects and sys.S's, found ${#objs[@]}" >&2; exit 1; }
+defined=$(nm --defined-only -g -j "${objs[@]}" | grep -v ':$' | grep -v '^$' | sort -u)
+undef=$(nm -u -j "${objs[@]}" | grep -v ':$' | grep -v '^$' | sort -u)
+[ -n "$defined" ] || { echo "build: $tier: no defined symbols at all" >&2; exit 1; }
 for e in $EXPORTS; do
   grep -qx "$e" <<<"$defined" || { echo "build: $tier: export '$e' is not defined" >&2; fail=1; }
 done
-for u in $(nm -u "$out/muzzle.o" | awk '{print $2}' | sort -u); do
-  case " $ALLOWED_U " in *" $u "*) ;; *) echo "build: $tier: muzzle.o imports '$u'" >&2; fail=1;; esac
-done
+unresolved=$(comm -23 <(printf '%s\n' "$undef" | grep -v '^$') <(printf '%s\n' "$defined"))
+if [ -n "$unresolved" ]; then
+  echo "build: $tier: the archive imports:" $unresolved >&2
+  fail=1
+fi
 [ "$fail" = 0 ] || exit 1
-echo "build: $tier: $(wc -w <<<"$EXPORTS") exports defined, imports clean -> $out/libmuzzle.a"
+echo "build: $tier: ${#objs[@]} objects, $(wc -w <<<"$EXPORTS") exports defined, $(wc -l <<<"$undef") internal references, 0 imports -> $out/libmuzzle.a"
