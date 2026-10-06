@@ -1,0 +1,42 @@
+//! Leaving the process, and the one output path: C17 7.22.4.4 exit,
+//! 7.22.4.5 _Exit; POSIX.1-2024 XSH _exit and write.
+//!
+//! No atexit handlers (no C function pointers yet, wolf-lang#520) and
+//! no streams to flush (lc08) exist, so exit does what _Exit does.
+
+use sys
+
+const SYS_WRITE: i64 = 1
+
+/// C17 7.22.4.4.
+export fn exit(status: i32) {
+    sys.exit_group(status)
+}
+
+/// C17 7.22.4.5.
+export fn _Exit(status: i32) {
+    sys.exit_group(status)
+}
+
+/// POSIX.1-2024 XSH _exit.
+export fn _exit(status: i32) {
+    sys.exit_group(status)
+}
+
+/// POSIX.1-2024 XSH write: the bytes written, or -1 with errno set. The
+/// kernel checks the buffer (EFAULT) and the descriptor (EBADF).
+export fn write(fd: i32, buf: *u8, n: uint) -> i64 {
+    var at: i64 = 0
+    // # Safety: reads buf's address only; the kernel checks the bytes.
+    unsafe {
+        at = buf.addr() as wrapping[i64] as i64
+    }
+    sys.ret(sys.raw(SYS_WRITE, fd as i64, at, n as wrapping[i64] as i64, 0, 0, 0))
+}
+
+/// True. The package root calls it so the build reaches this module:
+/// a module only C calls into is otherwise never compiled, and an
+/// import nothing uses is E0305 (wolf-lang#599).
+pub fn linked() -> bool {
+    true
+}
