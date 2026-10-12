@@ -1,0 +1,72 @@
+build: native: 6 objects, 19 exports defined, 19 internal references, 0 imports -> /home/mfwolffe/lanes/mz/wt26/build/native/libmuzzle.a
+build-native-exit=0
+build: release: 4 objects, 19 exports defined, 5 internal references, 0 imports -> /home/mfwolffe/lanes/mz/wt26/build/release/libmuzzle.a
+build-release-exit=0
+native crt0.o.s vs 0.2.24: same
+native crt0.o.s vs 0.2.26: same
+native muzzle.asm-sys.o.s vs 0.2.24: same
+native muzzle.asm-sys.o.s vs 0.2.26: same
+native muzzle.heap.o.s vs 0.2.24: DIFF
+native muzzle.heap.o.s vs 0.2.26: same
+native muzzle.process.o.s vs 0.2.24: same
+native muzzle.process.o.s vs 0.2.26: same
+native muzzle.root.o.s vs 0.2.24: same
+native muzzle.root.o.s vs 0.2.26: same
+native muzzle.string.o.s vs 0.2.24: same
+native muzzle.string.o.s vs 0.2.26: same
+native muzzle.sys.o.s vs 0.2.24: same
+native muzzle.sys.o.s vs 0.2.26: same
+release crt0.o.s vs 0.2.24: same
+release crt0.o.s vs 0.2.26: same
+release muzzle.asm-sys.o.s vs 0.2.24: same
+release muzzle.asm-sys.o.s vs 0.2.26: same
+release muzzle.c00.o.s vs 0.2.24: same
+release muzzle.c00.o.s vs 0.2.26: same
+release muzzle.c01.o.s vs 0.2.24: same
+release muzzle.c01.o.s vs 0.2.26: same
+release muzzle.c02.o.s vs 0.2.24: same
+release muzzle.c02.o.s vs 0.2.26: same
+753c753
+<      c3b:	je     cf9 <free+0xd1>
+---
+>      c3b:	je     cfd <free+0xd5>
+758c758
+<      c4d:	jne    d77 <free+0x14f>
+---
+>      c4d:	jne    d7c <free+0x154>
+761,837c761,835
+<      c5d:	imul   $0x0,0x13b(%rip),%rax        # da0 <free+0x178>
+<      c65:	mov    (%rsi,%rax,1),%rax
+<      c69:	mov    %rax,0x30(%rsp)
+<      c6e:	cmp    0x133(%rip),%rax        # da8 <free+0x180>
+<      c75:	je     cac <free+0x84>
+<      c7b:	cmp    0x12e(%rip),%rax        # db0 <free+0x188>
+<      c82:	ja     d02 <free+0xda>
+<      c88:	mov    0x0(%rip),%rcx        # c8f <free+0x67>
+<      c8f:	imul   $0x8,%rax,%rax
+<      c93:	mov    (%rcx,%rax,1),%rdx
+<      c97:	imul   $0x0,0x101(%rip),%rsi        # da0 <free+0x178>
+<      c9f:	mov    %rdx,(%rdi,%rsi,1)
+<      ca3:	mov    %rdi,(%rcx,%rax,1)
+<      ca7:	jmp    cf0 <free+0xc8>
+<      cac:	mov    $0xb,%edi
+<      cb1:	cmp    0xf8(%rip),%rsi        # db0 <free+0x188>
+<      cb8:	ja     d29 <free+0x101>
+<      cbe:	imul   $0x1,0xda(%rip),%rax        # da0 <free+0x178>
+<      cc6:	mov    (%rsi,%rax,1),%rdx
+<      cca:	cmp    0xdf(%rip),%rdx        # db0 <free+0x188>
+<      cd1:	ja     d50 <free+0x128>
+<      cd7:	mov    %r9,(%rsp)
+<      cdb:	mov    0x0(%rip),%r10        # ce2 <free+0xba>
+<      ce2:	mov    %r9,%rcx
+<      ce5:	mov    %r9,%r8
+<      ce8:	call   *%r10
+<      ceb:	mov    %rax,0x28(%rsp)
+<      cf0:	add    $0x40,%rsp
+<      cf4:	mov    %rbp,%rsp
+<      cf7:	pop    %rbp
+<      cf8:	ret
+509
+   text	   data	    bss	    dec	    hex	filename
+   4157	      0	      0	   4157	   103d	0.2.24/native/muzzle.heap.o.s
+   4165	      0	      0	   4165	   1045	0.2.28/native/muzzle.heap.o.s

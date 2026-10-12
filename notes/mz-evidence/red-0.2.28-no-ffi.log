@@ -1,0 +1,51 @@
+fetch-toolchain: wolf-0.2.28-x86_64-unknown-linux-gnu.tar.gz 3215f3219c5c6c3b… -> /home/mfwolffe/lanes/mz/muzzle/.wolf-bin/wolf-0.2.28-x86_64-unknown-linux-gnu/wolf
+wolf-0.2.28-x86_64-unknown-linux-gnu
+wolf-0.2.28-x86_64-unknown-linux-gnu.tar.gz
+error[E1504]: this package declares `extern "c" fn __muzzle_syscall6` but does not declare the `ffi` capability
+  --> wolf.pkg:7:11
+   |
+ 7 |     name: "muzzle"
+   |           ^^^^^^^^ declared capabilities: []
+   |
+  ::: ./sys/sys.lu:9:15
+   |
+ 9 | extern "c" fn __muzzle_syscall6(n: i64, a1: i64, a2: i64, a3: i64, a4: i64, a5: i64, a6: i64) -> i64
+   |               ----------------- `__muzzle_syscall6` is declared here: it reaches the `ffi` capability
+...
+49 |         r = __muzzle_syscall6(n, a1, a2, a3, a4, a5, a6)
+   |             ----------------- first called here
+   |
+   = note: module `sys` declares the C function `__muzzle_syscall6` at ./sys/sys.lu:9:15 (first
+     called at ./sys/sys.lu:49:13): a bodyless `extern "c"` declaration leaves wolf's world
+     exactly as `import c` does, whether or not it is called (ruling #55). Add `ffi` to this
+     package's `capabilities: [ … ]` (making the footprint visible to every consumer running
+     `wolf audit`, I13), or drop the declaration.
+   = note: 3 more sites in the same package reach `ffi`; `wolf audit` lists the capability with its
+     reason.
+
+wolf build: the package does not compile; fix the errors above (`wolf --explain E1504` explains this code, or any other, by name)
+build-native-exit=2
+error[E1504]: this package declares `extern "c" fn __muzzle_syscall6` but does not declare the `ffi` capability
+  --> wolf.pkg:7:11
+   |
+ 7 |     name: "muzzle"
+   |           ^^^^^^^^ declared capabilities: []
+   |
+  ::: ./sys/sys.lu:9:15
+   |
+ 9 | extern "c" fn __muzzle_syscall6(n: i64, a1: i64, a2: i64, a3: i64, a4: i64, a5: i64, a6: i64) -> i64
+   |               ----------------- `__muzzle_syscall6` is declared here: it reaches the `ffi` capability
+...
+49 |         r = __muzzle_syscall6(n, a1, a2, a3, a4, a5, a6)
+   |             ----------------- first called here
+   |
+   = note: module `sys` declares the C function `__muzzle_syscall6` at ./sys/sys.lu:9:15 (first
+     called at ./sys/sys.lu:49:13): a bodyless `extern "c"` declaration leaves wolf's world
+     exactly as `import c` does, whether or not it is called (ruling #55). Add `ffi` to this
+     package's `capabilities: [ … ]` (making the footprint visible to every consumer running
+     `wolf audit`, I13), or drop the declaration.
+   = note: 3 more sites in the same package reach `ffi`; `wolf audit` lists the capability with its
+     reason.
+
+wolf build: the package does not compile; fix the errors above (`wolf --explain E1504` explains this code, or any other, by name)
+build-release-exit=2
