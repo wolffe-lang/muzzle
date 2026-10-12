@@ -3,8 +3,12 @@
 // listed assembly: the syscall routine and the static storage wolf
 // cannot hold yet ([abi.asm.link]). crt0.S is not listed: wolf never
 // calls _start; the C program's link takes crt0.o first.
+// `capabilities: [ffi]` (mz): muzzle declares C (sys.S's routine and
+// storage, through bodyless `extern "c"`), which wolf 0.2.27 charges to
+// `ffi` at each declaration (ruling #55; E1504 without it).
 pkg {
     name: "muzzle"
     version: "0.0.1"
+    capabilities: [ffi]
     asm: ["sys.S"]
 }
