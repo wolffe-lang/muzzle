@@ -55,3 +55,45 @@ region, no `str`, no host builtin):
 | P5 | the 0.2.28 objects (debug info stripped) differ from 0.2.24's (s214's reloads after calls through raw pointers and `extern "c" let`) | byte-identical |
 | P6 | the 0.2.28 objects with the line equal 0.2.26's without it, after stripping debug info (0.2.27's note) | they differ |
 | P7 | CI: the pin-only commit is red on both jobs at the build step (E1504); the head with the line is green on both | otherwise |
+
+## 4. Evidence (kasumi, linux x86-64, clang 23.1.1, glibc 2.44)
+
+Each log is the raw output of the commands at the named commit, every
+exit status echoed bare (no pipes). `notes/mz-evidence/`:
+
+| log | commit | sha256 | what |
+|---|---|---|---|
+| `baseline-0.2.24.log` | `f3fdd95` (trunk's code) | `707e13173047…` | wolf 0.2.24: build 6/4 objects, 19 exports, 0 imports; difftest 9/9 both tiers |
+| `red-0.2.28-no-ffi.log` | `e0cdd05` (pin only) | `e817d15d9a43…` | wolf 0.2.28 without the line: E1504 at `sys.lu:9:15` (`__muzzle_syscall6`, first called at `sys.lu:49:13`, "3 more sites"), exit 2 on both tiers |
+| `green-0.2.28-ffi.log` | `800f3e7` (the line) | `046ac1b483fa…` | wolf 0.2.28 with the line, fresh `.wolf-bin/`: build 6/4 objects, 19 exports, 0 imports; difftest 9/9 both tiers |
+| `objects-0.2.24-0.2.26-0.2.28.log` | `800f3e7` vs `e0cdd05`/`f3fdd95` | `b944ccfc7b6e…` | every object, `objcopy --strip-debug`, compared byte for byte |
+
+CI (`.github/workflows/ci.yml`, ubuntu x86-64): the pin-only head
+`e0cdd05` is red on both jobs at the build step with the same E1504 (run
+38233873894); the heads from `800f3e7` on are in the PR.
+
+## 5. Score: 5 of 7 exact, 2 partly
+
+| # | result |
+|---|---|
+| P1 | **exact.** E1504 on both tiers, naming `__muzzle_syscall6` at `sys.lu:9:15`, exit 2 |
+| P2 | **partly.** Native 6 objects, 19 exports, 0 imports as predicted; release builds **4** objects, as it did at 0.2.24 (lc01's `gate-green.log` holds only the native line; the prediction should have read the release count too) |
+| P3 | **exact.** 9/9 both tiers, same exit statuses and line counts as at 0.2.24 |
+| P4 | **exact.** One other edit, README's build line (`e0cdd05`); no source edit |
+| P5 | **partly.** One object of ten moved: native `muzzle.heap.o` (text 4157 → 4165 bytes, the change starting in `free`), s214's clobber at calls. The other five native objects and all four release objects are byte-identical to 0.2.24's after stripping debug info |
+| P6 | **exact.** Every stripped object at 0.2.28 with the line equals 0.2.26's without it |
+| P7 | **exact** for the red half (run 38233873894); the green half is read at the PR's head |
+
+## 6. Found on the way (not changed here)
+
+- **`tools/build` can run the old wolf after a pin move.** It takes
+  `ls .wolf-bin/wolf-*/wolf | head -1`, and `tools/fetch-toolchain`
+  removes only the new version's directory. On a checkout that staged
+  0.2.24 before, `wolf-0.2.24-…` sorts first, so the pin-only commit
+  built **green** on kasumi with 0.2.24 until `.wolf-bin/` was cleared.
+  CI checks out fresh and is not exposed. A fix (the build reading the
+  pin's `version`, or the fetch clearing other versions) is outside this
+  lane's one line.
+- `docs/LEDGER.md`'s #598 row and `src/heap/heap.lu`'s comment describe
+  a 0.2.24 behaviour that 0.2.25 fixed (s214). The workaround is still
+  correct code; retiring the row is a separate change.
