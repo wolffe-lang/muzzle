@@ -8,8 +8,31 @@
 set -euo pipefail
 tier=${1:?usage: tools/build native|release}
 root=$(cd "$(dirname "$0")/.." && pwd)
-W=${WOLF:-$(ls "$root"/.wolf-bin/wolf-*/wolf 2>/dev/null | head -1)}
-[ -x "$W" ] || { echo "build: no wolf driver (run tools/fetch-toolchain, or set WOLF)" >&2; exit 2; }
+# The compiler is the pin's, or there is no build (muzzle#4). It is the
+# directory tools/fetch-toolchain stages for wolf-toolchain.toml's
+# version, or $WOLF; never "whichever .wolf-bin/wolf-* sorts first",
+# which after a pin move on a reused checkout was the old one. Whichever
+# it is, its `--version` line must be the pin's version_line.
+pin="$root/wolf-toolchain.toml"
+key() { sed -n "s/^$1 = \"\(.*\)\"$/\1/p" "$pin" | head -1; }
+ver=$(key version); line=$(key version_line)
+[ -n "$ver" ] && [ -n "$line" ] || { echo "build: pin incomplete ($pin)" >&2; exit 2; }
+says() { local v; v=$("$1" --version 2>/dev/null) || v=""; printf '%s' "${v%%$'\n'*}"; }
+W=${WOLF:-$root/.wolf-bin/wolf-$ver-x86_64-unknown-linux-gnu/wolf}
+if [ ! -x "$W" ]; then
+  echo "build: the pin wants '$line' (wolf-toolchain.toml) and there is no driver at $W" >&2
+  for o in "$root"/.wolf-bin/wolf-*/wolf; do
+    if [ -x "$o" ]; then echo "build: found '$(says "$o")' at $o, which is not the pin's; not used" >&2; fi
+  done
+  echo "build: run tools/fetch-toolchain, or set WOLF to the pinned driver" >&2
+  exit 2
+fi
+found=$(says "$W")
+if [ "$found" != "$line" ]; then
+  echo "build: found '$found' at $W; the pin wants '$line' (wolf-toolchain.toml)" >&2
+  echo "build: not building with it: run tools/fetch-toolchain, or set WOLF to the pinned driver" >&2
+  exit 2
+fi
 case $tier in native) fl=();; release) fl=(--release);; *) echo "build: tier '$tier'" >&2; exit 2;; esac
 out="$root/build/$tier"
 rm -rf "$out"; mkdir -p "$out"
