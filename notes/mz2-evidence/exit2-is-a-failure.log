@@ -1,0 +1,129 @@
+== commit dc3bcac9d7193ce6b85b39ff4e834b9ba138897b date=2026-10-13T22:44:53Z
+fetch-toolchain: wolf-0.2.29-x86_64-unknown-linux-gnu.tar.gz ae466e85418a4875… -> /home/mfwolffe/lanes/mz2/muzzle/.wolf-bin/wolf-0.2.29-x86_64-unknown-linux-gnu/wolf
+fetch-toolchain exit=0
+ M src/string/string.lu
+== wolf build itself
+error[E0401]: this is `str`, but `mz2_planted_break` must return `u64`
+   --> ./string/string.lu:183:40
+    |
+183 | fn mz2_planted_break() -> u64 { return "not a number" }
+    |                        ------ the return type is declared here
+    |                                        ^^^^^^^^^^^^^^ found `str` here
+    |
+    = note: expected `u64`, found `str`
+
+wolf build: the package does not compile; fix the errors above (`wolf --explain E0401` explains this code, or any other, by name)
+wolf build exit=2
+== tools/build native
+error[E0401]: this is `str`, but `mz2_planted_break` must return `u64`
+   --> ./string/string.lu:183:40
+    |
+183 | fn mz2_planted_break() -> u64 { return "not a number" }
+    |                        ------ the return type is declared here
+    |                                        ^^^^^^^^^^^^^^ found `str` here
+    |
+    = note: expected `u64`, found `str`
+
+wolf build: the package does not compile; fix the errors above (`wolf --explain E0401` explains this code, or any other, by name)
+tools/build native exit=2
+   objects left in build/native: 0
+== tools/difftest native (after the failed build)
+difftest: tier=native glibc=glibc 2.44 clang version 23.1.1
+FAIL errno: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/libmuzzle.a'
+FAIL exit: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/libmuzzle.a'
+FAIL exit_c17: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/libmuzzle.a'
+FAIL exit_posix: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/libmuzzle.a'
+FAIL main_return: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/libmuzzle.a'
+FAIL malloc: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/libmuzzle.a'
+FAIL mem: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/libmuzzle.a'
+FAIL str: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/libmuzzle.a'
+FAIL write: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/libmuzzle.a'
+difftest: tier=native pass=0 fail=9
+tools/difftest native exit=1
+== tests/stale-compiler native
+tests/stale-compiler native exit=1
+stale-compiler: tier=native pin='wolf 0.2.29 (wolfgang, pin 6ffe7c6)' stale='wolf 0.0.1 (wolfgang, pin 0000000)'
+FAIL control: the pin's compiler alone: the build failed with the pin's compiler staged
+FAIL an older compiler staged beside the pin's: the build failed with the pin's compiler staged
+PASS an older compiler staged alone
+PASS the pin's directory holding another version
+PASS WOLF naming another version
+stale-compiler: tier=native pass=3 fail=2
+== tools/build release
+error[E0401]: this is `str`, but `mz2_planted_break` must return `u64`
+   --> ./string/string.lu:183:40
+    |
+183 | fn mz2_planted_break() -> u64 { return "not a number" }
+    |                        ------ the return type is declared here
+    |                                        ^^^^^^^^^^^^^^ found `str` here
+    |
+    = note: expected `u64`, found `str`
+
+wolf build: the package does not compile; fix the errors above (`wolf --explain E0401` explains this code, or any other, by name)
+tools/build release exit=2
+   objects left in build/release: 0
+== tools/difftest release (after the failed build)
+difftest: tier=release glibc=glibc 2.44 clang version 23.1.1
+FAIL errno: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/libmuzzle.a'
+FAIL exit: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/libmuzzle.a'
+FAIL exit_c17: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/libmuzzle.a'
+FAIL exit_posix: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/libmuzzle.a'
+FAIL main_return: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/libmuzzle.a'
+FAIL malloc: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/libmuzzle.a'
+FAIL mem: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/libmuzzle.a'
+FAIL str: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/libmuzzle.a'
+FAIL write: muzzle column does not build
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/crt0.o'
+clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/libmuzzle.a'
+difftest: tier=release pass=0 fail=9
+tools/difftest release exit=1
+== tests/stale-compiler release
+tests/stale-compiler release exit=1
+stale-compiler: tier=release pin='wolf 0.2.29 (wolfgang, pin 6ffe7c6)' stale='wolf 0.0.1 (wolfgang, pin 0000000)'
+FAIL control: the pin's compiler alone: the build failed with the pin's compiler staged
+FAIL an older compiler staged beside the pin's: the build failed with the pin's compiler staged
+PASS an older compiler staged alone
+PASS the pin's directory holding another version
+PASS WOLF naming another version
+stale-compiler: tier=release pass=3 fail=2
+== the words skip/SKIP in the gates and the workflow:
+grep exit=1 (1 = no line)
+== continue-on-error / '|| true' / if-no-files in the workflow and gates:
+.github/workflows/ci.yml:60:        if: always()
+.github/workflows/ci.yml:65:          if-no-files-found: ignore
+grep exit=0
+restored, status exit=0

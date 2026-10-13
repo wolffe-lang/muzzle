@@ -1,0 +1,46 @@
+== commit dc3bcac9d7193ce6b85b39ff4e834b9ba138897b date=2026-10-13T22:44:36Z
+ae466e85418a48758460a981c9fab690462f779dae967cface86c555e649d7c1  wolf-0.2.29-x86_64-unknown-linux-gnu.tar.gz
+f5194b74879c45ad96484566950b4ae59fe1faa7ccd86461c6656f9e662b698f  lupin-0.1.52-x86_64-unknown-linux-gnu.tar.gz
+wolf 0.2.29 (wolfgang, pin 6ffe7c6)
+paired with lupin 0.1.52 (reference interpreter), pin 294d626
+lupin 0.1.52 (wolf-interp, reference interpreter at pin 294d626)
+
+#### the checked machine: wolf conform-run --json --checked
+
+$ /home/mfwolffe/lanes/mz2/dl/x/wolf-0.2.29-x86_64-unknown-linux-gnu/wolf conform-run --json --checked muzzle.lu
+wolf conform-run --checked: unsupported — a link-time symbol (`extern "c" let`) @653..689
+{"commit":"6ffe7c6","diagnostics":[],"file":"./muzzle.lu","impl":"wolfgang","impl_version":"0.2.29","phase_reached":"mem","protocol":1,"seeded":false,"stdout_inline":null,"stdout_sha256":null,"verdict":"unsupported","warnings":[],"x-unsupported-construct":"a link-time symbol (`extern \"c\" let`)","x-unsupported-span":[653,689]}
+exit=0
+
+#### the native and release machines through conform-run (the hosted target: not how muzzle is built)
+
+$ /home/mfwolffe/lanes/mz2/dl/x/wolf-0.2.29-x86_64-unknown-linux-gnu/wolf conform-run --json --native muzzle.lu
+wolf conform-run --native: unsupported — no `main` function to build an executable around
+{"commit":"6ffe7c6","diagnostics":[],"file":"./muzzle.lu","impl":"wolfgang","impl_version":"0.2.29","phase_reached":"wir","protocol":1,"seeded":false,"stdout_inline":null,"stdout_sha256":null,"verdict":"unsupported","warnings":[],"x-unsupported-construct":"no `main` function to build an executable around"}
+exit=0
+
+$ /home/mfwolffe/lanes/mz2/dl/x/wolf-0.2.29-x86_64-unknown-linux-gnu/wolf conform-run --json --release muzzle.lu
+wolf conform-run --native: unsupported — no `main` function to build an executable around
+{"commit":"6ffe7c6","diagnostics":[],"file":"./muzzle.lu","impl":"wolfgang","impl_version":"0.2.29","phase_reached":"wir","protocol":1,"seeded":false,"stdout_inline":null,"stdout_sha256":null,"verdict":"unsupported","warnings":[],"x-unsupported-construct":"no `main` function to build an executable around"}
+exit=0
+
+#### wolf run --checked (the NATIVE build, by the rules; shown so nobody reads it as the checked machine)
+
+$ /home/mfwolffe/lanes/mz2/dl/x/wolf-0.2.29-x86_64-unknown-linux-gnu/wolf run --checked muzzle.lu
+wolf run: cannot compile this yet — no `main` function to build an executable around (pipeline is honest through `wir`; the conservatism ledger, not a bug in your program)
+exit=4
+
+#### lupin 0.1.52
+
+$ /home/mfwolffe/lanes/mz2/dl/x/lupin-0.1.52-x86_64-unknown-linux-gnu/lupin run muzzle.lu
+muzzle.lu: unsupported: a link-time symbol (`extern "c" let __muzzle_bins`): the link-time symbol `__muzzle_bins` is defined by the image's link, which this machine does not model ([abi.link.extern])
+exit=4
+
+$ /home/mfwolffe/lanes/mz2/dl/x/lupin-0.1.52-x86_64-unknown-linux-gnu/lupin conform-run muzzle.lu
+muzzle.lu: verdict=unsupported phase_reached=resolve seeded=false
+  unsupported: a link-time symbol (`extern "c" let __muzzle_bins`): the link-time symbol `__muzzle_bins` is defined by the image's link, which this machine does not model ([abi.link.extern])
+exit=0
+
+$ /home/mfwolffe/lanes/mz2/dl/x/lupin-0.1.52-x86_64-unknown-linux-gnu/lupin check muzzle.lu
+muzzle.lu: unsupported: a link-time symbol (`extern "c" let __muzzle_bins`): the link-time symbol `__muzzle_bins` is defined by the image's link, which this machine does not model ([abi.link.extern])
+exit=2

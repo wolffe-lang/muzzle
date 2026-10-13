@@ -1,0 +1,21 @@
+== commit f6e2175da9842cbe1d3ea054d806e859af7705c3 date=2026-10-13T22:35:00Z
+== pin: version_line = "wolf 0.2.29 (wolfgang, pin 6ffe7c6)"
+stage 0.2.28 exit=0
+fetch-toolchain: wolf-0.2.29-x86_64-unknown-linux-gnu.tar.gz ae466e85418a4875… -> /home/mfwolffe/lanes/mz2/muzzle/.wolf-bin/wolf-0.2.29-x86_64-unknown-linux-gnu/wolf
+fetch-toolchain exit=0
+.wolf-bin/wolf-0.2.28-x86_64-unknown-linux-gnu/
+.wolf-bin/wolf-0.2.29-x86_64-unknown-linux-gnu/
+build: native: 6 objects, 19 exports defined, 19 internal references, 0 imports -> /home/mfwolffe/lanes/mz2/muzzle/build/native/libmuzzle.a
+build native exit=0
+  build/native/muzzle.asm-sys.o: no DWARF producer
+  build/native/muzzle.heap.o:     <c>   DW_AT_producer    : wolf v0 (wolfgang 0.2.28)
+  build/native/muzzle.process.o:     <c>   DW_AT_producer    : wolf v0 (wolfgang 0.2.28)
+  build/native/muzzle.root.o:     <c>   DW_AT_producer    : wolf v0 (wolfgang 0.2.28)
+  build/native/muzzle.string.o:     <c>   DW_AT_producer    : wolf v0 (wolfgang 0.2.28)
+  build/native/muzzle.sys.o:     <c>   DW_AT_producer    : wolf v0 (wolfgang 0.2.28)
+build: release: 4 objects, 19 exports defined, 5 internal references, 0 imports -> /home/mfwolffe/lanes/mz2/muzzle/build/release/libmuzzle.a
+build release exit=0
+  build/release/muzzle.asm-sys.o: no DWARF producer
+  build/release/muzzle.c00.o: no DWARF producer
+  build/release/muzzle.c01.o: no DWARF producer
+  build/release/muzzle.c02.o: no DWARF producer

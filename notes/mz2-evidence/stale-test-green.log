@@ -1,0 +1,20 @@
+== commit dc3bcac9d7193ce6b85b39ff4e834b9ba138897b date=2026-10-13T22:38:28Z
+== tools/build blob b9dadd1ab5091f4d4bf0678f3906d34f7a426498  tests/stale-compiler blob 344d7be32fd959246c4390d3521832f406353fde
+fetch-toolchain: wolf-0.2.29-x86_64-unknown-linux-gnu.tar.gz ae466e85418a4875… -> /home/mfwolffe/lanes/mz2/muzzle/.wolf-bin/wolf-0.2.29-x86_64-unknown-linux-gnu/wolf
+fetch-toolchain exit=0
+stale-compiler: tier=native pin='wolf 0.2.29 (wolfgang, pin 6ffe7c6)' stale='wolf 0.0.1 (wolfgang, pin 0000000)'
+PASS control: the pin's compiler alone
+PASS an older compiler staged beside the pin's
+PASS an older compiler staged alone
+PASS the pin's directory holding another version
+PASS WOLF naming another version
+stale-compiler: tier=native pass=5 fail=0
+stale-compiler native exit=0
+stale-compiler: tier=release pin='wolf 0.2.29 (wolfgang, pin 6ffe7c6)' stale='wolf 0.0.1 (wolfgang, pin 0000000)'
+PASS control: the pin's compiler alone
+PASS an older compiler staged beside the pin's
+PASS an older compiler staged alone
+PASS the pin's directory holding another version
+PASS WOLF naming another version
+stale-compiler: tier=release pass=5 fail=0
+stale-compiler release exit=0

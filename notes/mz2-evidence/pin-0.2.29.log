@@ -1,0 +1,47 @@
+== commit f6e2175da9842cbe1d3ea054d806e859af7705c3 label=0.2.29 host=Linux 7.2.8-1-cachyos x86_64 date=2026-10-13T22:36:44Z
+== archive ae466e85418a48758460a981c9fab690462f779dae967cface86c555e649d7c1  /home/mfwolffe/lanes/mz2/dl/wolf-0.2.29-x86_64-unknown-linux-gnu.tar.gz
+git status exit=0 (clean tree above this line = nothing listed)
+fetch-toolchain: wolf-0.2.29-x86_64-unknown-linux-gnu.tar.gz ae466e85418a4875… -> /home/mfwolffe/lanes/mz2/muzzle/.wolf-bin/wolf-0.2.29-x86_64-unknown-linux-gnu/wolf
+fetch-toolchain exit=0
+wolf-0.2.29-x86_64-unknown-linux-gnu
+wolf-0.2.29-x86_64-unknown-linux-gnu.tar.gz
+build: native: 6 objects, 19 exports defined, 19 internal references, 0 imports -> /home/mfwolffe/lanes/mz2/muzzle/build/native/libmuzzle.a
+build native exit=0
+difftest: tier=native glibc=glibc 2.44 clang version 23.1.1
+PASS errno exit=0 lines=10
+PASS exit exit=42 lines=1
+PASS exit_c17 exit=250 lines=1
+PASS exit_posix exit=3 lines=1
+PASS main_return exit=7 lines=1
+PASS malloc exit=0 lines=20
+PASS mem exit=0 lines=38
+PASS str exit=0 lines=29
+PASS write exit=0 lines=9
+difftest: tier=native pass=9 fail=0
+difftest native exit=0
+ef67d345c9d23bac533c42179cdfad06db730b9f532dfb5609127c85d6be260c  crt0.o.s
+766eb9bbd67c2d335018f48af0c8c3f5a9c8de259cf1d180ee16a361878e31fd  muzzle.asm-sys.o.s
+eab265b1f8beadc75814028453a06cf6801c216da117c2c603dc0458e8d284c8  muzzle.heap.o.s
+34de3bec42137f0b0014dfafa6189fa3fd094f16858275c2fc108f17d73fd512  muzzle.process.o.s
+2e11a2e67e39e5da03271b4b04a887253200ac9d59c17001b9ac51e0255946a6  muzzle.root.o.s
+51ffb917e27ca3ea6adaba2d775fef4558f891d43ec9044008ba94af9e49b17c  muzzle.string.o.s
+4155e0a18fb0030daa5ecf67eaa9faa1e7293eda9febe97909bb096e8fd9b650  muzzle.sys.o.s
+build: release: 4 objects, 19 exports defined, 5 internal references, 0 imports -> /home/mfwolffe/lanes/mz2/muzzle/build/release/libmuzzle.a
+build release exit=0
+difftest: tier=release glibc=glibc 2.44 clang version 23.1.1
+PASS errno exit=0 lines=10
+PASS exit exit=42 lines=1
+PASS exit_c17 exit=250 lines=1
+PASS exit_posix exit=3 lines=1
+PASS main_return exit=7 lines=1
+PASS malloc exit=0 lines=20
+PASS mem exit=0 lines=38
+PASS str exit=0 lines=29
+PASS write exit=0 lines=9
+difftest: tier=release pass=9 fail=0
+difftest release exit=0
+ef67d345c9d23bac533c42179cdfad06db730b9f532dfb5609127c85d6be260c  crt0.o.s
+766eb9bbd67c2d335018f48af0c8c3f5a9c8de259cf1d180ee16a361878e31fd  muzzle.asm-sys.o.s
+bc3607eca83d0bc7dd6f36a32216a3ac71162eef4a6ec0361c4ec83bc68fbd45  muzzle.c00.o.s
+6866f0de2853d98263159921c8dea7c127a148f2115803e362e4bb0c65ae1204  muzzle.c01.o.s
+90526ece2cb580e33bd0966f6fb03a0a18a96ebb12a5a4109ac9bb2672f8e9f4  muzzle.c02.o.s

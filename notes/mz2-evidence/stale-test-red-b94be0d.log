@@ -1,0 +1,44 @@
+== commit b94be0dede2f359aa91c1d7c04088004b664d812 date=2026-10-13T22:38:25Z
+== tools/build blob e802f961e25ccbc50394938bd3f5d2419e312a65  tests/stale-compiler blob 344d7be32fd959246c4390d3521832f406353fde
+fetch-toolchain: wolf-0.2.29-x86_64-unknown-linux-gnu.tar.gz ae466e85418a4875… -> /home/mfwolffe/lanes/mz2/muzzle/.wolf-bin/wolf-0.2.29-x86_64-unknown-linux-gnu/wolf
+fetch-toolchain exit=0
+stale-compiler: tier=native pin='wolf 0.2.29 (wolfgang, pin 6ffe7c6)' stale='wolf 0.0.1 (wolfgang, pin 0000000)'
+PASS control: the pin's compiler alone
+FAIL an older compiler staged beside the pin's: the build ran the stale compiler
+  tools/build exit=0
+  stdout: build: native: 6 objects, 19 exports defined, 19 internal references, 0 imports -> /home/mfwolffe/lanes/mz2/muzzle/out/stale-compiler-native/beside/build/native/libmuzzle.a
+  the stale compiler ran: wolf build muzzle.lu --target x86_64-unknown-none --emit=obj --deny-warnings -o /home/mfwolffe/lanes/mz2/muzzle/out/stale-compiler-native/beside/build/native/muzzle.o
+FAIL an older compiler staged alone: the build ran the stale compiler
+  tools/build exit=0
+  stdout: build: native: 6 objects, 19 exports defined, 19 internal references, 0 imports -> /home/mfwolffe/lanes/mz2/muzzle/out/stale-compiler-native/alone/build/native/libmuzzle.a
+  the stale compiler ran: wolf build muzzle.lu --target x86_64-unknown-none --emit=obj --deny-warnings -o /home/mfwolffe/lanes/mz2/muzzle/out/stale-compiler-native/alone/build/native/muzzle.o
+FAIL the pin's directory holding another version: the build ran the stale compiler
+  tools/build exit=0
+  stdout: build: native: 6 objects, 19 exports defined, 19 internal references, 0 imports -> /home/mfwolffe/lanes/mz2/muzzle/out/stale-compiler-native/renamed/build/native/libmuzzle.a
+  the stale compiler ran: wolf build muzzle.lu --target x86_64-unknown-none --emit=obj --deny-warnings -o /home/mfwolffe/lanes/mz2/muzzle/out/stale-compiler-native/renamed/build/native/muzzle.o
+FAIL WOLF naming another version: the build ran the stale compiler
+  tools/build exit=0
+  stdout: build: native: 6 objects, 19 exports defined, 19 internal references, 0 imports -> /home/mfwolffe/lanes/mz2/muzzle/out/stale-compiler-native/env/build/native/libmuzzle.a
+  the stale compiler ran: wolf build muzzle.lu --target x86_64-unknown-none --emit=obj --deny-warnings -o /home/mfwolffe/lanes/mz2/muzzle/out/stale-compiler-native/env/build/native/muzzle.o
+stale-compiler: tier=native pass=1 fail=4
+stale-compiler native exit=1
+stale-compiler: tier=release pin='wolf 0.2.29 (wolfgang, pin 6ffe7c6)' stale='wolf 0.0.1 (wolfgang, pin 0000000)'
+PASS control: the pin's compiler alone
+FAIL an older compiler staged beside the pin's: the build ran the stale compiler
+  tools/build exit=0
+  stdout: build: release: 4 objects, 19 exports defined, 5 internal references, 0 imports -> /home/mfwolffe/lanes/mz2/muzzle/out/stale-compiler-release/beside/build/release/libmuzzle.a
+  the stale compiler ran: wolf build muzzle.lu --target x86_64-unknown-none --emit=obj --deny-warnings --release -o /home/mfwolffe/lanes/mz2/muzzle/out/stale-compiler-release/beside/build/release/muzzle.o
+FAIL an older compiler staged alone: the build ran the stale compiler
+  tools/build exit=0
+  stdout: build: release: 4 objects, 19 exports defined, 5 internal references, 0 imports -> /home/mfwolffe/lanes/mz2/muzzle/out/stale-compiler-release/alone/build/release/libmuzzle.a
+  the stale compiler ran: wolf build muzzle.lu --target x86_64-unknown-none --emit=obj --deny-warnings --release -o /home/mfwolffe/lanes/mz2/muzzle/out/stale-compiler-release/alone/build/release/muzzle.o
+FAIL the pin's directory holding another version: the build ran the stale compiler
+  tools/build exit=0
+  stdout: build: release: 4 objects, 19 exports defined, 5 internal references, 0 imports -> /home/mfwolffe/lanes/mz2/muzzle/out/stale-compiler-release/renamed/build/release/libmuzzle.a
+  the stale compiler ran: wolf build muzzle.lu --target x86_64-unknown-none --emit=obj --deny-warnings --release -o /home/mfwolffe/lanes/mz2/muzzle/out/stale-compiler-release/renamed/build/release/muzzle.o
+FAIL WOLF naming another version: the build ran the stale compiler
+  tools/build exit=0
+  stdout: build: release: 4 objects, 19 exports defined, 5 internal references, 0 imports -> /home/mfwolffe/lanes/mz2/muzzle/out/stale-compiler-release/env/build/release/libmuzzle.a
+  the stale compiler ran: wolf build muzzle.lu --target x86_64-unknown-none --emit=obj --deny-warnings --release -o /home/mfwolffe/lanes/mz2/muzzle/out/stale-compiler-release/env/build/release/muzzle.o
+stale-compiler: tier=release pass=1 fail=4
+stale-compiler release exit=1

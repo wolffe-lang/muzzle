@@ -1,0 +1,38 @@
+== commit dc3bcac9d7193ce6b85b39ff4e834b9ba138897b date=2026-10-13T22:38:30Z
+== pin: version_line = "wolf 0.2.29 (wolfgang, pin 6ffe7c6)"
+stage 0.2.28 exit=0
+== B. 0.2.28 alone
+.wolf-bin/wolf-0.2.28-x86_64-unknown-linux-gnu/
+build: the pin wants 'wolf 0.2.29 (wolfgang, pin 6ffe7c6)' (wolf-toolchain.toml) and there is no driver at /home/mfwolffe/lanes/mz2/muzzle/.wolf-bin/wolf-0.2.29-x86_64-unknown-linux-gnu/wolf
+build: found 'wolf 0.2.28 (wolfgang, pin f71ece8)' at /home/mfwolffe/lanes/mz2/muzzle/.wolf-bin/wolf-0.2.28-x86_64-unknown-linux-gnu/wolf, which is not the pin's; not used
+build: run tools/fetch-toolchain, or set WOLF to the pinned driver
+build native exit=2
+0
+build: the pin wants 'wolf 0.2.29 (wolfgang, pin 6ffe7c6)' (wolf-toolchain.toml) and there is no driver at /home/mfwolffe/lanes/mz2/muzzle/.wolf-bin/wolf-0.2.29-x86_64-unknown-linux-gnu/wolf
+build: found 'wolf 0.2.28 (wolfgang, pin f71ece8)' at /home/mfwolffe/lanes/mz2/muzzle/.wolf-bin/wolf-0.2.28-x86_64-unknown-linux-gnu/wolf, which is not the pin's; not used
+build: run tools/fetch-toolchain, or set WOLF to the pinned driver
+build release exit=2
+0
+== A. 0.2.28 beside 0.2.29
+fetch-toolchain: wolf-0.2.29-x86_64-unknown-linux-gnu.tar.gz ae466e85418a4875… -> /home/mfwolffe/lanes/mz2/muzzle/.wolf-bin/wolf-0.2.29-x86_64-unknown-linux-gnu/wolf
+fetch-toolchain exit=0
+.wolf-bin/wolf-0.2.28-x86_64-unknown-linux-gnu/
+.wolf-bin/wolf-0.2.29-x86_64-unknown-linux-gnu/
+build: native: 6 objects, 19 exports defined, 19 internal references, 0 imports -> /home/mfwolffe/lanes/mz2/muzzle/build/native/libmuzzle.a
+build native exit=0
+  build/native/muzzle.asm-sys.o: no DWARF producer
+  build/native/muzzle.heap.o:     <c>   DW_AT_producer    : wolf v0 (wolfgang 0.2.29)
+  build/native/muzzle.process.o:     <c>   DW_AT_producer    : wolf v0 (wolfgang 0.2.29)
+  build/native/muzzle.root.o:     <c>   DW_AT_producer    : wolf v0 (wolfgang 0.2.29)
+  build/native/muzzle.string.o:     <c>   DW_AT_producer    : wolf v0 (wolfgang 0.2.29)
+  build/native/muzzle.sys.o:     <c>   DW_AT_producer    : wolf v0 (wolfgang 0.2.29)
+build: release: 4 objects, 19 exports defined, 5 internal references, 0 imports -> /home/mfwolffe/lanes/mz2/muzzle/build/release/libmuzzle.a
+build release exit=0
+  build/release/muzzle.asm-sys.o: no DWARF producer
+  build/release/muzzle.c00.o: no DWARF producer
+  build/release/muzzle.c01.o: no DWARF producer
+  build/release/muzzle.c02.o: no DWARF producer
+== C. WOLF names the real 0.2.28
+build: found 'wolf 0.2.28 (wolfgang, pin f71ece8)' at /home/mfwolffe/lanes/mz2/muzzle/.wolf-bin/wolf-0.2.28-x86_64-unknown-linux-gnu/wolf; the pin wants 'wolf 0.2.29 (wolfgang, pin 6ffe7c6)' (wolf-toolchain.toml)
+build: not building with it: run tools/fetch-toolchain, or set WOLF to the pinned driver
+build native exit=2
