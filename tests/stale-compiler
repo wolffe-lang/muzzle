@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+# muzzle#4: tools/build runs the pin's compiler, or refuses and says
+# which version it found and which one wolf-toolchain.toml wants. It
+# never builds with another wolf that happens to be staged.
+#
+# How the bug happened (lane mz): tools/fetch-toolchain stages
+# .wolf-bin/wolf-<version>-<host>/ and leaves older directories alone,
+# and tools/build took whichever wolf-*/wolf sorted first. After a pin
+# move on a reused checkout that was the OLD compiler, and the build
+# came back green.
+#
+# Each case below gets a scratch copy of tools/, src/ and the pin under
+# out/, with its own .wolf-bin/, and runs the copy's tools/build. The
+# stale compiler is staged on purpose: a directory named for a version
+# that sorts before the pin's, holding a `wolf` that reports that old
+# version, records every other invocation in a log, and then does the
+# work with the real pinned compiler. So a build that picks it up goes
+# ahead and passes, exactly as a real older compiler's did; the log is
+# how the test knows it ran.
+#
+#   tests/stale-compiler [native|release]
+#
+# Needs the pinned wolf staged (tools/fetch-toolchain). Exits 1 on any
+# failed case and unless every case ran; 2 if it cannot start.
+set -uo pipefail
+tier=${1:-native}
+root=$(cd "$(dirname "$0")/.." && pwd)
+pin="$root/wolf-toolchain.toml"
+key() { sed -n "s/^$1 = \"\(.*\)\"$/\1/p" "$pin" | head -1; }
+ver=$(key version); line=$(key version_line)
+host=x86_64-unknown-linux-gnu
+[ -n "$ver" ] && [ -n "$line" ] || { echo "stale-compiler: pin incomplete" >&2; exit 2; }
+real="$root/.wolf-bin/wolf-$ver-$host"
+[ -x "$real/wolf" ] || { echo "stale-compiler: the pinned wolf is not staged at $real (run tools/fetch-toolchain)" >&2; exit 2; }
+got=$("$real/wolf" --version 2>/dev/null) || got=""
+got=${got%%$'\n'*}
+[ "$got" = "$line" ] || { echo "stale-compiler: $real/wolf is '$got', the pin wants '$line'" >&2; exit 2; }
+
+stale_ver=0.0.1
+stale_line="wolf $stale_ver (wolfgang, pin 0000000)"
+scratch="$root/out/stale-compiler-$tier"
+rm -rf "$scratch"; mkdir -p "$scratch"
+echo "stale-compiler: tier=$tier pin='$line' stale='$stale_line'"
+
+# tree NAME: a scratch copy of what tools/build reads, with an empty .wolf-bin/.
+tree() {
+  t="$scratch/$1"; log="$t/stale-ran.log"
+  mkdir -p "$t/.wolf-bin"
+  cp -R "$root/tools" "$root/src" "$pin" "$t/"
+  rm -rf "$t/src/.lu-cache"   # an earlier build's cache is not this case's
+}
+# stage_stale DIR: a compiler that is not the pin's, in .wolf-bin/DIR/.
+stage_stale() {
+  mkdir -p "$t/.wolf-bin/$1"
+  cat >"$t/.wolf-bin/$1/wolf" <<EOF
+#!/usr/bin/env bash
+if [ "\${1:-}" = --version ]; then echo "$stale_line"; echo "(staged by tests/stale-compiler)"; exit 0; fi
+echo "\$*" >>"$log"
+exec "$real/wolf" "\$@"
+EOF
+  chmod +x "$t/.wolf-bin/$1/wolf"
+}
+stage_pin() { ln -s "$real" "$t/.wolf-bin/wolf-$ver-$host"; }
+# build [VAR=value]: the copy's tools/build, with no WOLF unless given.
+build() {
+  env -u WOLF "$@" "$t/tools/build" "$tier" >"$t/build.out" 2>"$t/build.err"; rc=$?
+}
+
+pass=0; fail=0
+ok() { echo "PASS $1"; pass=$((pass+1)); }
+no() {
+  echo "FAIL $1: $2"; fail=$((fail+1))
+  echo "  tools/build exit=$rc"
+  sed 's/^/  stdout: /' "$t/build.out"
+  sed 's/^/  stderr: /' "$t/build.err"
+  [ -s "$log" ] && sed 's/^/  the stale compiler ran: wolf /' "$log"
+}
+# The build must have used the pin's compiler: it passes, and the stale one never compiled.
+want_pin() {
+  if [ -s "$log" ]; then no "$1" "the build ran the stale compiler"
+  elif [ $rc != 0 ]; then no "$1" "the build failed with the pin's compiler staged"
+  elif ! grep -q "^build: $tier: " "$t/build.out"; then no "$1" "the build printed no gate line"
+  else ok "$1"; fi
+}
+# The build must have refused: non-zero, the stale one never compiled,
+# and stderr names the version found and the version the pin wants.
+want_refusal() {
+  if [ -s "$log" ]; then no "$1" "the build ran the stale compiler"
+  elif [ $rc = 0 ]; then no "$1" "the build passed without the pin's compiler"
+  elif ! grep -qF "$stale_line" "$t/build.err"; then no "$1" "the refusal does not name the version found ('$stale_line')"
+  elif ! grep -qF "$line" "$t/build.err"; then no "$1" "the refusal does not name the version the pin wants ('$line')"
+  else ok "$1"; fi
+}
+
+# 0. The control: only the pin's compiler is staged. The build passes.
+#    (Without it, a tools/build that refused everything would pass 2-4.)
+tree control; stage_pin; build
+want_pin "control: the pin's compiler alone"
+
+# 1. The reused checkout: an older directory beside the pin's. It sorts
+#    first. The build must use the pin's.
+tree beside; stage_stale "wolf-$stale_ver-$host"; stage_pin; build
+want_pin "an older compiler staged beside the pin's"
+
+# 2. Only the older directory is there (the pin moved, nothing fetched).
+tree alone; stage_stale "wolf-$stale_ver-$host"; build
+want_refusal "an older compiler staged alone"
+
+# 3. The directory has the pin's name and another compiler in it.
+tree renamed; stage_stale "wolf-$ver-$host"; build
+want_refusal "the pin's directory holding another version"
+
+# 4. WOLF names a compiler that is not the pin's.
+tree env; stage_stale "wolf-$stale_ver-$host"; stage_pin
+build WOLF="$t/.wolf-bin/wolf-$stale_ver-$host/wolf"
+want_refusal "WOLF naming another version"
+
+echo "stale-compiler: tier=$tier pass=$pass fail=$fail"
+[ $((pass+fail)) = 5 ] || { echo "stale-compiler: expected 5 cases, ran $((pass+fail))" >&2; exit 1; }
+[ $fail = 0 ]
