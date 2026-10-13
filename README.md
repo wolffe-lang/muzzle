@@ -57,6 +57,7 @@ clang -std=c17 -fno-builtin -fno-stack-protector \
 | `src/crt0.S` | `_start` |
 | `include/` | the C headers, hand-written from the standards' synopses (ruling R3: muzzle's one permanent C) |
 | `tests/cases/` | the differential's cases, one per function family |
+| `tests/stale-compiler` | `tools/build` runs the pinned compiler or refuses: a stale one is staged on purpose (muzzle#4) |
 | `tools/` | `fetch-toolchain`, `build`, `difftest` |
 | `docs/SOURCES.md` | every source consulted (the clean-room record) |
 | `docs/LEDGER.md` | open behaviours the cases observe, and the link's departures |
