@@ -42,6 +42,12 @@ jobs:
         shell: bash
         run: tools/fetch-toolchain
 
+      # muzzle#4: tools/build runs the pin's compiler or refuses. The
+      # test stages a stale one where the build would find it.
+      - name: the stale compiler (${{ matrix.tier }})
+        shell: bash
+        run: tests/stale-compiler ${{ matrix.tier }}
+
       - name: build (${{ matrix.tier }})
         shell: bash
         run: tools/build ${{ matrix.tier }}
