@@ -3,3 +3,4 @@
 /.wolf-bin/
 *.o
 *.a
+/src/.lu-cache/
