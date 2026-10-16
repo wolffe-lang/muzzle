@@ -1,0 +1,61 @@
+== commit 074a3496d4116cc39945a6d08c49bd92e9f77a32 date=2026-10-16T18:45:41Z
+5db5533236578008625885c7e3ed0a21084b8fa064219808ae668dedb0edccaa  /home/mfwolffe/lanes/mz3/dl/lupin-0.1.53-x86_64-unknown-linux-gnu.tar.gz
+ae466e85418a48758460a981c9fab690462f779dae967cface86c555e649d7c1  /home/mfwolffe/lanes/mz3/dl/wolf-0.2.29-x86_64-unknown-linux-gnu.tar.gz
+4e55b39ed243d3e8ed3be24f716186529e1942935464476d47c4bc983329fe89  /home/mfwolffe/lanes/mz3/dl/wolf-0.2.30-x86_64-unknown-linux-gnu.tar.gz
+wolf 0.2.30 (wolfgang, pin 1b37f36)
+paired with lupin 0.1.53 (reference interpreter), pin 294d626
+lupin 0.1.53 (wolf-interp, reference interpreter at pin 294d626)
+
+#### the checked machine: wolf conform-run --json --checked
+$ /home/mfwolffe/lanes/mz3/x/wolf-0.2.30-x86_64-unknown-linux-gnu/wolf conform-run --json --checked muzzle.lu
+wolf conform-run --checked: unsupported — a link-time symbol (`extern "c" let`) @653..689
+{"commit":"1b37f36","diagnostics":[],"file":"./muzzle.lu","impl":"wolfgang","impl_version":"0.2.30","phase_reached":"mem","protocol":1,"seeded":false,"stdout_inline":null,"stdout_sha256":null,"verdict":"unsupported","warnings":[],"x-unsupported-construct":"a link-time symbol (`extern \"c\" let`)","x-unsupported-span":[653,689]}
+exit=0
+
+#### wolf run --checked (the NATIVE build, not the checked machine)
+$ /home/mfwolffe/lanes/mz3/x/wolf-0.2.30-x86_64-unknown-linux-gnu/wolf run --checked muzzle.lu
+wolf run: cannot compile this yet — no `main` function to build an executable around (pipeline is honest through `wir`; the conservatism ledger, not a bug in your program)
+exit=4
+
+#### lupin 0.1.53
+$ /home/mfwolffe/lanes/mz3/x/lupin-0.1.53-x86_64-unknown-linux-gnu/lupin run muzzle.lu
+muzzle.lu: unsupported: a link-time symbol (`extern "c" let __muzzle_bins`): the link-time symbol `__muzzle_bins` is defined by the image's link, which this machine does not model ([abi.link.extern])
+exit=4
+$ /home/mfwolffe/lanes/mz3/x/lupin-0.1.53-x86_64-unknown-linux-gnu/lupin conform-run muzzle.lu
+muzzle.lu: verdict=unsupported phase_reached=resolve seeded=false
+  unsupported: a link-time symbol (`extern "c" let __muzzle_bins`): the link-time symbol `__muzzle_bins` is defined by the image's link, which this machine does not model ([abi.link.extern])
+exit=0
+
+#### exit 2: a type error planted in src/string/string.lu (restored after)
+ src/string/string.lu | 4 ++++
+ 1 file changed, 4 insertions(+)
+error[E0401]: this is `str`, but `mz3_planted` must return `i32`
+   --> ./string/string.lu:184:12
+    |
+183 | fn mz3_planted() -> i32 {
+    |                  ------ the return type is declared here
+184 |     return "not an i32"
+    |            ^^^^^^^^^^^^ found `str` here
+    |
+    = note: expected `i32`, found `str`
+
+wolf build: the package does not compile; fix the errors above (`wolf --explain E0401` explains this code, or any other, by name)
+tools/build native exit=2
+error[E0401]: this is `str`, but `mz3_planted` must return `i32`
+   --> ./string/string.lu:184:12
+    |
+183 | fn mz3_planted() -> i32 {
+    |                  ------ the return type is declared here
+184 |     return "not an i32"
+    |            ^^^^^^^^^^^^ found `str` here
+    |
+    = note: expected `i32`, found `str`
+
+wolf build: the package does not compile; fix the errors above (`wolf --explain E0401` explains this code, or any other, by name)
+tools/build release exit=2
+tools/difftest native after it exit=1
+difftest: tier=native pass=0 fail=9
+0
+tests/stale-compiler native exit=1
+stale-compiler: tier=native pass=3 fail=2
+restored, git status exit=0

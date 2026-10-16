@@ -1,0 +1,28 @@
+== stripped objects (objcopy --strip-debug), 0.2.29 against 0.2.30
+same   native/crt0.o.s 776 bytes
+same   native/muzzle.asm-sys.o.s 784 bytes
+same   native/muzzle.heap.o.s 8184 bytes
+same   native/muzzle.process.o.s 1248 bytes
+same   native/muzzle.root.o.s 1088 bytes
+same   native/muzzle.string.o.s 5512 bytes
+same   native/muzzle.sys.o.s 5432 bytes
+same   release/crt0.o.s 776 bytes
+same   release/muzzle.asm-sys.o.s 784 bytes
+same   release/muzzle.c00.o.s 5384 bytes
+same   release/muzzle.c01.o.s 2280 bytes
+same   release/muzzle.c02.o.s 2544 bytes
+== compared 12 objects; differ=0
+== control, that the compare can fire: the same objects NOT stripped
+same   native-raw/crt0.o
+same   native-raw/muzzle.asm-sys.o
+DIFFER native-raw/muzzle.heap.o
+DIFFER native-raw/muzzle.process.o
+DIFFER native-raw/muzzle.root.o
+DIFFER native-raw/muzzle.string.o
+DIFFER native-raw/muzzle.sys.o
+same   release-raw/crt0.o
+same   release-raw/muzzle.asm-sys.o
+same   release-raw/muzzle.c00.o
+same   release-raw/muzzle.c01.o
+same   release-raw/muzzle.c02.o
+== unstripped objects that differ: 5
