@@ -60,3 +60,70 @@ answers (P6); no `[lupin]` table is added.
 | P7 | after a build, trunk's tree is dirty with `src/.lu-cache/`; with the `.gitignore` line, `git status --porcelain` is empty after both tiers' build and difftest | anything else listed |
 | P8 | CI: the plant (the 0.2.30 pin with one digest character changed, a branch of its own) is red on both jobs at the fetch step; the head is green on both | otherwise |
 | P9 | no muzzle gate reads `wolf build`'s exit 2 as a skip at 0.2.30: with a compile error planted in `src/` (never committed), `tools/build` exits 2 on both tiers | a zero exit, or a skip |
+
+## 4. Evidence (kasumi, linux x86-64, clang 23.1.1, glibc 2.44)
+
+Each log is the raw output of the script beside it in
+`notes/mz3-evidence/scripts/`, every exit status echoed bare (no pipe on
+a command under test). `run.sh` starts each tree with `git clean -xfd`
+(no `.wolf-bin/`, `build/`, `out/` or `src/.lu-cache/`).
+
+| log | commit | what |
+|---|---|---|
+| `baseline-0.2.29.log` | `44387d0` (trunk) | wolf 0.2.29: build 6 and 4 objects, 19 exports, 0 imports; difftest 9/9 on both tiers; producers `wolfgang 0.2.29`; after the run `git status` lists `?? src/.lu-cache/` |
+| `pin-0.2.30.log` | `074a349` | wolf 0.2.30: the same counts, 9/9 on both tiers, every case's exit status and line count as at 0.2.29; producers `wolfgang 0.2.30`; after the run `git status --porcelain` is empty |
+| `objects-0.2.29-0.2.30.log` | both | 12 objects stripped (`objcopy --strip-debug`): 12 same, 0 differ. Control: unstripped, the 5 native wolf objects differ (their DWARF producer names the compiler), so the compare fires |
+| `reuse-first-real-use.log` | `44387d0` → `2807967` | mz2's pin check at its first real use: the baseline checkout, 0.2.29 still staged, moved to the pin commit. Before the fetch `tools/build` exits 2 on both tiers ("the pin wants 'wolf 0.2.30 (wolfgang, pin 1b37f36)' … found 'wolf 0.2.29 (wolfgang, pin 6ffe7c6)' … not used"); after it, built by 0.2.30 with 0.2.29 still staged beside it (producers `wolfgang 0.2.30`), 9/9 both tiers; `tests/stale-compiler` 5 of 5 on both tiers |
+| `machines-and-exit2.log` | `074a349` | the archives' sha256 (the second read of each digest); the checked machine and lupin 0.1.53 refuse by name; a planted E0401 makes `tools/build` exit 2 on both tiers and leave no object; `tools/difftest` after it pass=0 fail=9 exit 1, no line says skip; `tests/stale-compiler` exit 1; the plant restored |
+
+The digests, each read twice: wolf 0.2.30 linux x86-64 `4e55b39e…89`,
+79,910,152 bytes, from the release API and from `sha256sum` on kasumi
+(and a third time by `tools/fetch-toolchain` in CI); lupin 0.1.53
+`5db55332…aa`, 2,945,862 bytes, the same two ways.
+
+The plant (P8), a branch of its own: `mz3-plant` is the pin commit
+`2807967` plus `d3782f5`, which changes one character of the wolf digest
+(`4e55b39e` → `4e55b39f`). It was seen red in run 38949850825
+(workflow_dispatch): both jobs fail at the step `the pinned wolf, by
+digest`, "digest 4e55b39ed243… pin wants 4e55b39fd243…", exit 1.
+
+The machines:
+
+- native and release: `wolf build --target x86_64-unknown-none
+  --emit=obj`. muzzle's tests run on these two and nowhere else.
+- checked (`wolf conform-run --json --checked muzzle.lu`): `verdict:
+  unsupported`, "a link-time symbol (`extern "c" let`)", as at 0.2.29.
+- lupin 0.1.53 (`lupin run muzzle.lu`): refused by name, the link-time
+  symbol `__muzzle_bins` ([abi.link.extern]), exit 4, as 0.1.52.
+- `wolf run --checked` is the native build, not the checked machine:
+  exit 4, no `main`.
+
+## 5. Score
+
+9 of 9.
+
+- P1, P2: 6 and 4 objects, 19 exports, 0 imports; 9/9 on both tiers,
+  each case's exit status and line count equal to 0.2.29's.
+- P3: **the pin moves no output.** 12 of 12 stripped objects
+  byte-identical; the unstripped control differs in the 5 native wolf
+  objects. s755's lowering change did not reach muzzle.
+- P4: the pin forced `wolf-toolchain.toml` and README's build line;
+  no source, test or header edit.
+- P5: refusal exit 2 naming both versions before the fetch; built by
+  0.2.30 after it; the test 5 of 5 on both tiers.
+- P6: both refuse by name. P7: `?? src/.lu-cache/` at trunk, an empty
+  `git status --porcelain` with the line. P8: plant red at the fetch
+  step on both jobs (run 38949850825); the head's run is in the PR.
+  P9: exit 2 on both tiers, every gate after it non-zero.
+
+## 6. Found, not changed, not filed
+
+- A refused `tools/build` leaves the previous `build/<tier>/` in place
+  (the version check runs before `rm -rf "$out"`), so on a reused
+  checkout `tools/build native; tools/difftest native` tests the OLD
+  compiler's archive and can pass (`reuse-first-real-use.log`: after
+  both refusals `build/native` and `build/release` still hold 0.2.29's
+  objects). CI is not exposed: a failed build step ends the job.
+- `tools/fetch-toolchain` still leaves older directories in
+  `.wolf-bin/` (mz2's finding; disk only, since `tools/build` refuses
+  them).
