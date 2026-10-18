@@ -8,6 +8,12 @@
 set -euo pipefail
 tier=${1:?usage: tools/build native|release}
 root=$(cd "$(dirname "$0")/.." && pwd)
+case $tier in native) fl=();; release) fl=(--release);; *) echo "build: tier '$tier'" >&2; exit 2;; esac
+# The previous output goes first, before anything can refuse (muzzle#7):
+# a refused build leaves no build/<tier>/, so a tools/difftest after it
+# has no archive to test rather than the last compiler's.
+out="$root/build/$tier"
+rm -rf "$out"
 # The compiler is the pin's, or there is no build (muzzle#4). It is the
 # directory tools/fetch-toolchain stages for wolf-toolchain.toml's
 # version, or $WOLF; never "whichever .wolf-bin/wolf-* sorts first",
@@ -33,9 +39,7 @@ if [ "$found" != "$line" ]; then
   echo "build: not building with it: run tools/fetch-toolchain, or set WOLF to the pinned driver" >&2
   exit 2
 fi
-case $tier in native) fl=();; release) fl=(--release);; *) echo "build: tier '$tier'" >&2; exit 2;; esac
-out="$root/build/$tier"
-rm -rf "$out"; mkdir -p "$out"
+mkdir -p "$out"
 cd "$root/src"
 "$W" build muzzle.lu --target x86_64-unknown-none --emit=obj --deny-warnings "${fl[@]}" -o "$out/muzzle.o"
 clang -c crt0.S -o "$out/crt0.o"
