@@ -18,6 +18,11 @@
 # ahead and passes, exactly as a real older compiler's did; the log is
 # how the test knows it ran.
 #
+# muzzle#7 (lane mz4): every tree also starts with an earlier build's
+# output in build/<tier>/, as a reused checkout has. A refusal must
+# leave none of it, or a tools/difftest after the refusal would test
+# the earlier compiler's archive and could pass.
+#
 #   tests/stale-compiler [native|release]
 #
 # Needs the pinned wolf staged (tools/fetch-toolchain). Exits 1 on any
@@ -36,6 +41,7 @@ got=$("$real/wolf" --version 2>/dev/null) || got=""
 got=${got%%$'\n'*}
 [ "$got" = "$line" ] || { echo "stale-compiler: $real/wolf is '$got', the pin wants '$line'" >&2; exit 2; }
 
+earlier=left-by-an-earlier-build
 stale_ver=0.0.1
 stale_line="wolf $stale_ver (wolfgang, pin 0000000)"
 scratch="$root/out/stale-compiler-$tier"
@@ -48,6 +54,8 @@ tree() {
   mkdir -p "$t/.wolf-bin"
   cp -R "$root/tools" "$root/src" "$pin" "$t/"
   rm -rf "$t/src/.lu-cache"   # an earlier build's cache is not this case's
+  mkdir -p "$t/build/$tier"   # muzzle#7: an earlier build's output
+  echo "left by an earlier build" >"$t/build/$tier/$earlier"
 }
 # stage_stale DIR: a compiler that is not the pin's, in .wolf-bin/DIR/.
 stage_stale() {
@@ -80,15 +88,18 @@ want_pin() {
   if [ -s "$log" ]; then no "$1" "the build ran the stale compiler"
   elif [ $rc != 0 ]; then no "$1" "the build failed with the pin's compiler staged"
   elif ! grep -q "^build: $tier: " "$t/build.out"; then no "$1" "the build printed no gate line"
+  elif [ -e "$t/build/$tier/$earlier" ]; then no "$1" "the build kept the earlier build's output"
   else ok "$1"; fi
 }
 # The build must have refused: non-zero, the stale one never compiled,
-# and stderr names the version found and the version the pin wants.
+# stderr names the version found and the version the pin wants, and
+# no build/<tier>/ is left (muzzle#7).
 want_refusal() {
   if [ -s "$log" ]; then no "$1" "the build ran the stale compiler"
   elif [ $rc = 0 ]; then no "$1" "the build passed without the pin's compiler"
   elif ! grep -qF "$stale_line" "$t/build.err"; then no "$1" "the refusal does not name the version found ('$stale_line')"
   elif ! grep -qF "$line" "$t/build.err"; then no "$1" "the refusal does not name the version the pin wants ('$line')"
+  elif [ -e "$t/build/$tier" ]; then no "$1" "the refusal left the previous build/$tier/ (muzzle#7): $(ls "$t/build/$tier" | tr '\n' ' ')"
   else ok "$1"; fi
 }
 
