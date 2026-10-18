@@ -1,0 +1,12 @@
+difftest (native)	the stale compiler (native)	2026-10-18T23:05:06.4118689Z stale-compiler: tier=native pin='wolf 0.2.32 (wolfgang, pin 72de141)' stale='wolf 0.0.1 (wolfgang, pin 0000000)'
+difftest (native)	the stale compiler (native)	2026-10-18T23:05:07.8680884Z FAIL an older compiler staged alone: the refusal left the previous build/native/ (muzzle#7): left-by-an-earlier-build 
+difftest (native)	the stale compiler (native)	2026-10-18T23:05:07.8961317Z FAIL the pin's directory holding another version: the refusal left the previous build/native/ (muzzle#7): left-by-an-earlier-build 
+difftest (native)	the stale compiler (native)	2026-10-18T23:05:07.9242657Z FAIL WOLF naming another version: the refusal left the previous build/native/ (muzzle#7): left-by-an-earlier-build 
+difftest (native)	the stale compiler (native)	2026-10-18T23:05:07.9276133Z stale-compiler: tier=native pass=2 fail=3
+difftest (native)	the stale compiler (native)	2026-10-18T23:05:07.9288976Z ##[error]Process completed with exit code 1.
+difftest (release)	the stale compiler (release)	2026-10-18T23:04:46.6346513Z stale-compiler: tier=release pin='wolf 0.2.32 (wolfgang, pin 72de141)' stale='wolf 0.0.1 (wolfgang, pin 0000000)'
+difftest (release)	the stale compiler (release)	2026-10-18T23:04:55.2406643Z FAIL an older compiler staged alone: the refusal left the previous build/release/ (muzzle#7): left-by-an-earlier-build 
+difftest (release)	the stale compiler (release)	2026-10-18T23:04:55.2699055Z FAIL the pin's directory holding another version: the refusal left the previous build/release/ (muzzle#7): left-by-an-earlier-build 
+difftest (release)	the stale compiler (release)	2026-10-18T23:04:55.2994370Z FAIL WOLF naming another version: the refusal left the previous build/release/ (muzzle#7): left-by-an-earlier-build 
+difftest (release)	the stale compiler (release)	2026-10-18T23:04:55.3024621Z stale-compiler: tier=release pass=2 fail=3
+difftest (release)	the stale compiler (release)	2026-10-18T23:04:55.3038703Z ##[error]Process completed with exit code 1.

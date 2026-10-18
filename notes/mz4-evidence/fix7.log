@@ -1,0 +1,114 @@
+== at da22e9e9f093b71ac49f9b9e0465b789765f1cc2 (trunk, the 0.2.30 pin), staged: wolf-0.2.30-x86_64-unknown-linux-gnu wolf-0.2.30-x86_64-unknown-linux-gnu.tar.gz 
+build native (0.2.30) exit=0
+build release (0.2.30) exit=0
+build/native: crt0.o libmuzzle.a muzzle.asm-sys.o muzzle.heap.o muzzle.process.o muzzle.root.o muzzle.string.o muzzle.sys.o  build/release: crt0.o libmuzzle.a muzzle.asm-sys.o muzzle.c00.o muzzle.c01.o muzzle.c02.o 
+== now at 6f37f018e8fe48eb6a25c752d1991b68b7867346: version_line = "wolf 0.2.32 (wolfgang, pin 72de141)"
+build: the pin wants 'wolf 0.2.32 (wolfgang, pin 72de141)' (wolf-toolchain.toml) and there is no driver at /home/mfwolffe/lanes/mz4/base/.wolf-bin/wolf-0.2.32-x86_64-unknown-linux-gnu/wolf
+build: found 'wolf 0.2.30 (wolfgang, pin 1b37f36)' at /home/mfwolffe/lanes/mz4/base/.wolf-bin/wolf-0.2.30-x86_64-unknown-linux-gnu/wolf, which is not the pin's; not used
+build: run tools/fetch-toolchain, or set WOLF to the pinned driver
+build native (0.2.32 pinned, not fetched) exit=2
+build: the pin wants 'wolf 0.2.32 (wolfgang, pin 72de141)' (wolf-toolchain.toml) and there is no driver at /home/mfwolffe/lanes/mz4/base/.wolf-bin/wolf-0.2.32-x86_64-unknown-linux-gnu/wolf
+build: found 'wolf 0.2.30 (wolfgang, pin 1b37f36)' at /home/mfwolffe/lanes/mz4/base/.wolf-bin/wolf-0.2.30-x86_64-unknown-linux-gnu/wolf, which is not the pin's; not used
+build: run tools/fetch-toolchain, or set WOLF to the pinned driver
+build release (0.2.32 pinned, not fetched) exit=2
+== muzzle#7: what the refusals left
+ls: cannot access 'build/native': No such file or directory
+ls: cannot access 'build/release': No such file or directory
+ls build exit=2
+== tools/difftest after the refusal
+difftest native after the refusal exit=1
+9
+difftest: tier=native pass=0 fail=9
+difftest release after the refusal exit=1
+9
+difftest: tier=release pass=0 fail=9
+fetch-toolchain: wolf-0.2.32-x86_64-unknown-linux-gnu.tar.gz 4c37f9c5dc3d8830… -> /home/mfwolffe/lanes/mz4/base/.wolf-bin/wolf-0.2.32-x86_64-unknown-linux-gnu/wolf
+fetch-toolchain exit=0
+build: native: 6 objects, 19 exports defined, 19 internal references, 0 imports -> /home/mfwolffe/lanes/mz4/base/build/native/libmuzzle.a
+build native exit=0
+difftest: tier=native glibc=glibc 2.44 clang version 23.1.1
+PASS errno exit=0 lines=10
+PASS exit exit=42 lines=1
+PASS exit_c17 exit=250 lines=1
+PASS exit_posix exit=3 lines=1
+PASS main_return exit=7 lines=1
+PASS malloc exit=0 lines=20
+PASS mem exit=0 lines=38
+PASS str exit=0 lines=29
+PASS write exit=0 lines=9
+difftest: tier=native pass=9 fail=0
+difftest native exit=0
+difftest native under taskset -c 0-3 exit=0
+difftest: tier=native pass=9 fail=0
+stale-compiler: tier=native pin='wolf 0.2.32 (wolfgang, pin 72de141)' stale='wolf 0.0.1 (wolfgang, pin 0000000)'
+PASS control: the pin's compiler alone
+PASS an older compiler staged beside the pin's
+PASS an older compiler staged alone
+PASS the pin's directory holding another version
+PASS WOLF naming another version
+stale-compiler: tier=native pass=5 fail=0
+stale-compiler native exit=0
+build: release: 4 objects, 19 exports defined, 5 internal references, 0 imports -> /home/mfwolffe/lanes/mz4/base/build/release/libmuzzle.a
+build release exit=0
+difftest: tier=release glibc=glibc 2.44 clang version 23.1.1
+PASS errno exit=0 lines=10
+PASS exit exit=42 lines=1
+PASS exit_c17 exit=250 lines=1
+PASS exit_posix exit=3 lines=1
+PASS main_return exit=7 lines=1
+PASS malloc exit=0 lines=20
+PASS mem exit=0 lines=38
+PASS str exit=0 lines=29
+PASS write exit=0 lines=9
+difftest: tier=release pass=9 fail=0
+difftest release exit=0
+difftest release under taskset -c 0-3 exit=0
+difftest: tier=release pass=9 fail=0
+stale-compiler: tier=release pin='wolf 0.2.32 (wolfgang, pin 72de141)' stale='wolf 0.0.1 (wolfgang, pin 0000000)'
+PASS control: the pin's compiler alone
+PASS an older compiler staged beside the pin's
+PASS an older compiler staged alone
+PASS the pin's directory holding another version
+PASS WOLF naming another version
+stale-compiler: tier=release pass=5 fail=0
+stale-compiler release exit=0
+== the fix reverted alone: tools/build from b26bbf7, the test from 6f37f01
+ tools/build | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
+stale-compiler: tier=native pin='wolf 0.2.32 (wolfgang, pin 72de141)' stale='wolf 0.0.1 (wolfgang, pin 0000000)'
+PASS control: the pin's compiler alone
+PASS an older compiler staged beside the pin's
+FAIL an older compiler staged alone: the refusal left the previous build/native/ (muzzle#7): left-by-an-earlier-build 
+  tools/build exit=2
+  stderr: build: the pin wants 'wolf 0.2.32 (wolfgang, pin 72de141)' (wolf-toolchain.toml) and there is no driver at /home/mfwolffe/lanes/mz4/base/out/stale-compiler-native/alone/.wolf-bin/wolf-0.2.32-x86_64-unknown-linux-gnu/wolf
+  stderr: build: found 'wolf 0.0.1 (wolfgang, pin 0000000)' at /home/mfwolffe/lanes/mz4/base/out/stale-compiler-native/alone/.wolf-bin/wolf-0.0.1-x86_64-unknown-linux-gnu/wolf, which is not the pin's; not used
+  stderr: build: run tools/fetch-toolchain, or set WOLF to the pinned driver
+FAIL the pin's directory holding another version: the refusal left the previous build/native/ (muzzle#7): left-by-an-earlier-build 
+  tools/build exit=2
+  stderr: build: found 'wolf 0.0.1 (wolfgang, pin 0000000)' at /home/mfwolffe/lanes/mz4/base/out/stale-compiler-native/renamed/.wolf-bin/wolf-0.2.32-x86_64-unknown-linux-gnu/wolf; the pin wants 'wolf 0.2.32 (wolfgang, pin 72de141)' (wolf-toolchain.toml)
+  stderr: build: not building with it: run tools/fetch-toolchain, or set WOLF to the pinned driver
+FAIL WOLF naming another version: the refusal left the previous build/native/ (muzzle#7): left-by-an-earlier-build 
+  tools/build exit=2
+  stderr: build: found 'wolf 0.0.1 (wolfgang, pin 0000000)' at /home/mfwolffe/lanes/mz4/base/out/stale-compiler-native/env/.wolf-bin/wolf-0.0.1-x86_64-unknown-linux-gnu/wolf; the pin wants 'wolf 0.2.32 (wolfgang, pin 72de141)' (wolf-toolchain.toml)
+  stderr: build: not building with it: run tools/fetch-toolchain, or set WOLF to the pinned driver
+stale-compiler: tier=native pass=2 fail=3
+stale-compiler native (fix reverted) exit=1
+stale-compiler: tier=release pin='wolf 0.2.32 (wolfgang, pin 72de141)' stale='wolf 0.0.1 (wolfgang, pin 0000000)'
+PASS control: the pin's compiler alone
+PASS an older compiler staged beside the pin's
+FAIL an older compiler staged alone: the refusal left the previous build/release/ (muzzle#7): left-by-an-earlier-build 
+  tools/build exit=2
+  stderr: build: the pin wants 'wolf 0.2.32 (wolfgang, pin 72de141)' (wolf-toolchain.toml) and there is no driver at /home/mfwolffe/lanes/mz4/base/out/stale-compiler-release/alone/.wolf-bin/wolf-0.2.32-x86_64-unknown-linux-gnu/wolf
+  stderr: build: found 'wolf 0.0.1 (wolfgang, pin 0000000)' at /home/mfwolffe/lanes/mz4/base/out/stale-compiler-release/alone/.wolf-bin/wolf-0.0.1-x86_64-unknown-linux-gnu/wolf, which is not the pin's; not used
+  stderr: build: run tools/fetch-toolchain, or set WOLF to the pinned driver
+FAIL the pin's directory holding another version: the refusal left the previous build/release/ (muzzle#7): left-by-an-earlier-build 
+  tools/build exit=2
+  stderr: build: found 'wolf 0.0.1 (wolfgang, pin 0000000)' at /home/mfwolffe/lanes/mz4/base/out/stale-compiler-release/renamed/.wolf-bin/wolf-0.2.32-x86_64-unknown-linux-gnu/wolf; the pin wants 'wolf 0.2.32 (wolfgang, pin 72de141)' (wolf-toolchain.toml)
+  stderr: build: not building with it: run tools/fetch-toolchain, or set WOLF to the pinned driver
+FAIL WOLF naming another version: the refusal left the previous build/release/ (muzzle#7): left-by-an-earlier-build 
+  tools/build exit=2
+  stderr: build: found 'wolf 0.0.1 (wolfgang, pin 0000000)' at /home/mfwolffe/lanes/mz4/base/out/stale-compiler-release/env/.wolf-bin/wolf-0.0.1-x86_64-unknown-linux-gnu/wolf; the pin wants 'wolf 0.2.32 (wolfgang, pin 72de141)' (wolf-toolchain.toml)
+  stderr: build: not building with it: run tools/fetch-toolchain, or set WOLF to the pinned driver
+stale-compiler: tier=release pass=2 fail=3
+stale-compiler release (fix reverted) exit=1
+restored, git status exit=0
