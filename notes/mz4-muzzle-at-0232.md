@@ -78,3 +78,78 @@ an earlier build's `build/<tier>/`, and a refusal must leave none.
 | P8 | #7 after the fix: a refusal exits 2 and leaves no `build/<tier>/`; `tools/difftest <tier>` after it fails all 9 (muzzle column does not build), exit 1; `tests/stale-compiler` with the new assertion 5 of 5 on both tiers; with only `tools/build` reverted to trunk's order, it is 2 of 5 (the three refusal cases fail, "left the previous build"), exit 1 | otherwise |
 | P9 | CI: the plant (the head with `tools/build`'s fix reverted, a branch of its own) is red on both jobs at `the stale compiler` step with pass=2 fail=3; the head is green on both jobs | otherwise |
 | P10 | no muzzle gate reads `wolf build`'s exit 2 as a skip at 0.2.32: with a compile error planted in `src/` (never committed), `tools/build` exits 2 on both tiers and leaves no object | a zero exit, or a skip |
+
+## 4. Evidence (kasumi, linux x86-64, clang 23.1.1, glibc 2.44)
+
+Each log is the raw output of the script beside it in
+`notes/mz4-evidence/scripts/`, every exit status echoed bare (no pipe on
+a command under test). `run.sh` starts each tree with `git clean -xfd`
+(no `.wolf-bin/`, `build/`, `out/` or `src/.lu-cache/`).
+
+| log | commit | what |
+|---|---|---|
+| `baseline-0.2.30.log` | `da22e9e` (trunk) | wolf 0.2.30: build 6 and 4 objects, 19 exports, 0 imports; difftest 9/9 on both tiers; producers `wolfgang 0.2.30`; `git status` empty after |
+| `pin-0.2.32.log` | `b26bbf7` (the pin) | wolf 0.2.32: the same counts, 9/9 on both tiers; the 18 `PASS` lines (name, exit status, line count) identical to the baseline's (`diff` exit 0); producers `wolfgang 0.2.32`; `git status` empty after |
+| `objects-0.2.30-0.2.32.log` | both | 12 objects stripped (`objcopy --strip-debug`): 12 same, 0 differ. Control: unstripped, the 5 native wolf objects differ (their DWARF producer), so the compare fires |
+| `reuse-and-7.log` | `da22e9e` → `b26bbf7` | the reused checkout, 0.2.30 staged, moved to the pin: `tools/build` exits 2 on both tiers naming 0.2.30 found and 0.2.32 wanted. **#7 shown**: both `build/<tier>/` still hold 0.2.30's objects (producers `wolfgang 0.2.30`) and `tools/difftest native` after the refusal passes 9/9, exit 0, on 0.2.30's archive. After the fetch: built by 0.2.32, 9/9 both tiers, `tests/stale-compiler` 5 of 5 both tiers (the test before #7's assertion) |
+| `fix7.log` | `da22e9e` → `6f37f01` | the same reused checkout, rebuilt at 0.2.30 and moved to the fix: both refusals exit 2 and leave no `build/native` or `build/release` (`ls` exit 2); `tools/difftest` after them pass=0 fail=9, exit 1, on both tiers (9 × "muzzle column does not build"). After the fetch: 9/9 both tiers, again under `taskset -c 0-3`; `tests/stale-compiler` 5 of 5 both tiers. Then `tools/build` alone back to `b26bbf7`'s: `tests/stale-compiler` pass=2 fail=3 on both tiers, exit 1, the three refusal cases "the refusal left the previous build/<tier>/ (muzzle#7)" |
+| `fix-0.2.32.log`, `objects-pin-fix.log` | `6f37f01` | the fix from a clean tree: 9/9 both tiers; its 12 objects, stripped and unstripped, identical to the pin's (a `tools/` change moves no output) |
+| `machines-and-exit2.log` | `b26bbf7` | the archives' sha256 (the second read of each digest); the checked machine and lupin 0.1.54 refuse by name; a planted E0401 makes `tools/build` exit 2 on both tiers with no object; `tools/difftest` after it pass=0 fail=9 exit 1, no line says skip; `tests/stale-compiler` exit 1; the plant restored |
+| `plant-run-39174923262.log` | `333dd3e` | the CI plant's failing lines, from `gh run view --log-failed` |
+
+The digests, each read twice: wolf 0.2.32 linux x86-64 `4c37f9c5…51`,
+80,092,071 bytes, from the release API and from `sha256sum` on kasumi
+(a third time by `tools/fetch-toolchain` in CI); lupin 0.1.54
+`175df238…dd`, 2,971,403 bytes, the same two ways; wolf 0.2.30
+`4e55b39e…89` again on kasumi for the baseline.
+
+The plant (P9), a branch of its own: `mz4-plant` is the fix commit
+`6f37f01` plus `333dd3e`, which puts `tools/build` back to trunk's order
+(the test kept). It was seen red in run 39174923262
+(workflow_dispatch): both jobs fail at the step `the stale compiler`,
+`stale-compiler: tier=<tier> pass=2 fail=3`, the three refusal cases
+"the refusal left the previous build/<tier>/ (muzzle#7)", exit 1.
+
+The machines:
+
+- native and release: `wolf build --target x86_64-unknown-none
+  --emit=obj`. muzzle's tests run on these two and nowhere else.
+- checked (`wolf conform-run --json --checked muzzle.lu`): `verdict:
+  unsupported`, "a link-time symbol (`extern "c" let`)", as at 0.2.30.
+- lupin 0.1.54 (`lupin run muzzle.lu`): refused by name, the link-time
+  symbol `__muzzle_bins` ([abi.link.extern]), exit 4, as 0.1.53.
+- `wolf run --checked` is the native build, not the checked machine:
+  exit 4, no `main`.
+
+## 5. Score
+
+10 of 10.
+
+- P1, P2: 6 and 4 objects, 19 exports, 0 imports; 9/9 on both tiers,
+  each case's exit status and line count equal to 0.2.30's.
+- P3: **the pin moves no output.** 12 of 12 stripped objects
+  byte-identical to 0.2.30's; the unstripped control differs in the 5
+  native wolf objects only. Neither s237's shift rule (muzzle has no
+  shift) nor the start shims (no `main`) reached muzzle.
+- P4: the pin forced `wolf-toolchain.toml` and README's build line;
+  no source, test or header edit.
+- P5: refusal exit 2 naming both versions before the fetch; built by
+  0.2.32 after it; the test 5 of 5 on both tiers.
+- P6: both refuse by name.
+- P7: #7 reproduced at the pin: 0.2.30's objects left, difftest 9/9 on
+  them.
+- P8: after the fix no output is left, difftest fails all 9; the test 5
+  of 5; with the fix reverted alone, 2 of 5.
+- P9: plant red at `the stale compiler` on both jobs (run
+  39174923262); the head's run is in the PR.
+- P10: exit 2 on both tiers, every gate after it non-zero.
+
+## 6. Found, not changed, not filed
+
+- `tools/fetch-toolchain` still leaves older directories in
+  `.wolf-bin/` (mz2's finding; disk only, since `tools/build` refuses
+  them).
+- `tools/difftest` does not ask which compiler wrote `build/<tier>/`;
+  after #7's fix a stale archive can only come from a build that
+  passed with the pin's compiler, so this is not a hole, but a
+  `build/<tier>/` copied in by hand would still be tested.
