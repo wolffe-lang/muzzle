@@ -12,8 +12,8 @@
 # no assembly and no freestanding target, so it can answer nothing here.
 
 [wolf]
-version = "0.2.32"
+version = "0.2.33"
 repo = "wolffe-lang/wolf-lang"
-rev = "72de141f624662fdff522e8beba459fab7c5cf66"
-version_line = "wolf 0.2.32 (wolfgang, pin 72de141)"
-x86_64-unknown-linux-gnu = "4c37f9c5dc3d8830c06810948027d38bdbc375dc5524ab23127b0ada0907d851"
+rev = "85dab5d7e597680d6fd7034f1d7ed2acb9a92f97"
+version_line = "wolf 0.2.33 (wolfgang, pin 85dab5d)"
+x86_64-unknown-linux-gnu = "4f955e8dfe6eaafa441903eeba43c009c4ec2b45a8da09fe13431e8b12340af8"
