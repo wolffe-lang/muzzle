@@ -6,6 +6,17 @@
 # source. The reference column is the runner's own glibc, a black box,
 # its version printed in the log. Every step runs bare and its exit
 # status is read directly: no pipes, so nothing can mask a failure.
+#
+# ONE TIER (tl28, ruling #92). The org is on GitHub's free plan: 20
+# concurrent jobs shared by every repository. muzzle's suite is one job on
+# ubuntu, both compiling tiers, under two minutes (0.7 job-minutes a run,
+# the ten pull-request and push runs before tl28), so no path could leave
+# anything out: there is no plan and no pr tier. Every run runs it all, a
+# pull request's push included, and its last job, `tier full`, fails unless
+# every job succeeded (`ci/tiers.py verdict`; the wiring itself is proven by
+# `ci/tiers-test.py` first). What tl28 adds is the rest of ruling #92's
+# shape: cancel-in-progress for a pull request's superseded runs, a nightly
+# on trunk, and a red nightly opening an issue (`nightly-red`).
 
 name: ci
 
@@ -13,10 +24,28 @@ on:
   push:
     branches: [trunk]
   pull_request:
+  schedule:
+    # Nightly, on trunk: the toolchain archive and the runner's glibc move
+    # under a repository nobody pushed to.
+    - cron: "37 9 * * *"
   workflow_dispatch:
+    inputs:
+      tier:
+        description: "muzzle has one tier, full: its one suite cannot be split by path"
+        type: choice
+        options: [full]
+        default: full
 
 permissions:
   contents: read
+
+# A pull request's runs: one group per branch, cancel-in-progress, so a new
+# push frees the slots of the run it supersedes. Every other run (a trunk
+# push, the nightly, a dispatch) gets a group of its OWN run id: never
+# cancelled, and never replaced while it waits.
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('ci-pr-{0}', github.head_ref) || format('ci-{0}-{1}', github.event_name, github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   difftest:
@@ -63,3 +92,46 @@ jobs:
           name: difftest-${{ matrix.tier }}
           path: out/${{ matrix.tier }}
           if-no-files-found: ignore
+
+  # The run's verdict, and its name: `tier full`, muzzle's one tier. It needs
+  # every job, runs unless the run was cancelled, proves the wiring first
+  # (ci/tiers-test.py) and fails unless every job succeeded (ci/tiers.py
+  # verdict). lane-audit.sh reads this job's name and conclusion.
+  tier:
+    name: tier full
+    if: ${{ !cancelled() }}
+    needs: [difftest]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: the wiring can say no (ci/tiers-test.py)
+        run: python3 ci/tiers-test.py
+      - name: every job succeeded
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: python3 ci/tiers.py verdict
+
+  # A red nightly opens an issue (ruling #92): a scheduled run has no lane
+  # watching it, so the red has to come and find one. One open issue per
+  # workflow, its title the dedupe key; a further red night comments on it
+  # (ci/nightly-red.sh, tested by ci/tiers-test.py T8). Never on a pull
+  # request, a push or a dispatch: those reds have a lane attached already.
+  nightly-red:
+    name: nightly red, an issue
+    needs: tier
+    if: ${{ failure() && github.event_name == 'schedule' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: open or update the nightly-red issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          WORKFLOW: ${{ github.workflow }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: ci/nightly-red.sh
