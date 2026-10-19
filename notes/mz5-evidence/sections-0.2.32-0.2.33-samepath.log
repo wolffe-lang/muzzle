@@ -1,0 +1,41 @@
+== unstripped objects, 0.2.32 against 0.2.33-samepath, section by section (readelf -x by index)
+native-raw/crt0.o: section headers 6 in A, 6 in B; 0 section(s) differ: none; header table same; whole file same
+native-raw/muzzle.asm-sys.o: section headers 6 in A, 6 in B; 0 section(s) differ: none; header table same; whole file same
+native-raw/muzzle.heap.o: section headers 13 in A, 13 in B; 1 section(s) differ: .debug_info; header table same; whole file DIFFER
+native-raw/muzzle.process.o: section headers 12 in A, 12 in B; 1 section(s) differ: .debug_info; header table same; whole file DIFFER
+native-raw/muzzle.root.o: section headers 12 in A, 12 in B; 1 section(s) differ: .debug_info; header table same; whole file DIFFER
+native-raw/muzzle.string.o: section headers 13 in A, 13 in B; 1 section(s) differ: .debug_info; header table same; whole file DIFFER
+native-raw/muzzle.sys.o: section headers 14 in A, 14 in B; 1 section(s) differ: .debug_info; header table same; whole file DIFFER
+release-raw/crt0.o: section headers 6 in A, 6 in B; 0 section(s) differ: none; header table same; whole file same
+release-raw/muzzle.asm-sys.o: section headers 6 in A, 6 in B; 0 section(s) differ: none; header table same; whole file same
+release-raw/muzzle.c00.o: section headers 9 in A, 9 in B; 0 section(s) differ: none; header table same; whole file same
+release-raw/muzzle.c01.o: section headers 8 in A, 8 in B; 0 section(s) differ: none; header table same; whole file same
+release-raw/muzzle.c02.o: section headers 8 in A, 8 in B; 0 section(s) differ: none; header table same; whole file same
+== the producer strings (strings -a | grep wolfgang)
+native-raw/muzzle.asm-sys.o: 0.2.32 '' | 0.2.33-samepath ''
+native-raw/muzzle.heap.o: 0.2.32 'wolf v0 (wolfgang 0.2.32)' | 0.2.33-samepath 'wolf v0 (wolfgang 0.2.33)'
+native-raw/muzzle.process.o: 0.2.32 'wolf v0 (wolfgang 0.2.32)' | 0.2.33-samepath 'wolf v0 (wolfgang 0.2.33)'
+native-raw/muzzle.root.o: 0.2.32 'wolf v0 (wolfgang 0.2.32)' | 0.2.33-samepath 'wolf v0 (wolfgang 0.2.33)'
+native-raw/muzzle.string.o: 0.2.32 'wolf v0 (wolfgang 0.2.32)' | 0.2.33-samepath 'wolf v0 (wolfgang 0.2.33)'
+native-raw/muzzle.sys.o: 0.2.32 'wolf v0 (wolfgang 0.2.32)' | 0.2.33-samepath 'wolf v0 (wolfgang 0.2.33)'
+== the differing bytes of each native wolf object (cmp -l: count, then the first 12 as offset A->B)
+native-raw/muzzle.asm-sys.o: 0 byte(s) differ: 
+native-raw/muzzle.heap.o: 1 byte(s) differ: @5144 62->63 
+native-raw/muzzle.process.o: 1 byte(s) differ: @569 62->63 
+native-raw/muzzle.root.o: 1 byte(s) differ: @327 62->63 
+native-raw/muzzle.string.o: 1 byte(s) differ: @3799 62->63 
+native-raw/muzzle.sys.o: 1 byte(s) differ: @2987 62->63 
+== DW_AT_producer and DW_AT_comp_dir/DW_AT_name of each native wolf object
+native-raw/muzzle.asm-sys.o (A): 
+native-raw/muzzle.asm-sys.o (B): 
+native-raw/muzzle.heap.o (A): DW_AT_producer : wolf v0 (wolfgang 0.2.32);DW_AT_name : ./heap/heap.lu;DW_AT_comp_dir : /home/mfwolffe/lanes/mz5/base/src;
+native-raw/muzzle.heap.o (B): DW_AT_producer : wolf v0 (wolfgang 0.2.33);DW_AT_name : ./heap/heap.lu;DW_AT_comp_dir : /home/mfwolffe/lanes/mz5/base/src;
+native-raw/muzzle.process.o (A): DW_AT_producer : wolf v0 (wolfgang 0.2.32);DW_AT_name : ./process/process.lu;DW_AT_comp_dir : /home/mfwolffe/lanes/mz5/base/src;
+native-raw/muzzle.process.o (B): DW_AT_producer : wolf v0 (wolfgang 0.2.33);DW_AT_name : ./process/process.lu;DW_AT_comp_dir : /home/mfwolffe/lanes/mz5/base/src;
+native-raw/muzzle.root.o (A): DW_AT_producer : wolf v0 (wolfgang 0.2.32);DW_AT_name : ./muzzle.lu;DW_AT_comp_dir : /home/mfwolffe/lanes/mz5/base/src;
+native-raw/muzzle.root.o (B): DW_AT_producer : wolf v0 (wolfgang 0.2.33);DW_AT_name : ./muzzle.lu;DW_AT_comp_dir : /home/mfwolffe/lanes/mz5/base/src;
+native-raw/muzzle.string.o (A): DW_AT_producer : wolf v0 (wolfgang 0.2.32);DW_AT_name : ./string/string.lu;DW_AT_comp_dir : /home/mfwolffe/lanes/mz5/base/src;
+native-raw/muzzle.string.o (B): DW_AT_producer : wolf v0 (wolfgang 0.2.33);DW_AT_name : ./string/string.lu;DW_AT_comp_dir : /home/mfwolffe/lanes/mz5/base/src;
+native-raw/muzzle.sys.o (A): DW_AT_producer : wolf v0 (wolfgang 0.2.32);DW_AT_name : ./sys/sys.lu;DW_AT_comp_dir : /home/mfwolffe/lanes/mz5/base/src;
+native-raw/muzzle.sys.o (B): DW_AT_producer : wolf v0 (wolfgang 0.2.33);DW_AT_name : ./sys/sys.lu;DW_AT_comp_dir : /home/mfwolffe/lanes/mz5/base/src;
+sections.sh self-check: ok

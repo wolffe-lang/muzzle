@@ -1,0 +1,46 @@
+== commit b580fc326910181199bd1e6876076d6a8c9b5990 date=2026-10-19T19:29:54Z
+pin digest:     4f955e8dfe6eaafa441903eeba43c009c4ec2b45a8da09fe13431e8b12340af8
+planted digest: 4f955e8dfe6eaafa441903eeba43c009c4ec2b45a8da09fe13431e8b12340af9
+diff --git a/wolf-toolchain.toml b/wolf-toolchain.toml
+index 866650d..0e7cc83 100644
+--- a/wolf-toolchain.toml
++++ b/wolf-toolchain.toml
+@@ -16,4 +16,4 @@ version = "0.2.33"
+ repo = "wolffe-lang/wolf-lang"
+ rev = "85dab5d7e597680d6fd7034f1d7ed2acb9a92f97"
+ version_line = "wolf 0.2.33 (wolfgang, pin 85dab5d)"
+-x86_64-unknown-linux-gnu = "4f955e8dfe6eaafa441903eeba43c009c4ec2b45a8da09fe13431e8b12340af8"
++x86_64-unknown-linux-gnu = "4f955e8dfe6eaafa441903eeba43c009c4ec2b45a8da09fe13431e8b12340af9"
+
+#### 1. the planted digest, the real 0.2.33 archive (WOLF_ARCHIVE)
+fetch-toolchain: wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz digest 4f955e8dfe6eaafa441903eeba43c009c4ec2b45a8da09fe13431e8b12340af8, pin wants 4f955e8dfe6eaafa441903eeba43c009c4ec2b45a8da09fe13431e8b12340af9
+fetch-toolchain exit=1
+staged: wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz 
+ls: cannot access '.wolf-bin/wolf-0.2.33-x86_64-unknown-linux-gnu': No such file or directory
+driver dir exit=2
+build: the pin wants 'wolf 0.2.33 (wolfgang, pin 85dab5d)' (wolf-toolchain.toml) and there is no driver at /home/mfwolffe/lanes/mz5/digest/.wolf-bin/wolf-0.2.33-x86_64-unknown-linux-gnu/wolf
+build: run tools/fetch-toolchain, or set WOLF to the pinned driver
+build native after it exit=2
+
+#### 2. the planted digest, fetched from the release (CI's path)
+fetch-toolchain: wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz digest 4f955e8dfe6eaafa441903eeba43c009c4ec2b45a8da09fe13431e8b12340af8, pin wants 4f955e8dfe6eaafa441903eeba43c009c4ec2b45a8da09fe13431e8b12340af9
+fetch-toolchain exit=1
+staged: wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz 
+ls: cannot access '.wolf-bin/wolf-0.2.33-x86_64-unknown-linux-gnu': No such file or directory
+driver dir exit=2
+plant restored, git status exit=0
+
+#### 3. the real pin, the 0.2.32 archive offered for it (WOLF_ARCHIVE)
+fetch-toolchain: wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz digest 4c37f9c5dc3d8830c06810948027d38bdbc375dc5524ab23127b0ada0907d851, pin wants 4f955e8dfe6eaafa441903eeba43c009c4ec2b45a8da09fe13431e8b12340af8
+fetch-toolchain exit=1
+staged: wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz 
+ls: cannot access '.wolf-bin/wolf-0.2.33-x86_64-unknown-linux-gnu': No such file or directory
+driver dir exit=2
+
+#### 4. control: the real pin, the real archive
+fetch-toolchain: wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz 4f955e8dfe6eaafa… -> /home/mfwolffe/lanes/mz5/digest/.wolf-bin/wolf-0.2.33-x86_64-unknown-linux-gnu/wolf
+fetch-toolchain exit=0
+staged: wolf-0.2.33-x86_64-unknown-linux-gnu wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz 
+.wolf-bin/wolf-0.2.33-x86_64-unknown-linux-gnu
+driver dir exit=0
+git status exit=0

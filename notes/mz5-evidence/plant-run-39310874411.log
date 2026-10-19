@@ -1,0 +1,18 @@
+# mz5 plant: branch mz5-plant, head 14c2a4a (the pin b580fc3 plus the digest's last digit 8 -> 9)
+# run 39310874411 (workflow_dispatch), read 2026-10-19T19:30:49Z:
+run 39310874411 event=workflow_dispatch branch=mz5-plant head=14c2a4a55c8d57e8c64a10f4924e999424e7ef48 completed failure
+job difftest (native) = failure: Set up job=success, Run actions/checkout@v4=success, host=success, the pinned wolf, by digest=failure, the stale compiler (native)=skipped, build (native)=skipped, difftest (native)=skipped, keep the outputs=success, Post Run actions/checkout@v4=success, Complete job=success
+job difftest (release) = failure: Set up job=success, Run actions/checkout@v4=success, host=success, the pinned wolf, by digest=failure, the stale compiler (release)=skipped, build (release)=skipped, difftest (release)=skipped, keep the outputs=success, Post Run actions/checkout@v4=success, Complete job=success
+# gh run view 39310874411 --log-failed:
+difftest (native)	the pinned wolf, by digest	﻿2026-10-19T19:25:38.4595986Z ##[group]Run tools/fetch-toolchain
+difftest (native)	the pinned wolf, by digest	2026-10-19T19:25:38.4596550Z ^[[36;1mtools/fetch-toolchain^[[0m
+difftest (native)	the pinned wolf, by digest	2026-10-19T19:25:38.4654369Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+difftest (native)	the pinned wolf, by digest	2026-10-19T19:25:38.4654953Z ##[endgroup]
+difftest (native)	the pinned wolf, by digest	2026-10-19T19:25:39.0353421Z fetch-toolchain: wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz digest 4f955e8dfe6eaafa441903eeba43c009c4ec2b45a8da09fe13431e8b12340af8, pin wants 4f955e8dfe6eaafa441903eeba43c009c4ec2b45a8da09fe13431e8b12340af9
+difftest (native)	the pinned wolf, by digest	2026-10-19T19:25:39.0365724Z ##[error]Process completed with exit code 1.
+difftest (release)	the pinned wolf, by digest	﻿2026-10-19T19:25:41.9759704Z ##[group]Run tools/fetch-toolchain
+difftest (release)	the pinned wolf, by digest	2026-10-19T19:25:41.9760140Z ^[[36;1mtools/fetch-toolchain^[[0m
+difftest (release)	the pinned wolf, by digest	2026-10-19T19:25:41.9798010Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+difftest (release)	the pinned wolf, by digest	2026-10-19T19:25:41.9798434Z ##[endgroup]
+difftest (release)	the pinned wolf, by digest	2026-10-19T19:25:44.1748900Z fetch-toolchain: wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz digest 4f955e8dfe6eaafa441903eeba43c009c4ec2b45a8da09fe13431e8b12340af8, pin wants 4f955e8dfe6eaafa441903eeba43c009c4ec2b45a8da09fe13431e8b12340af9
+difftest (release)	the pinned wolf, by digest	2026-10-19T19:25:44.1761490Z ##[error]Process completed with exit code 1.
