@@ -58,9 +58,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: tl28 plant (a failing step; tier full must go red)
-        run: exit 1
-
       - name: host
         shell: bash
         run: |
