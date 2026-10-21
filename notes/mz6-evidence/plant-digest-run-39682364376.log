@@ -1,0 +1,35 @@
+# mz6 plant: PR #11 (pull_request), head a20eb9e: the pin 1a66675's linux x86-64 digest, last digit 1 -> 2
+# run 39682364376, read 2026-10-21T21:54:12Z:
+run 39682364376 event=pull_request branch=mz6 head=a20eb9e4b58321bb82e6354b786bca1e88069a07 completed failure
+job difftest (native) = failure: Set up job=success, Run actions/checkout@v4=success, host=success, the pinned wolf, by digest=failure, the stale compiler (native)=skipped, build (native)=skipped, difftest (native)=skipped, keep the outputs=success, Post Run actions/checkout@v4=success, Complete job=success
+job difftest (release) = failure: Set up job=success, Run actions/checkout@v4=success, host=success, the pinned wolf, by digest=failure, the stale compiler (release)=skipped, build (release)=skipped, difftest (release)=skipped, keep the outputs=success, Post Run actions/checkout@v4=success, Complete job=success
+job tier full = failure: Set up job=success, Run actions/checkout@v4=success, the wiring can say no (ci/tiers-test.py)=success, every job succeeded=failure, Post Run actions/checkout@v4=success, Complete job=success
+job nightly red, an issue = skipped: 
+# gh run view 39682364376 --log-failed:
+difftest (native)	the pinned wolf, by digest	﻿2026-10-21T21:53:38.1390423Z ##[group]Run tools/fetch-toolchain
+difftest (native)	the pinned wolf, by digest	2026-10-21T21:53:38.1391219Z ^[[36;1mtools/fetch-toolchain^[[0m
+difftest (native)	the pinned wolf, by digest	2026-10-21T21:53:38.1457832Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+difftest (native)	the pinned wolf, by digest	2026-10-21T21:53:38.1458283Z ##[endgroup]
+difftest (native)	the pinned wolf, by digest	2026-10-21T21:53:38.8503569Z fetch-toolchain: wolf-0.2.34-x86_64-unknown-linux-gnu.tar.gz digest 88a9dd3da1c9a0e38c08eb6e2de9c1ef04d1ed93dcf51024d8dbbb76890c1821, pin wants 88a9dd3da1c9a0e38c08eb6e2de9c1ef04d1ed93dcf51024d8dbbb76890c1822
+difftest (native)	the pinned wolf, by digest	2026-10-21T21:53:38.8518009Z ##[error]Process completed with exit code 1.
+difftest (release)	the pinned wolf, by digest	﻿2026-10-21T21:53:34.7003138Z ##[group]Run tools/fetch-toolchain
+difftest (release)	the pinned wolf, by digest	2026-10-21T21:53:34.7004660Z ^[[36;1mtools/fetch-toolchain^[[0m
+difftest (release)	the pinned wolf, by digest	2026-10-21T21:53:34.7058639Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+difftest (release)	the pinned wolf, by digest	2026-10-21T21:53:34.7060274Z ##[endgroup]
+difftest (release)	the pinned wolf, by digest	2026-10-21T21:53:35.2102517Z fetch-toolchain: wolf-0.2.34-x86_64-unknown-linux-gnu.tar.gz digest 88a9dd3da1c9a0e38c08eb6e2de9c1ef04d1ed93dcf51024d8dbbb76890c1821, pin wants 88a9dd3da1c9a0e38c08eb6e2de9c1ef04d1ed93dcf51024d8dbbb76890c1822
+difftest (release)	the pinned wolf, by digest	2026-10-21T21:53:35.2119813Z ##[error]Process completed with exit code 1.
+tier full	every job succeeded	﻿2026-10-21T21:53:45.9811046Z ##[group]Run python3 ci/tiers.py verdict
+tier full	every job succeeded	2026-10-21T21:53:45.9811700Z ^[[36;1mpython3 ci/tiers.py verdict^[[0m
+tier full	every job succeeded	2026-10-21T21:53:45.9843445Z shell: /usr/bin/bash -e {0}
+tier full	every job succeeded	2026-10-21T21:53:45.9844044Z env:
+tier full	every job succeeded	2026-10-21T21:53:45.9844621Z   NEEDS: {
+tier full	every job succeeded	  "difftest": {
+tier full	every job succeeded	    "result": "failure",
+tier full	every job succeeded	    "outputs": {}
+tier full	every job succeeded	  }
+tier full	every job succeeded	}
+tier full	every job succeeded	2026-10-21T21:53:45.9845337Z ##[endgroup]
+tier full	every job succeeded	2026-10-21T21:53:46.0043285Z tier full: 1 job(s)
+tier full	every job succeeded	2026-10-21T21:53:46.0043951Z   difftest           failure   WANTED success
+tier full	every job succeeded	2026-10-21T21:53:46.0085036Z ##[error]Process completed with exit code 1.
+# gh run view 39682364376 --log-failed exit=0
