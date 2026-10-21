@@ -1,0 +1,8 @@
+== (1) stripped hashes: baseline-0.2.33.log against mz5's pin-0.2.33.log
+lines: 12 and 12
+diff exit=0
+== (2) PASS lines: baseline-0.2.33.log against pin-0.2.34.log
+lines: 18 and 18
+diff exit=0
+== (2b) stripped hashes: baseline-0.2.33.log against pin-0.2.34.log
+diff exit=0

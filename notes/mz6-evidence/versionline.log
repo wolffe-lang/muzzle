@@ -1,0 +1,43 @@
+== commit 44d2b87d5afe816be99e6796c0ad1b1a65d5acbe date=2026-10-21T21:51:31Z
+pin version_line:     wolf 0.2.34 (wolfgang, pin 9da7bdc)
+planted version_line: wolf 0.2.34 (wolfgang, pin 9da7bdd)
+diff --git a/wolf-toolchain.toml b/wolf-toolchain.toml
+index cc47121..3f3a681 100644
+--- a/wolf-toolchain.toml
++++ b/wolf-toolchain.toml
+@@ -15,5 +15,5 @@
+ version = "0.2.34"
+ repo = "wolffe-lang/wolf-lang"
+ rev = "9da7bdcf2aea9adf48df6570bedc58e16e9ef853"
+-version_line = "wolf 0.2.34 (wolfgang, pin 9da7bdc)"
++version_line = "wolf 0.2.34 (wolfgang, pin 9da7bdd)"
+ x86_64-unknown-linux-gnu = "88a9dd3da1c9a0e38c08eb6e2de9c1ef04d1ed93dcf51024d8dbbb76890c1821"
+
+#### 1. the planted line, the real 0.2.34 archive (WOLF_ARCHIVE)
+fetch-toolchain: 'wolf 0.2.34 (wolfgang, pin 9da7bdc)' is not the pinned 'wolf 0.2.34 (wolfgang, pin 9da7bdd)'
+fetch-toolchain exit=1
+staged: wolf-0.2.34-x86_64-unknown-linux-gnu wolf-0.2.34-x86_64-unknown-linux-gnu.tar.gz 
+wolf 0.2.34 (wolfgang, pin 9da7bdc)
+
+#### 2. tools/build with that driver at the pin's path, an earlier build's output in build/<tier>/
+build: found 'wolf 0.2.34 (wolfgang, pin 9da7bdc)' at /home/mfwolffe/lanes/mz6/digest/.wolf-bin/wolf-0.2.34-x86_64-unknown-linux-gnu/wolf; the pin wants 'wolf 0.2.34 (wolfgang, pin 9da7bdd)' (wolf-toolchain.toml)
+build: not building with it: run tools/fetch-toolchain, or set WOLF to the pinned driver
+build native exit=2
+ls: cannot access 'build/native': No such file or directory
+ls build/native exit=2
+build: found 'wolf 0.2.34 (wolfgang, pin 9da7bdc)' at /home/mfwolffe/lanes/mz6/digest/.wolf-bin/wolf-0.2.34-x86_64-unknown-linux-gnu/wolf; the pin wants 'wolf 0.2.34 (wolfgang, pin 9da7bdd)' (wolf-toolchain.toml)
+build: not building with it: run tools/fetch-toolchain, or set WOLF to the pinned driver
+build release exit=2
+ls: cannot access 'build/release': No such file or directory
+ls build/release exit=2
+
+#### 3. tools/build with WOLF naming the same driver
+build: found 'wolf 0.2.34 (wolfgang, pin 9da7bdc)' at /home/mfwolffe/lanes/mz6/digest/.wolf-bin/wolf-0.2.34-x86_64-unknown-linux-gnu/wolf; the pin wants 'wolf 0.2.34 (wolfgang, pin 9da7bdd)' (wolf-toolchain.toml)
+build: not building with it: run tools/fetch-toolchain, or set WOLF to the pinned driver
+build native (WOLF) exit=2
+plant restored, git status exit=0
+
+#### 4. control: the real pin, the driver already staged
+build: native: 6 objects, 19 exports defined, 19 internal references, 0 imports -> /home/mfwolffe/lanes/mz6/digest/build/native/libmuzzle.a
+build native exit=0
+git status exit=0

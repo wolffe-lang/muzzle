@@ -1,0 +1,8 @@
+== the other three wolf 0.2.34 archives, sha256 on kasumi (read 2; read 1 is the release API) date=2026-10-21T21:46:09Z
+total 108452
+-rw-r--r-- 1 mfwolffe mfwolffe 18925363 Oct 21 17:45 wolf-0.2.34-aarch64-apple-darwin.tar.gz
+-rw-r--r-- 1 mfwolffe mfwolffe 76212750 Oct 21 17:45 wolf-0.2.34-aarch64-unknown-linux-gnu.tar.gz
+-rw-r--r-- 1 mfwolffe mfwolffe 15911654 Oct 21 17:45 wolf-0.2.34-x86_64-pc-windows-msvc.tar.gz
+29c8331f5d188b00c4580bc7677b1238891c5734d00b0512df10c60eab236ee3  wolf-0.2.34-aarch64-apple-darwin.tar.gz
+ca5cadf936dc0d4396e92733fc65e953d549f3b61f0aa354e7be2e78ea8c3ad0  wolf-0.2.34-aarch64-unknown-linux-gnu.tar.gz
+77bb8403aeeae9f0ebd5a461f3a71d6360acb4be60194307993245d0ff1e2f07  wolf-0.2.34-x86_64-pc-windows-msvc.tar.gz
