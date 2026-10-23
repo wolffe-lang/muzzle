@@ -11,9 +11,15 @@
 # (README, design rule 1). lupin is not pinned: it has no C membrane,
 # no assembly and no freestanding target, so it can answer nothing here.
 
+# ## The pin: 0.2.35 (r40p, 2026-10-23)
+#
+# The linux x86-64 digest was read twice from wolf-lang release 421613621
+# and compared with r40's published evidence. v0.2.35 names commit
+# cf0c13d; the freestanding target remains muzzle's only build target.
+
 [wolf]
-version = "0.2.34"
+version = "0.2.35"
 repo = "wolffe-lang/wolf-lang"
-rev = "9da7bdcf2aea9adf48df6570bedc58e16e9ef853"
-version_line = "wolf 0.2.34 (wolfgang, pin 9da7bdc)"
-x86_64-unknown-linux-gnu = "88a9dd3da1c9a0e38c08eb6e2de9c1ef04d1ed93dcf51024d8dbbb76890c1821"
+rev = "cf0c13d38479f444b69bb8356ad5709d07eff323"
+version_line = "wolf 0.2.35 (wolfgang, pin cf0c13d)"
+x86_64-unknown-linux-gnu = "4cc4045bbbb605c07835bc4f32685953c784eeef4cd3139a48b457dfc90dad1a"
