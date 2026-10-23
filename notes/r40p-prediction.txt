@@ -1,0 +1,3 @@
+At wolf 0.2.35, muzzle's PR tier should fetch the Linux release archive by
+its published digest and retain its freestanding native and release object
+verdicts. A digest or identity mismatch must fail the fetch before any build.
