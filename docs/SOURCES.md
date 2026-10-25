@@ -38,3 +38,19 @@ was read, so no glibc header under `/usr/include` was opened.
 project and POSIX, and any allocator's design or code. The allocator
 (power-of-two classes, a header word, per-class free lists, brk then
 mmap) is muzzle's own.
+
+## s263: printf acceptance
+
+- Org-owned muzzle at `0ae060141bc750dfc59e71158de48757feea9916`:
+  build/differential scripts, raw syscall and raw-byte conventions.
+- Org-owned wolf-lang s263 `spec/04-abi.md` `[abi.c.variadic]`: builtin
+  `VaList`, promoted argument access, start/end lifetime, target limits.
+- C17 7.21.6.1 and 7.21.6.3 function/conversion contracts (the public
+  standard's interface, not any libc implementation); the hand-written
+  `stdio.h` declares only printf's standard synopsis.
+- Black-box host glibc printf via clang-compiled C17 calls; no compiler,
+  libc, stdarg or printf implementation source/header text consulted.
+
+No new assembler formatting logic: printf and all conversion logic are
+Wolf; `sys.S` only supplies the same kind of static scratch storage that
+muzzle's trap hook already uses.
