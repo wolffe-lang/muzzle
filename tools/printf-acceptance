@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# Run in the s263 lane-owned Linux x86-64 container, never on the Mac.
+# Explicit compiler identity and head are mandatory; no synthetic pin bump.
+# Each command, raw exit, and per-case output remain under notes/s263/run-UTC/.
+set -euo pipefail
+root=$(cd "$(dirname "$0")/.." && pwd)
+: "${WOLF:?explicit compiler path required}"
+: "${WOLF_EXPECT_VERSION:?exact compiler version line required}"
+: "${S263_COMPILER_HEAD:?compiler source head/stamp required}"
+[ "$(uname -sm)" = 'Linux x86_64' ] || { echo 'acceptance requires Linux x86-64' >&2; exit 2; }
+out="$root/notes/s263/run-$(date -u +%Y%m%dT%H%M%SZ)"
+mkdir "$out"
+echo "acceptance evidence: $out"
+exec 3>&1
+exec > "$out/acceptance.log" 2>&1
+set -x
+printf 'compiler_head=%s\ncompiler_path=%s\nexpected_version=%s\n' "$S263_COMPILER_HEAD" "$WOLF" "$WOLF_EXPECT_VERSION"
+date -u '+%Y-%m-%dT%H:%M:%SZ'
+sha256sum "$WOLF" "$root/tests/cases/printf.c" "$root/src/stdio/stdio.lu"
+run() {
+  local name=$1; shift
+  echo "RUN $name" >&3
+  printf 'COMMAND'; printf ' %q' "$@"; printf '\n'
+  set +e
+  "$@" > "$out/$name.log" 2>&1
+  local rc=$?
+  set -e
+  cat "$out/$name.log"
+  echo "EXIT $name=$rc"
+  echo "EXIT $name=$rc" >&3
+  [ "$rc" = 0 ] || exit "$rc"
+}
+run version "$WOLF" --version
+run identity "$root/tests/build-override"
+for tier in native release; do
+  run "build-$tier" "$root/tools/build" "$tier"
+  run "diff-$tier" "$root/tools/difftest" "$tier"
+  grep -a -qx 'cases=50 failures=0' "$root/out/$tier/printf.muzzle.out"
+  grep -a -qx 'cases=50 failures=0' "$root/out/$tier/printf.glibc.out"
+  cp "$root/out/$tier/printf.muzzle.out" "$out/printf-$tier.muzzle.out"
+  cp "$root/out/$tier/printf.glibc.out" "$out/printf-$tier.glibc.out"
+  sha256sum "$root/out/$tier/printf.muzzle.out" "$root/out/$tier/printf.glibc.out" "$root/build/$tier/libmuzzle.a"
+  run "errors-build-$tier" clang -std=c17 -O1 -Wall -Werror -Wno-format-security -fno-builtin -fno-stack-protector \
+    -nostdinc -isystem "$root/include" -nostdlib -static "$root/build/$tier/crt0.o" \
+    "$root/tests/printf-errors.c" "$root/build/$tier/libmuzzle.a" -o "$root/out/$tier/printf-errors"
+  run "errors-run-$tier" timeout 20 "$root/out/$tier/printf-errors"
+done
+run count-plant "$root/tests/printf-count-plant"
+echo 'ACCEPTANCE PASS: fifty primary cases, counts, both tiers, legacy differential and error checks'

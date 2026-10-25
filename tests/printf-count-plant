@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# Isolated negative control: correct output bytes but an off-by-one count.
+# Never edits the real source tree. Requires the same explicit compiler
+# identity as tools/printf-acceptance; artifacts stay under ignored out/.
+set -euo pipefail
+root=$(cd "$(dirname "$0")/.." && pwd)
+: "${WOLF:?explicit compiler path required}"
+: "${WOLF_EXPECT_VERSION:?exact compiler identity required}"
+scratch="$root/out/printf-count-plant"
+rm -rf "$scratch"; mkdir -p "$scratch"
+cp -R "$root/src" "$root/include" "$root/tools" "$root/tests" "$root/wolf-toolchain.toml" "$scratch/"
+rm -rf "$scratch/src/.lu-cache"
+python3 - "$scratch/src/stdio/stdio.lu" <<'PY'
+from pathlib import Path
+import sys
+p = Path(sys.argv[1])
+s = p.read_text()
+needle = '        count\n'
+assert s.count(needle) == 1
+p.write_text(s.replace(needle, '        count + 1\n'))
+PY
+for tier in native release; do
+  "$scratch/tools/build" "$tier"
+  set +e
+  "$scratch/tools/difftest" "$tier" "$scratch/tests/cases/printf.c"
+  rc=$?
+  set -e
+  echo "PLANT differential-$tier exit=$rc (expected 1)"
+  [ "$rc" = 1 ] || exit 1
+  grep -a -qx 'cases=50 failures=0' "$scratch/out/$tier/printf.glibc.out"
+  grep -a -qx 'cases=50 failures=50' "$scratch/out/$tier/printf.muzzle.out"
+  echo "PASS count-only plant rejected on $tier; unchanged source remains outside scratch"
+done
