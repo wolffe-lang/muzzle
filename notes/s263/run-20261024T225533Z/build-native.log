@@ -1,0 +1,9 @@
+build: DEVELOPMENT OVERRIDE WOLF=/work/target/debug/wolf expected='wolf 0.2.35+dev.unknown (wolfgang)' (release pin='wolf 0.2.34 (wolfgang, pin 9da7bdc)')
+error[E0812]: `va_arg` needs one promoted C type, as in `va_arg[i32](mut ap)`
+   --> ./stdio/stdio.lu:100:29
+    |
+100 |                     let s = va_arg[*u8](mut ap)
+    |                             ^^^^^^^^^^^^^^^^^^^
+    |
+
+wolf build: the package does not compile; fix the errors above (`wolf --explain E0812` explains this code, or any other, by name)

@@ -1,0 +1,118 @@
++ printf 'compiler_head=%s\ncompiler_path=%s\nexpected_version=%s\n' 5b469e78439e7d3bcbbc79535491edc35e4257ed+uncommitted-s263-variadic-integration /work/target/debug/wolf 'wolf 0.2.35+dev.unknown (wolfgang)'
+compiler_head=5b469e78439e7d3bcbbc79535491edc35e4257ed+uncommitted-s263-variadic-integration
+compiler_path=/work/target/debug/wolf
+expected_version=wolf 0.2.35+dev.unknown (wolfgang)
++ date -u +%Y-%m-%dT%H:%M:%SZ
+2026-10-24T22:57:52Z
++ sha256sum /work/target/debug/wolf /work/muzzle/tests/cases/printf.c /work/muzzle/src/stdio/stdio.lu
+9b51f987ebf0e7392aa5c010a258e188d83759ca6e810c645ec275b89e8c3ce7  /work/target/debug/wolf
+edb20b7e6d4cd4bd42eaa0fc07e56b967c4b809e407036e9fdbaea327dd4b0fa  /work/muzzle/tests/cases/printf.c
+9ac9cde88ae4dc19aa0f439afd2fbe2817bf7c2f8c3480c81a2da6cb13c8fcbb  /work/muzzle/src/stdio/stdio.lu
++ run version /work/target/debug/wolf --version
++ local name=version
++ shift
++ echo 'RUN version'
++ printf COMMAND
+COMMAND+ printf ' %q' /work/target/debug/wolf --version
+ /work/target/debug/wolf --version+ printf '\n'
+
++ set +e
++ /work/target/debug/wolf --version
++ local rc=0
++ set -e
++ cat /work/muzzle/notes/s263/run-20261024T225752Z/version.log
+wolf 0.2.35+dev.unknown (wolfgang)
+paired with lupin 0.1.56 (reference interpreter), pin 294d626
++ echo 'EXIT version=0'
+EXIT version=0
++ echo 'EXIT version=0'
++ '[' 0 = 0 ']'
++ run identity /work/muzzle/tests/build-override
++ local name=identity
++ shift
++ echo 'RUN identity'
++ printf COMMAND
+COMMAND+ printf ' %q' /work/muzzle/tests/build-override
+ /work/muzzle/tests/build-override+ printf '\n'
+
++ set +e
++ /work/muzzle/tests/build-override
++ local rc=0
++ set -e
++ cat /work/muzzle/notes/s263/run-20261024T225752Z/identity.log
+PASS default-refuses exit=2 compiled=no
+PASS exact-override exit=91 compiled=yes
+PASS wrong-override exit=2 compiled=no
+PASS empty-override exit=2 compiled=no
+PASS missing-driver exit=2 compiled=no
+build-override: pass=5 fail=0
++ echo 'EXIT identity=0'
+EXIT identity=0
++ echo 'EXIT identity=0'
++ '[' 0 = 0 ']'
++ for tier in native release
++ run build-native /work/muzzle/tools/build native
++ local name=build-native
++ shift
++ echo 'RUN build-native'
++ printf COMMAND
+COMMAND+ printf ' %q' /work/muzzle/tools/build native
+ /work/muzzle/tools/build native+ printf '\n'
+
++ set +e
++ /work/muzzle/tools/build native
++ local rc=2
++ set -e
++ cat /work/muzzle/notes/s263/run-20261024T225752Z/build-native.log
+build: DEVELOPMENT OVERRIDE WOLF=/work/target/debug/wolf expected='wolf 0.2.35+dev.unknown (wolfgang)' (release pin='wolf 0.2.34 (wolfgang, pin 9da7bdc)')
+error[E1306]: `va_arg` is called through `extern "c"`, but no assembly source the manifest lists defines it
+  --> ./stdio/stdio.lu:90:29
+   |
+90 |                     let v = va_arg[i32](mut ap) as i64
+   |                             ^^^^^^^^^^^^^^^^^^^ a call into a routine off the assembly roster
+   |
+   = note: the roster is the `.globl` names of `wolf.pkg`'s `asm` sources (sys.S); on target
+     x86_64-unknown-none every hand-declared extern a module calls is on it or is a hook
+     (wolf_trap, memcpy, memmove, memset, memcmp, wolf_rt_ambient_get, wolf_rt_ambient_set)
+
+error[E1306]: `va_arg` is called through `extern "c"`, but no assembly source the manifest lists defines it
+  --> ./stdio/stdio.lu:94:29
+   |
+94 |                     let v = va_arg[u32](mut ap)
+   |                             ^^^^^^^^^^^^^^^^^^^ a call into a routine off the assembly roster
+   |
+
+error[E1306]: `va_arg` is called through `extern "c"`, but no assembly source the manifest lists defines it
+  --> ./stdio/stdio.lu:97:29
+   |
+97 |                     let v = va_arg[i32](mut ap)
+   |                             ^^^^^^^^^^^^^^^^^^^ a call into a routine off the assembly roster
+   |
+
+error[E1306]: `va_arg` is called through `extern "c"`, but no assembly source the manifest lists defines it
+   --> ./stdio/stdio.lu:100:29
+    |
+100 |                     let s = va_arg[*u8](mut ap)
+    |                             ^^^^^^^^^^^^^^^^^^^ a call into a routine off the assembly roster
+    |
+
+error[E1306]: `va_start` is called through `extern "c"`, but no assembly source the manifest lists defines it
+   --> ./stdio/stdio.lu:132:18
+    |
+132 |         var ap = va_start()
+    |                  ^^^^^^^^^^ a call into a routine off the assembly roster
+    |
+
+error[E1306]: `va_end` is called through `extern "c"`, but no assembly source the manifest lists defines it
+   --> ./stdio/stdio.lu:134:9
+    |
+134 |         va_end(mut ap)
+    |         ^^^^^^^^^^^^^^ a call into a routine off the assembly roster
+    |
+
+wolf build: the package does not compile; fix the errors above (`wolf --explain E1306` explains this code, or any other, by name)
++ echo 'EXIT build-native=2'
+EXIT build-native=2
++ echo 'EXIT build-native=2'
++ '[' 2 = 0 ']'
++ exit 2

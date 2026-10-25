@@ -1,0 +1,36 @@
+Source preflight (no compiler acceptance yet)
+
+Local Mac commands, all exit 0:
+  bash -n tools/build tools/printf-acceptance tests/build-override
+  python3: assert exactly 50 lines begin CASE( in tests/cases/printf.c
+  git diff --check
+No cargo, clang or Wolf executable was run on the Mac.
+
+Remote staging:
+  rsync -a --exclude=.git --exclude=build --exclude=out --exclude=.wolf-bin
+    --exclude=.lu-cache <muzzle/> hasu:/home/mfwolffe/lanes/s263/muzzle/
+  exit 0, but unanchored build exclusion also omitted tools/build.
+  Corrected rsync: --exclude=/.git --exclude=/build/ --exclude=/out/
+    --exclude=/.wolf-bin/ --exclude=.lu-cache; exit 0.
+
+Remote preflight commands sent with ssh hasu bash -s (quoted heredoc):
+  /home/mfwolffe/lanes/s263/container/run.sh bash /work/muzzle/tests/build-override
+  exit 126: run.sh is not executable; must invoke with bash.
+  bash /home/mfwolffe/lanes/s263/container/run.sh bash /work/muzzle/tests/build-override
+  first exit 1: tools/build omitted by the unanchored rsync exclusion above.
+  after corrected sync: exit 0.
+
+Identity gate output:
+  PASS default-refuses exit=2 compiled=no
+  PASS exact-override exit=91 compiled=yes
+  PASS wrong-override exit=2 compiled=no
+  PASS empty-override exit=2 compiled=no
+  PASS missing-driver exit=2 compiled=no
+  build-override: pass=5 fail=0
+The fake driver only prints its version or records an attempted build and exits
+91. No Wolf/clang compilation took place; this is not compiler acceptance.
+Executed inside parent's rootless container under hasu-B lock, CPUs 6-11, 12g.
+
+Muzzle branch s263, base/HEAD 0ae060141bc750dfc59e71158de48757feea9916, uncommitted.
+Corpus SHA256 edb20b7e6d4cd4bd42eaa0fc07e56b967c4b809e407036e9fdbaea327dd4b0fa.
+Initial stdio.lu SHA256 9ac9cde88ae4dc19aa0f439afd2fbe2817bf7c2f8c3480c81a2da6cb13c8fcbb.

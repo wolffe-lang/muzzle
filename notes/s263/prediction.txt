@@ -1,0 +1,5 @@
+Before compiler acceptance: printf's first build is predicted to need syntax/type
+fixes, not all 50 cases green at the first attempt. Source starts from muzzle
+0ae060141bc750dfc59e71158de48757feea9916, branch s263. Compiler readiness and the
+freestanding target question are still pending with the parent lane. No compiler,
+clang, cargo, or Wolf executable has run on the Mac.

@@ -1,0 +1,6 @@
+PASS default-refuses exit=2 compiled=no
+PASS exact-override exit=91 compiled=yes
+PASS wrong-override exit=2 compiled=no
+PASS empty-override exit=2 compiled=no
+PASS missing-driver exit=2 compiled=no
+build-override: pass=5 fail=0

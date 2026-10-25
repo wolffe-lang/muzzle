@@ -1,0 +1,80 @@
++ printf 'compiler_head=%s\ncompiler_path=%s\nexpected_version=%s\n' 5b469e78439e7d3bcbbc79535491edc35e4257ed+uncommitted-s263-variadic-integration /work/target/debug/wolf 'wolf 0.2.35+dev.unknown (wolfgang)'
+compiler_head=5b469e78439e7d3bcbbc79535491edc35e4257ed+uncommitted-s263-variadic-integration
+compiler_path=/work/target/debug/wolf
+expected_version=wolf 0.2.35+dev.unknown (wolfgang)
++ date -u +%Y-%m-%dT%H:%M:%SZ
+2026-10-24T22:55:33Z
++ sha256sum /work/target/debug/wolf /work/muzzle/tests/cases/printf.c /work/muzzle/src/stdio/stdio.lu
+0c2a57b1d55a691d6c9a8cfb9421a80fe06f5f1fadddf963a306ed1bfeace292  /work/target/debug/wolf
+edb20b7e6d4cd4bd42eaa0fc07e56b967c4b809e407036e9fdbaea327dd4b0fa  /work/muzzle/tests/cases/printf.c
+9ac9cde88ae4dc19aa0f439afd2fbe2817bf7c2f8c3480c81a2da6cb13c8fcbb  /work/muzzle/src/stdio/stdio.lu
++ run version /work/target/debug/wolf --version
++ local name=version
++ shift
++ echo 'RUN version'
++ printf COMMAND
+COMMAND+ printf ' %q' /work/target/debug/wolf --version
+ /work/target/debug/wolf --version+ printf '\n'
+
++ set +e
++ /work/target/debug/wolf --version
++ local rc=0
++ set -e
++ cat /work/muzzle/notes/s263/run-20261024T225533Z/version.log
+wolf 0.2.35+dev.unknown (wolfgang)
+paired with lupin 0.1.56 (reference interpreter), pin 294d626
++ echo 'EXIT version=0'
+EXIT version=0
++ echo 'EXIT version=0'
++ '[' 0 = 0 ']'
++ run identity /work/muzzle/tests/build-override
++ local name=identity
++ shift
++ echo 'RUN identity'
++ printf COMMAND
+COMMAND+ printf ' %q' /work/muzzle/tests/build-override
+ /work/muzzle/tests/build-override+ printf '\n'
+
++ set +e
++ /work/muzzle/tests/build-override
++ local rc=0
++ set -e
++ cat /work/muzzle/notes/s263/run-20261024T225533Z/identity.log
+PASS default-refuses exit=2 compiled=no
+PASS exact-override exit=91 compiled=yes
+PASS wrong-override exit=2 compiled=no
+PASS empty-override exit=2 compiled=no
+PASS missing-driver exit=2 compiled=no
+build-override: pass=5 fail=0
++ echo 'EXIT identity=0'
+EXIT identity=0
++ echo 'EXIT identity=0'
++ '[' 0 = 0 ']'
++ for tier in native release
++ run build-native /work/muzzle/tools/build native
++ local name=build-native
++ shift
++ echo 'RUN build-native'
++ printf COMMAND
+COMMAND+ printf ' %q' /work/muzzle/tools/build native
+ /work/muzzle/tools/build native+ printf '\n'
+
++ set +e
++ /work/muzzle/tools/build native
++ local rc=2
++ set -e
++ cat /work/muzzle/notes/s263/run-20261024T225533Z/build-native.log
+build: DEVELOPMENT OVERRIDE WOLF=/work/target/debug/wolf expected='wolf 0.2.35+dev.unknown (wolfgang)' (release pin='wolf 0.2.34 (wolfgang, pin 9da7bdc)')
+error[E0812]: `va_arg` needs one promoted C type, as in `va_arg[i32](mut ap)`
+   --> ./stdio/stdio.lu:100:29
+    |
+100 |                     let s = va_arg[*u8](mut ap)
+    |                             ^^^^^^^^^^^^^^^^^^^
+    |
+
+wolf build: the package does not compile; fix the errors above (`wolf --explain E0812` explains this code, or any other, by name)
++ echo 'EXIT build-native=2'
+EXIT build-native=2
++ echo 'EXIT build-native=2'
++ '[' 2 = 0 ']'
++ exit 2

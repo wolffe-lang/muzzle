@@ -1,0 +1,2 @@
+build: DEVELOPMENT OVERRIDE WOLF=/work/target/debug/wolf expected='wolf 0.2.35+dev.unknown (wolfgang)' (release pin='wolf 0.2.34 (wolfgang, pin 9da7bdc)')
+build: release: 5 objects, 20 exports defined, 8 internal references, 0 imports -> /work/muzzle/build/release/libmuzzle.a

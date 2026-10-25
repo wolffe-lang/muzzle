@@ -1,0 +1,15 @@
++ cd /work/muzzle
++ out=notes/s263/run-20261024T225533Z
++ clang -std=c17 -O1 -Wall -Werror -fno-builtin -fno-stack-protector tests/cases/printf.c -o out/printf-oracle
++ set +e
++ timeout 20 out/printf-oracle
++ rc=0
++ set -e
+oracle_exit=0
++ echo oracle_exit=0
++ sha256sum tests/cases/printf.c notes/s263/run-20261024T225533Z/printf.glibc.out
+edb20b7e6d4cd4bd42eaa0fc07e56b967c4b809e407036e9fdbaea327dd4b0fa  tests/cases/printf.c
+1e086d7e0c5a346283786a08f3b9b7ec5b3e708e3210988eab1b6dff1273c280  notes/s263/run-20261024T225533Z/printf.glibc.out
++ grep -a -x 'cases=50 failures=0' notes/s263/run-20261024T225533Z/printf.glibc.out
+cases=50 failures=0
++ test 0 = 0
