@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Acceptance-branch identity checks, without requiring a compiler install.
+# A fake driver reports one version and records any compile attempt. It
+# exits 91 at compile, so none of these cases executes clang or emits code.
+set -euo pipefail
+root=$(cd "$(dirname "$0")/.." && pwd)
+scratch="$root/out/build-override"
+rm -rf "$scratch"; mkdir -p "$scratch/tree/tools" "$scratch/tree/src"
+cp "$root/tools/build" "$scratch/tree/tools/build"
+cp "$root/wolf-toolchain.toml" "$scratch/tree/wolf-toolchain.toml"
+cat > "$scratch/driver" <<'DRIVER'
+#!/usr/bin/env bash
+if [ "${1:-}" = --version ]; then
+  echo 'wolf acceptance-test (not a release)'
+  exit 0
+fi
+printf '%s\n' "$*" > "${0%/*}/compiled"
+exit 91
+DRIVER
+chmod +x "$scratch/driver"
+run() {
+  local name=$1 expected=$2 compiled=$3; shift 3
+  rm -f "$scratch/compiled"
+  mkdir -p "$scratch/tree/build/native"
+  echo stale > "$scratch/tree/build/native/old"
+  set +e
+  env -u WOLF -u WOLF_EXPECT_VERSION "$@" "$scratch/tree/tools/build" native > "$scratch/$name.log" 2>&1
+  rc=$?
+  set -e
+  [ "$rc" = "$expected" ] || { cat "$scratch/$name.log"; echo "FAIL $name exit=$rc expected=$expected"; exit 1; }
+  [ ! -e "$scratch/tree/build/native/old" ] || { echo "FAIL $name stale output"; exit 1; }
+  if [ "$compiled" = yes ]; then
+    [ -f "$scratch/compiled" ]
+    grep -q 'DEVELOPMENT OVERRIDE' "$scratch/$name.log"
+  else
+    [ ! -f "$scratch/compiled" ]
+    [ ! -d "$scratch/tree/build/native" ]
+  fi
+  echo "PASS $name exit=$rc compiled=$compiled"
+}
+run default-refuses 2 no WOLF="$scratch/driver"
+run exact-override 91 yes WOLF="$scratch/driver" WOLF_EXPECT_VERSION='wolf acceptance-test (not a release)'
+run wrong-override 2 no WOLF="$scratch/driver" WOLF_EXPECT_VERSION='wolf acceptance-test'
+run empty-override 2 no WOLF="$scratch/driver" WOLF_EXPECT_VERSION=''
+run missing-driver 2 no WOLF_EXPECT_VERSION='wolf acceptance-test (not a release)'
+echo 'build-override: pass=5 fail=0'

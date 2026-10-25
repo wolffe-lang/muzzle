@@ -71,7 +71,7 @@ EOF
 stage_pin() { ln -s "$real" "$t/.wolf-bin/wolf-$ver-$host"; }
 # build [VAR=value]: the copy's tools/build, with no WOLF unless given.
 build() {
-  env -u WOLF "$@" "$t/tools/build" "$tier" >"$t/build.out" 2>"$t/build.err"; rc=$?
+  env -u WOLF -u WOLF_EXPECT_VERSION "$@" "$t/tools/build" "$tier" >"$t/build.out" 2>"$t/build.err"; rc=$?
 }
 
 pass=0; fail=0
