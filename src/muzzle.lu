@@ -6,11 +6,12 @@ use sys
 use string
 use heap
 use process
+use stdio
 
 /// Reaches every module. A library's modules are called by C, never by
 /// wolf, and wolf 0.2.24 compiles only the modules the root's code uses:
 /// without an import a module's exports are missing from the object,
 /// and an import nothing uses is E0305 (wolf-lang#599). Never called.
 fn reach() -> bool {
-    sys.linked() && string.linked() && heap.linked() && process.linked()
+    sys.linked() && string.linked() && heap.linked() && process.linked() && stdio.linked()
 }

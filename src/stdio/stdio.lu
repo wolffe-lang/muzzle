@@ -1,0 +1,142 @@
+//! The first printf slice: C17 7.21.6.3 and 7.21.6.1, only bare
+//! %d, %s, %c, %x and %%. No FILE, buffering, flags, width, precision
+//! or length modifiers. Arguments follow [abi.c.variadic].
+
+use sys
+
+// Separate from the trap hook's buffer. Like errno, this first slice
+// is single-threaded; no allocation or Wolf runtime is involved.
+extern "c" let __muzzle_printf_scratch: *u8
+
+fn put(p: *u8, n: uint) -> i64 {
+    var done: uint = 0
+    // # Safety: the formatter supplies n readable bytes; the syscall
+    // reads those bytes synchronously. Retry short writes and EINTR.
+    unsafe {
+        while done < n {
+            let at = p.addr() + done
+            let r = sys.raw(1, 1, at as wrapping[i64] as i64,
+                (n - done) as wrapping[i64] as i64, 0, 0, 0)
+            if r == -4 {
+                continue
+            }
+            if r < 0 {
+                return sys.ret(r)
+            }
+            if r == 0 {
+                sys.set_errno(5)
+                return -1
+            }
+            done += r as uint
+        }
+    }
+    n as i64
+}
+
+fn character(c: u8) -> i64 {
+    // # Safety: the single-threaded scratch object has 16 bytes.
+    unsafe {
+        __muzzle_printf_scratch[0] = c
+    }
+    put(__muzzle_printf_scratch, 1)
+}
+
+fn number(value: u64, base: u64, negative: bool) -> i64 {
+    var v = value
+    var at: int = 15
+    // # Safety: callers pass a u32 magnitude and base 10 or 16.
+    // At most 10 digits plus a sign fit in the 16-byte scratch object.
+    unsafe {
+        var digit = v % base
+        __muzzle_printf_scratch[at] = if digit < 10 { 48 + digit as u8 } else { 87 + digit as u8 }
+        v = v / base
+        while v > 0 {
+            at -= 1
+            digit = v % base
+            __muzzle_printf_scratch[at] = if digit < 10 { 48 + digit as u8 } else { 87 + digit as u8 }
+            v = v / base
+        }
+        if negative {
+            at -= 1
+            __muzzle_printf_scratch[at] = 45
+        }
+        let from = __muzzle_printf_scratch.with_addr(__muzzle_printf_scratch.addr() + at as uint)
+        put(from, (16 - at) as uint)
+    }
+}
+
+fn format(fmt: *u8, mut ap: VaList) -> i32 {
+    var at: int = 0
+    var count: i64 = 0
+    // # Safety: C supplies a null-terminated format, matching promoted
+    // arguments, and readable null-terminated strings for every %s.
+    // The live cursor never escapes the variadic invocation.
+    unsafe {
+        while fmt[at] != 0 {
+            var n: i64 = 0
+            if fmt[at] != 37 {
+                let start = at
+                while fmt[at] != 0 && fmt[at] != 37 {
+                    at += 1
+                }
+                n = put(fmt.with_addr(fmt.addr() + start as uint), (at - start) as uint)
+            } else {
+                at += 1
+                let spec = fmt[at]
+                if spec == 37 {
+                    n = character(37)
+                } else if spec == 100 {
+                    // Widen before negating, including INT_MIN.
+                    let v = va_arg[i32](mut ap) as i64
+                    let magnitude = if v < 0 { 0 - v } else { v }
+                    n = number(magnitude as u64, 10, v < 0)
+                } else if spec == 120 {
+                    let v = va_arg[u32](mut ap)
+                    n = number(v as u64, 16, false)
+                } else if spec == 99 {
+                    let v = va_arg[i32](mut ap)
+                    n = character(v as wrapping[u8] as u8)
+                } else if spec == 115 {
+                    let s = va_arg[*u8](mut ap)
+                    var len: uint = 0
+                    while s[len as int] != 0 {
+                        len += 1
+                    }
+                    n = put(s, len)
+                } else {
+                    // Outside this subset, refuse rather than pretending
+                    // to implement a C conversion or reading an argument.
+                    sys.set_errno(22)
+                    return -1
+                }
+                at += 1
+            }
+            if n < 0 {
+                return -1
+            }
+            count += n
+            if count > 2147483647 {
+                sys.set_errno(75)
+                return -1
+            }
+        }
+    }
+    count as i32
+}
+
+/// C17 7.21.6.3, restricted to the conversions documented above.
+export fn printf(fmt: *u8, ...) -> i32 {
+    // # Safety: printf's C preconditions; start/end bracket every path
+    // through format, including output errors and rejected conversions.
+    unsafe {
+        var ap = va_start()
+        let count = format(fmt, mut ap)
+        va_end(mut ap)
+        count
+    }
+}
+
+/// Keep this C-only module reachable (wolf-lang#599).
+pub fn linked() -> bool {
+    true
+}

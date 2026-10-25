@@ -52,4 +52,11 @@ __muzzle_bins:
 __muzzle_scratch:
 	.zero	32
 
+/* Single-threaded printf digit/character buffer, not the trap buffer. */
+	.globl	__muzzle_printf_scratch
+	.type	__muzzle_printf_scratch,@object
+	.size	__muzzle_printf_scratch, 16
+__muzzle_printf_scratch:
+	.zero	16
+
 	.section .note.GNU-stack,"",@progbits
