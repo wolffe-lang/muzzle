@@ -1,0 +1,347 @@
+//! <stdio.h> character and direct input/output, C17 7.21.7 and 7.21.8:
+//! fgetc, getc, getchar, fgets, ungetc, fputc, putc, putchar, fputs,
+//! puts, fread, fwrite, over the buffer engine in file.lu.
+//!
+//! Sources: C17 7.21.7.1–7.21.7.10 (fgetc's end-of-file indicator is
+//! sticky: "If the end-of-file indicator for the stream is set ... the
+//! fgetc function returns EOF"; ungetc's one guaranteed byte and its
+//! clearing of the end-of-file indicator), 7.21.8.1–7.21.8.2 (fread and
+//! fwrite count whole elements), 7.21.3p3 (when a buffer is
+//! transmitted); POSIX.1-2024 XSH fgetc, fputc, fputs, puts, ungetc,
+//! fread, fwrite (the errno each sets). The nonnegative values fputs
+//! and puts answer are glibc's (1, and the bytes written), observed as
+//! a black box (notes/lc02-probes/g2.c, g3.c). muzzle's own design.
+
+use sys
+use string
+
+/// One byte into the stream (fputc's path). A full buffer is written
+/// out when the next byte arrives, not when it fills (glibc's observed
+/// choice: 16 fputc calls into a 16-byte buffer write nothing, the 17th
+/// writes 16). A line-buffered stream writes out at a newline, an
+/// unbuffered one at once.
+fn put_byte(f: *File, b: u8) -> bool {
+    // # Safety: f is a live record readied by wbegin; buf holds size bytes.
+    unsafe {
+        if f[0].wpos >= f[0].size && !drain(f) {
+            return false
+        }
+        f[0].buf[f[0].wpos as int] = b
+        f[0].wpos += 1
+        f[0].flags = f[0].flags | F_WSET
+        let m = f[0].mode
+        if m == IONBF || (m == IOLBF && b == 10) {
+            return drain(f)
+        }
+    }
+    true
+}
+
+/// Copies n bytes from p into the buffer's free room (C's precondition:
+/// they fit).
+fn absorb(f: *File, p: *u8, n: i64) {
+    if n <= 0 {
+        return
+    }
+    // # Safety: buf has room for n more bytes; p addresses n bytes.
+    unsafe {
+        let at = f[0].buf.with_addr(f[0].buf.addr() + f[0].wpos as uint)
+        let c = string.memcpy(at, p, n as uint)
+        f[0].wpos += n
+        f[0].flags = f[0].flags | F_WSET
+    }
+}
+
+/// n bytes into the stream (fwrite's and fputs's path), the moments
+/// glibc's observed ones (notes/lc02-probes/g2.c, g3.c, g5.c):
+/// - bytes that fit the room left join the buffer, even when they fill
+///   it; a buffer no byte has gone into yet has no room;
+/// - bytes that do not fit fill the room, the full buffer goes out, the
+///   rest's whole multiples of the buffer size go straight to the
+///   descriptor, and the remainder joins the buffer (a buffer under
+///   BLOCK_MIN sends the whole rest instead);
+/// - a line-buffered stream then sends through its last newline;
+/// - an unbuffered stream sends everything at once.
+fn put_bytes(f: *File, p: *u8, n: i64) -> bool {
+    if n <= 0 {
+        return true
+    }
+    var m: i32 = 0
+    var room: i64 = 0
+    var size: i64 = 0
+    // # Safety: f is a live record readied by wbegin.
+    unsafe {
+        m = f[0].mode
+        size = f[0].size
+        if f[0].flags & F_WSET != 0 {
+            room = f[0].size - f[0].wpos
+        }
+    }
+    if m == IONBF {
+        return drain(f) && direct(f, p, n)
+    }
+    if n <= room {
+        absorb(f, p, n)
+        return m != IOLBF || drain_lines(f)
+    }
+    absorb(f, p, room)
+    if !drain(f) {
+        return false
+    }
+    let rest = n - room
+    let whole = if size >= BLOCK_MIN { rest - rest % size } else { rest }
+    var from = p
+    // # Safety: p addresses n bytes; room + whole <= n.
+    unsafe {
+        from = p.with_addr(p.addr() + room as uint)
+    }
+    if !direct(f, from, whole) {
+        return false
+    }
+    // # Safety: as above.
+    unsafe {
+        from = p.with_addr(p.addr() + (room + whole) as uint)
+    }
+    absorb(f, from, rest - whole)
+    m != IOLBF || drain_lines(f)
+}
+
+/// One byte from the stream, or EOF (the end-of-file or error indicator
+/// set). Pushed-back bytes come first. A set end-of-file indicator
+/// answers EOF without reading (C17 7.21.7.1p3). Before asking the
+/// descriptor for more, an unbuffered or line-buffered stream writes out
+/// every line-buffered stream's output (C17 7.21.3p3).
+fn read_byte(f: *File) -> i32 {
+    if !rbegin(f) {
+        return EOF
+    }
+    // # Safety: f is a live record readied by rbegin; buf holds size
+    // bytes, rpos..rend of them read ahead.
+    unsafe {
+        if f[0].npb > 0 {
+            let b = (f[0].pb % 256) as i32
+            f[0].pb = f[0].pb / 256
+            f[0].npb -= 1
+            return b
+        }
+        if f[0].rpos < f[0].rend {
+            let b = f[0].buf[f[0].rpos as int] as i32
+            f[0].rpos += 1
+            return b
+        }
+        if f[0].flags & F_EOF != 0 {
+            return EOF
+        }
+        if f[0].mode != IOFBF {
+            drain_line_buffered()
+        }
+        var r: i64 = 0
+        var going = true
+        while going {
+            r = sys.raw(0, f[0].fd as i64, f[0].buf.addr() as wrapping[i64] as i64, f[0].size, 0, 0, 0)
+            going = r == 0 - EINTR as i64
+        }
+        if sys.failed(r) {
+            f[0].rpos = 0
+            f[0].rend = 0
+            let k = refuse(f, (0 - r) as i32)
+            return EOF
+        }
+        if r == 0 {
+            f[0].rpos = 0
+            f[0].rend = 0
+            f[0].flags = f[0].flags | F_EOF
+            return EOF
+        }
+        f[0].rpos = 1
+        f[0].rend = r
+        f[0].buf[0] as i32
+    }
+}
+
+/// C17 7.21.7.1.
+export fn fgetc(stream: *File) -> i32 {
+    ready()
+    read_byte(stream)
+}
+
+/// C17 7.21.7.5: fgetc.
+export fn getc(stream: *File) -> i32 {
+    ready()
+    read_byte(stream)
+}
+
+/// C17 7.21.7.6: getc from stdin.
+export fn getchar() -> i32 {
+    read_byte(cur_stdin())
+}
+
+/// C17 7.21.7.2: at most n-1 bytes, through the first newline, then a
+/// null. Null when end of file comes before any byte (s untouched) or on
+/// a read error. n of 1 stores only the null and answers s, n below 1
+/// answers null (glibc's choices).
+export fn fgets(s: *u8, n: i32, stream: *File) -> *u8 {
+    ready()
+    // # Safety: C's precondition: s has room for n bytes.
+    unsafe {
+        if n <= 0 {
+            return 0 as *u8
+        }
+        if n == 1 {
+            s[0] = 0
+            return s
+        }
+        var i: i32 = 0
+        var going = true
+        while going && i < n - 1 {
+            let c = read_byte(stream)
+            if c == EOF {
+                if i == 0 || stream[0].flags & F_ERR != 0 {
+                    return 0 as *u8
+                }
+                going = false
+            } else {
+                s[i as int] = c as u8
+                i += 1
+                if c == 10 {
+                    going = false
+                }
+            }
+        }
+        s[i as int] = 0
+    }
+    s
+}
+
+/// C17 7.21.7.10: pushes c (as unsigned char) back; the next read
+/// answers it, and the end-of-file indicator is cleared. Up to
+/// PUSHBACK_MAX bytes, last in first out (C guarantees one; glibc takes
+/// more, so muzzle takes a few). EOF for c == EOF or when no more fit.
+export fn ungetc(c: i32, stream: *File) -> i32 {
+    ready()
+    if c == EOF || !has(stream, F_OPEN) || !has(stream, F_READ) {
+        return EOF
+    }
+    // # Safety: stream is a live record.
+    unsafe {
+        if stream[0].npb >= PUSHBACK_MAX {
+            return EOF
+        }
+        if stream[0].wpos > 0 && !drain(stream) {
+            return EOF
+        }
+        let b = c as wrapping[u8] as u8
+        stream[0].pb = stream[0].pb * 256 + b as u64
+        stream[0].npb += 1
+        stream[0].flags = stream[0].flags & !F_EOF
+        b as i32
+    }
+}
+
+/// C17 7.21.7.3: c as unsigned char, or EOF with the error indicator
+/// and errno (EBADF on a stream not open for writing).
+export fn fputc(c: i32, stream: *File) -> i32 {
+    ready()
+    if !wbegin(stream) {
+        return EOF
+    }
+    let b = c as wrapping[u8] as u8
+    if put_byte(stream, b) { b as i32 } else { EOF }
+}
+
+/// C17 7.21.7.7: fputc.
+export fn putc(c: i32, stream: *File) -> i32 {
+    fputc(c, stream)
+}
+
+/// C17 7.21.7.8: putc to stdout.
+export fn putchar(c: i32) -> i32 {
+    fputc(c, cur_stdout())
+}
+
+/// C17 7.21.7.4: the string without its null. 1 on success (glibc's
+/// nonnegative value), EOF on a write error.
+export fn fputs(s: *u8, stream: *File) -> i32 {
+    ready()
+    if !wbegin(stream) {
+        return EOF
+    }
+    let n = string.strlen(s)
+    if put_bytes(stream, s, n as i64) { 1 } else { EOF }
+}
+
+/// C17 7.21.7.9: the string and a newline to stdout. The bytes written
+/// on success (glibc's nonnegative value, at most INT_MAX), EOF on a
+/// write error.
+export fn puts(s: *u8) -> i32 {
+    let f = cur_stdout()
+    if !wbegin(f) {
+        return EOF
+    }
+    let n = string.strlen(s) as i64
+    if !put_bytes(f, s, n) || !put_byte(f, 10) {
+        return EOF
+    }
+    if n >= 2147483647 { 2147483647 } else { (n + 1) as i32 }
+}
+
+/// C17 7.21.8.1: up to nmemb elements of size bytes; the count of whole
+/// elements read. Short at end of file or on an error, with the
+/// indicator set.
+export fn fread(ptr: *u8, size: uint, nmemb: uint, stream: *File) -> uint {
+    ready()
+    if size == 0 || nmemb == 0 {
+        return 0
+    }
+    if nmemb > 9223372036854775807 / size {
+        sys.set_errno(EINVAL)
+        return 0
+    }
+    let total = size * nmemb
+    var got: uint = 0
+    // # Safety: C's precondition: ptr has room for size * nmemb bytes.
+    unsafe {
+        while got < total {
+            var avail: i64 = 0
+            if stream[0].npb == 0 && stream[0].rpos < stream[0].rend {
+                avail = stream[0].rend - stream[0].rpos
+            }
+            if avail > 0 {
+                var k = avail as uint
+                if k > total - got {
+                    k = total - got
+                }
+                let from = stream[0].buf.with_addr(stream[0].buf.addr() + stream[0].rpos as uint)
+                let c = string.memcpy(ptr.with_addr(ptr.addr() + got), from, k)
+                stream[0].rpos += k as i64
+                got += k
+            } else {
+                let b = read_byte(stream)
+                if b == EOF {
+                    return got / size
+                }
+                ptr[got as int] = b as u8
+                got += 1
+            }
+        }
+    }
+    nmemb
+}
+
+/// C17 7.21.8.2: nmemb elements of size bytes; the count of whole
+/// elements written (all of them, or fewer on a write error, with the
+/// error indicator and errno set).
+export fn fwrite(ptr: *u8, size: uint, nmemb: uint, stream: *File) -> uint {
+    ready()
+    if size == 0 || nmemb == 0 {
+        return 0
+    }
+    if nmemb > 9223372036854775807 / size {
+        sys.set_errno(EINVAL)
+        return 0
+    }
+    if !wbegin(stream) {
+        return 0
+    }
+    if put_bytes(stream, ptr, (size * nmemb) as i64) { nmemb } else { 0 }
+}
