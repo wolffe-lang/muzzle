@@ -10,7 +10,8 @@ test for PAX.
 **State: the first layer (lc01).** Raw syscalls, errno, the memory and
 string core, the allocator and process exit, enough for a C program
 built with `clang -nostdlib` to run against muzzle alone. There is no
-`printf` yet: wolf has no varargs (wolf-lang#515).
+`printf` yet. wolf 0.2.36 added C variadics (wolf-lang#515), so the
+printf family can now be written; it arrives with stdio, the next layer.
 
 ## What C gets
 
@@ -68,7 +69,7 @@ clang -std=c17 -fno-builtin -fno-stack-protector \
 On an x86-64 Linux host with clang:
 
 ```sh
-tools/fetch-toolchain        # wolf 0.2.35 by digest (wolf-toolchain.toml)
+tools/fetch-toolchain        # wolf 0.2.36 by digest (wolf-toolchain.toml)
 tools/build native           # or release; gates the archive's symbols
 tools/difftest native        # every case against glibc; non-zero on any difference
 ```
