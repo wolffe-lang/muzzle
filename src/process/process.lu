@@ -1,15 +1,20 @@
 //! Leaving the process, and the one output path: C17 7.22.4.4 exit,
 //! 7.22.4.5 _Exit; POSIX.1-2024 XSH _exit and write.
 //!
-//! No atexit handlers (no C function pointers yet, wolf-lang#520) and
-//! no streams to flush (lc08) exist, so exit does what _Exit does.
+//! exit writes out every open stream's pending output (C17 7.22.4.4p4),
+//! then ends the process; _Exit and _exit do not flush (C17 7.22.4.5p2
+//! leaves it to the implementation; muzzle does not, as glibc does not).
+//! No atexit handlers yet (C function pointers, wolf-lang#520).
 
 use sys
+use stdio
 
 const SYS_WRITE: i64 = 1
 
-/// C17 7.22.4.4.
+/// C17 7.22.4.4: the streams' pending output, then the process's end.
+/// The descriptors close with the process.
 export fn exit(status: i32) {
+    let ok = stdio.flush_all()
     sys.exit_group(status)
 }
 
