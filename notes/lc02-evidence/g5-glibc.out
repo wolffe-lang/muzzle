@@ -1,0 +1,46 @@
+thr.16=54
+thr.32=102
+thr.64=198
+thr.100=306
+thr.120=366
+thr.126=384
+thr.127=387
+thr.128=384
+thr.129=387
+thr.130=390
+thr.200=600
+thr.255=765
+pf.fresh.4095=0
+pf.after10.4095=4096
+pf.fresh.4096=0
+pf.after10.4096=4096
+pf.fresh.4097=4096
+pf.after10.4097=4096
+pf.fresh.4098=4096
+pf.after10.4098=4096
+pf.fresh.5000=4096
+pf.after10.5000=4096
+pf.fresh.8191=4096
+pf.after10.8191=8192
+pf.fresh.8192=4096
+pf.after10.8192=8192
+pf.fresh.8193=8192
+pf.after10.8193=8192
+pf.fresh.8194=8192
+pf.after10.8194=8192
+pf.fresh.9000=8192
+pf.after10.9000=8192
+pf.fresh.13000=12288
+pf.after10.13000=12288
+pf.fail.4095=2 r=-1
+pf.fail.4096=2 r=-1
+pf.fail.4097=4098 r=-1
+pf.fail.9000=8195 r=-1
+after_failed.w20=0
+lbf.long_nl_4500=4502
+lbf.long_nl_100=4096
+lbf.printf_long_nl=5002
+u1 [%#+-k] [%#0k] [%#0k] [%+k] [%+-k] [%-k] [%-k] [%'k] [%' k] [%'-k] [% k] [%0k]
+u2 [%-7k] [%-4k] [%k] [%.0k] [%3.2k]
+u3 [%.0k] [%.0k] [%10.0k] [%-10.5k] [%k] [%k] [%k] [%k] [%k]
+u4 [%#5.3K] [%+05y] [%5@] [%-3!]

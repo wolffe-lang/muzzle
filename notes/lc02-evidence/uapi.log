@@ -1,0 +1,73 @@
+QUEUED 2026-11-01T21:08:21Z job=uapi1a block=A pid=2402634 inner=/home/mfwolffe/lanes/lc02/hasu/job-explore.sh 8d5896faf7d17a460c4e3d664faf9d92c986462f uapi1a
+explore: sha=8d5896faf7d17a460c4e3d664faf9d92c986462f block=A cpus=0-5 out=/home/mfwolffe/lanes/lc02/out-uapi1a
+FILE /usr/include/x86_64-linux-gnu/asm/unistd_64.h owner=linux-libc-dev
+  #define __NR_read 0
+  #define __NR_write 1
+  #define __NR_close 3
+  #define __NR_fstat 5
+  #define __NR_lseek 8
+  #define __NR_ioctl 16
+  #define __NR_fcntl 72
+  #define __NR_openat 257
+FILE /usr/include/asm-generic/fcntl.h owner=linux-libc-dev
+  #define O_ACCMODE	00000003
+  #define O_RDONLY	00000000
+  #define O_WRONLY	00000001
+  #define O_RDWR		00000002
+  #define O_CREAT		00000100	/* not fcntl */
+  #define O_EXCL		00000200	/* not fcntl */
+  #define O_NOCTTY	00000400	/* not fcntl */
+  #define O_TRUNC		00001000	/* not fcntl */
+  #define O_APPEND	00002000
+  #define O_NONBLOCK	00004000
+  #define O_DSYNC		00010000	/* used to be O_SYNC, see below */
+  #define O_DIRECTORY	00200000	/* must be a directory */
+  #define O_NOFOLLOW	00400000	/* don't follow links */
+  #define O_CLOEXEC	02000000	/* set close_on_exec */
+  #define __O_SYNC	04000000
+  #define O_SYNC		(__O_SYNC|O_DSYNC)
+  #define __O_TMPFILE	020000000
+  #define O_TMPFILE (__O_TMPFILE | O_DIRECTORY)
+  #define F_GETFL		3	/* get file->f_flags */
+FILE /usr/include/linux/fcntl.h owner=linux-libc-dev
+  #define AT_FDCWD		-100    /* Special value used to indicate
+FILE /usr/include/asm-generic/ioctls.h owner=linux-libc-dev
+  #define TCGETS		0x5401
+FILE /usr/include/asm-generic/errno.h owner=linux-libc-dev
+  #define	EOVERFLOW	75	/* Value too large for defined data type */
+  #define	EILSEQ		84	/* Illegal byte sequence */
+FILE /usr/include/x86_64-linux-gnu/asm/stat.h owner=linux-libc-dev
+  #ifndef _ASM_X86_STAT_H
+  #ifdef __i386__
+  [1]
+  struct stat {
+  	unsigned long  st_dev;
+  	unsigned long  st_ino;
+  	unsigned short st_mode;
+  	unsigned short st_nlink;
+  	unsigned short st_uid;
+  	unsigned short st_gid;
+  	unsigned long  st_rdev;
+  	unsigned long  st_size;
+  	unsigned long  st_blksize;
+  #else /* __i386__ */
+  [2]
+  struct stat {
+  	__kernel_ulong_t	st_dev;
+  	__kernel_ulong_t	st_ino;
+  	__kernel_ulong_t	st_nlink;
+  
+  	unsigned int		st_mode;
+  	unsigned int		st_uid;
+  	unsigned int		st_gid;
+  	unsigned int		__pad0;
+  	__kernel_ulong_t	st_rdev;
+  	__kernel_long_t		st_size;
+  	__kernel_long_t		st_blksize;
+  #endif
+  #ifdef __i386__
+  #else
+  #endif
+  #endif /* _ASM_X86_STAT_H */
+explore: container exit=0
+DONE 2026-11-01T21:08:22Z job=uapi1a exit=0
