@@ -8,10 +8,11 @@
  *
  * Not provided yet: the floating conversions of the printf family
  * (f F e E g G a A, and the L length), which lc03 owns; a call that
- * meets one returns a negative value with errno EINVAL and writes none
- * of its output (docs/LEDGER.md). Nor positional arguments (%n$), the
- * scanf family, positioning (fseek, ftell, fgetpos, fsetpos, rewind),
- * freopen, remove, rename, tmpfile, tmpnam, perror, getline. */
+ * meets one returns a negative value with errno EINVAL, and a stream
+ * receives none of its output (docs/LEDGER.md). Nor positional
+ * arguments (%n$), the scanf family, positioning (fseek, ftell, fgetpos,
+ * fsetpos, rewind), freopen, remove, rename, tmpfile, tmpnam, perror,
+ * getline. */
 #ifndef _MUZZLE_STDIO_H
 #define _MUZZLE_STDIO_H
 
