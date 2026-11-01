@@ -1,6 +1,7 @@
 /* muzzle's own (R-lc02-1 = B): the floating conversions f F e E g G a A
  * belong to lc03, so a printf-family call that meets one answers -1 with
- * errno EINVAL and writes none of its output, to a stream or to memory.
+ * errno EINVAL, as any failed call does: a stream receives none of its
+ * output; in memory what came before the conversion stays, with its null.
  * Positional arguments (%n$, *m$) are refused the same way: not provided
  * yet. glibc prints all of these, so this case checks itself against
  * muzzle alone (tools/difftest's own cases): a line "ok NAME" per check,
@@ -25,35 +26,35 @@ static void check(const char *name, int cond) {
         failed = 1;
 }
 
-/* snprintf of fmt with one double: -1, EINVAL, and the buffer holds only
- * the null at its start (nothing of the call's output). */
-static void refused_double(const char *name, const char *fmt) {
+/* snprintf of fmt with one double: -1, EINVAL, and the buffer holds what
+ * came before the conversion (want), with its null. */
+static void refused_double(const char *name, const char *fmt, const char *want) {
     char b[32];
     memset(b, 'k', sizeof b);
     errno = 0;
     int r = snprintf(b, sizeof b, fmt, 1.5);
-    check(name, r == -1 && errno == EINVAL && b[0] == 0);
+    check(name, r == -1 && errno == EINVAL && strcmp(b, want) == 0);
 }
 
 int main(void) {
-    refused_double("f", "x%fy");
-    refused_double("F", "x%Fy");
-    refused_double("e", "x%ey");
-    refused_double("E", "x%Ey");
-    refused_double("g", "x%gy");
-    refused_double("G", "x%Gy");
-    refused_double("a", "x%ay");
-    refused_double("A", "x%Ay");
-    refused_double("lf", "%lf");
-    refused_double("10.3f", "%10.3f");
-    refused_double("-+#0e", "%-+#0e");
+    refused_double("f", "x%fy", "x");
+    refused_double("F", "x%Fy", "x");
+    refused_double("e", "x%ey", "x");
+    refused_double("E", "x%Ey", "x");
+    refused_double("g", "x%gy", "x");
+    refused_double("G", "x%Gy", "x");
+    refused_double("a", "x%ay", "x");
+    refused_double("A", "x%Ay", "x");
+    refused_double("lf", "%lf", "");
+    refused_double("10.3f", "%10.3f", "");
+    refused_double("-+#0e", "%-+#0e", "");
     char b[32];
     errno = 0;
     int r = snprintf(b, sizeof b, "%Lf", 1.5L);
     check("Lf", r == -1 && errno == EINVAL && b[0] == 0);
     errno = 0;
     r = snprintf(b, sizeof b, "%d %f", 7, 2.0);
-    check("after_an_int", r == -1 && errno == EINVAL && b[0] == 0);
+    check("after_an_int", r == -1 && errno == EINVAL && strcmp(b, "7 ") == 0);
     errno = 0;
     r = snprintf(NULL, 0, "%f", 2.0);
     check("null_buffer", r == -1 && errno == EINVAL);
