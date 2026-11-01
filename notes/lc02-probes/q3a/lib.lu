@@ -1,0 +1,79 @@
+//! q3a: VaList's fields from wolf, a double's bits read by hand from
+//! the register save area or the overflow area, and va_arg of i64,
+//! u64, *u8 and *i32.
+
+export fn q3_offsets(n: i32, ...) -> i64 {
+    // # Safety: probe.
+    unsafe {
+        var ap = va_start()
+        let g = ap.gp_offset
+        let f = ap.fp_offset
+        va_end(mut ap)
+        g as i64 * 1000 + f as i64
+    }
+}
+
+/// Reads one double's bits, as an integer, without a float type.
+fn dbits(mut ap: VaList) -> u64 {
+    var bits: u64 = 0
+    // # Safety: probe; the caller passed a double here.
+    unsafe {
+        if ap.fp_offset < 176 {
+            let at = ap.reg_save_area.addr() + ap.fp_offset as uint
+            bits = (at as *u64)[0]
+            ap.fp_offset = ap.fp_offset + 16
+        } else {
+            let at = ap.overflow_arg_area.addr()
+            bits = (at as *u64)[0]
+            ap.overflow_arg_area = ap.overflow_arg_area.with_addr(at + 8)
+        }
+    }
+    bits
+}
+
+/// n doubles, then one i64: the doubles' bits xor-folded, then the i64.
+export fn q3_bits(n: i32, ...) -> u64 {
+    // # Safety: probe; C passes n doubles then one long.
+    unsafe {
+        var ap = va_start()
+        var acc: u64 = 0
+        var i = 0
+        while i < n {
+            acc = acc ^ dbits(mut ap)
+            i += 1
+        }
+        let tail = va_arg[i64](mut ap)
+        va_end(mut ap)
+        acc ^ tail as u64
+    }
+}
+
+export fn q3_ints(n: i32, ...) -> i64 {
+    // # Safety: probe; C passes a long, an unsigned long, a char *, an int *.
+    unsafe {
+        var ap = va_start()
+        let a = va_arg[i64](mut ap)
+        let b = va_arg[u64](mut ap)
+        let s = va_arg[*u8](mut ap)
+        let p = va_arg[*i32](mut ap)
+        p[0] = 77
+        va_end(mut ap)
+        a + (b % 1000) as i64 + s[0] as i64
+    }
+}
+
+/// A consumer of C's decayed va_list.
+export fn q3_v(n: i32, ap: *VaList) -> i64 {
+    // # Safety: probe; C passes n ints in a live list.
+    unsafe {
+        var cp = va_copy(ap[0])
+        var t: i64 = 0
+        var i = 0
+        while i < n {
+            t += va_arg[i32](mut cp) as i64
+            i += 1
+        }
+        va_end(mut cp)
+        t
+    }
+}

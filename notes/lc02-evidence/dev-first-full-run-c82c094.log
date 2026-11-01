@@ -1,0 +1,272 @@
+QUEUED 2026-11-01T22:51:37Z job=build6 block=A pid=3376485 inner=/home/mfwolffe/lanes/lc02/hasu/job-explore.sh c82c094f64ba4df9907c84a94a2fb8ce31eb09cf build6
+explore: sha=c82c094f64ba4df9907c84a94a2fb8ce31eb09cf block=A cpus=0-5 out=/home/mfwolffe/lanes/lc02/out-build6
+BEGIN env
+c82c094f64ba4df9907c84a94a2fb8ce31eb09cf
+Ubuntu clang version 18.1.3 (1ubuntu1)
+glibc 2.39
+Linux 7.2.4 x86_64
+END env exit=0
+BEGIN fetch
+fetch-toolchain: wolf-0.2.36-x86_64-unknown-linux-gnu.tar.gz d383c74c8cd123b9… -> /work/.wolf-bin/wolf-0.2.36-x86_64-unknown-linux-gnu/wolf
+END fetch exit=0
+BEGIN stale.native
+stale-compiler: tier=native pin='wolf 0.2.36 (wolfgang, pin 5adf3d9)' stale='wolf 0.0.1 (wolfgang, pin 0000000)'
+PASS control: the pin's compiler alone
+PASS an older compiler staged beside the pin's
+PASS an older compiler staged alone
+PASS the pin's directory holding another version
+PASS WOLF naming another version
+stale-compiler: tier=native pass=5 fail=0
+END stale.native exit=0
+BEGIN build.native
+build: native: 8 objects, 57 exports defined, 43 internal references, 0 imports -> /work/build/native/libmuzzle.a
+END build.native exit=0
+BEGIN selftest.native
+  | difftest: tier=native glibc=glibc 2.39 Ubuntu clang version 18.1.3 (1ubuntu1)
+  | FAIL exit_differs: exit glibc=0 muzzle=3
+  | FAIL files_differ: the files it wrote differ
+  | diff -r /work/out/difftest-selftest-native/out/native/files_differ.glibc.d/out.txt /work/out/difftest-selftest-native/out/native/files_differ.muzzle.d/out.txt
+  | 1c1
+  | < glibc column
+  | ---
+  | > muzzle column
+  | PASS same exit=0 lines=1 stderr=12 files=1
+  | FAIL stderr_differs: stderr differs
+  | --- stderr_differs stderr (glibc)
+  | +++ stderr_differs stderr (muzzle native)
+  | @@ -1 +1 @@
+  | -glibc column
+  | +muzzle column
+  | PASS stdin_echo exit=0 lines=2 stderr=0 files=0
+  | FAIL stdout_differs: stdout differs
+  | --- stdout_differs stdout (glibc)
+  | +++ stdout_differs stdout (muzzle native)
+  | @@ -1 +1 @@
+  | -glibc column
+  | +muzzle column
+  | PASS tty_off exit=0 lines=1 stderr=0 files=0
+  | PASS tty_on exit=0 lines=1 stderr=0 files=0 tty
+  | FAIL own-breaks: exit 1
+  | FAIL breaks
+  | PASS own-holds checks=1
+  | difftest: tier=native pass=5 fail=5
+PASS files are compared
+PASS stderr is compared
+PASS stdout is compared
+PASS the exit status is compared
+PASS the control passes
+PASS stdin reaches the case
+PASS stdin's bytes, both columns
+PASS a tty case is marked
+PASS a tty case sees a terminal, both columns
+PASS an unmarked case does not
+PASS an own case that holds passes
+PASS an own case that fails is red
+PASS the count
+PASS difftest exits 1
+difftest-selftest: tier=native pass=14 fail=0
+END selftest.native exit=0
+BEGIN difftest.native
+difftest: tier=native glibc=glibc 2.39 Ubuntu clang version 18.1.3 (1ubuntu1)
+PASS errno exit=0 lines=10 stderr=0 files=0
+PASS exit exit=42 lines=1 stderr=0 files=0
+PASS exit_c17 exit=250 lines=1 stderr=0 files=0
+PASS exit_posix exit=3 lines=1 stderr=0 files=0
+PASS main_return exit=7 lines=1 stderr=0 files=0
+PASS malloc exit=0 lines=20 stderr=0 files=0
+PASS mem exit=0 lines=38 stderr=0 files=0
+PASS printf exit=0 lines=193 stderr=0 files=0
+PASS printf_grammar exit=0 lines=629765 stderr=0 files=0
+FAIL smoke: stdout differs
+--- smoke stdout (glibc)
++++ smoke stdout (muzzle native)
+@@ -4,8 +4,8 @@
+ [(null)] [] [        ab] [cd        ] [%] [%]
+ snprintf r=6 [abc]
+ snprintf0 r=6
+-x1.000000y
+-float r=10 e=0
++
++float r=-1 e=22
+ fputs line
+ puts line
+ !
+PASS snprintf exit=0 lines=255 stderr=0 files=0
+FAIL stdio_buf: stdout differs
+--- stdio_buf stdout (glibc)
++++ stdio_buf stdout (muzzle native)
+@@ -25,7 +25,7 @@
+ line16.setvbuf=0
+ line16.putc=0
+ line16.fputs=0
+-line16.fputs_nl=6
++line16.fputs_nl=5
+ line16.putc_nl=7
+ line16.fputs19=26
+ line.putc=0
+PASS stdio_char exit=0 lines=57 stderr=0 files=2
+PASS stdio_err exit=0 lines=1 stderr=51 files=0
+PASS stdio_exit exit=5 lines=1 stderr=0 files=3
+PASS stdio_exit_ exit=4 lines=1 stderr=0 files=2
+PASS stdio_open exit=0 lines=70 stderr=0 files=6
+PASS stdio_rw exit=0 lines=25 stderr=0 files=2
+PASS stdio_tty exit=0 lines=5 stderr=2 files=0 tty
+FAIL stdio_ungetc: stdout differs
+--- stdio_ungetc stdout (glibc)
++++ stdio_ungetc stdout (muzzle native)
+@@ -25,5 +25,5 @@
+ offset.after_fflush=2
+ read.after_fflush=99
+ fflush.with_pushback=0
+-offset.with_pushback=5
+-read.after_pushback_flush=100
++offset.with_pushback=2
++read.after_pushback_flush=99
+PASS str exit=0 lines=29 stderr=0 files=0
+PASS unistd exit=0 lines=44 stderr=0 files=2
+PASS vprintf exit=0 lines=15 stderr=0 files=1
+PASS write exit=0 lines=9 stderr=0 files=0
+FAIL own-printf_refusals: exit 1
+FAIL f
+FAIL F
+FAIL e
+FAIL E
+FAIL g
+FAIL G
+FAIL a
+FAIL A
+FAIL after_an_int
+difftest: tier=native pass=21 fail=4
+END difftest.native exit=1
+BEGIN stale.release
+stale-compiler: tier=release pin='wolf 0.2.36 (wolfgang, pin 5adf3d9)' stale='wolf 0.0.1 (wolfgang, pin 0000000)'
+PASS control: the pin's compiler alone
+PASS an older compiler staged beside the pin's
+PASS an older compiler staged alone
+PASS the pin's directory holding another version
+PASS WOLF naming another version
+stale-compiler: tier=release pass=5 fail=0
+END stale.release exit=0
+BEGIN build.release
+build: release: 9 objects, 57 exports defined, 45 internal references, 0 imports -> /work/build/release/libmuzzle.a
+END build.release exit=0
+BEGIN selftest.release
+  | difftest: tier=release glibc=glibc 2.39 Ubuntu clang version 18.1.3 (1ubuntu1)
+  | FAIL exit_differs: exit glibc=0 muzzle=3
+  | FAIL files_differ: the files it wrote differ
+  | diff -r /work/out/difftest-selftest-release/out/release/files_differ.glibc.d/out.txt /work/out/difftest-selftest-release/out/release/files_differ.muzzle.d/out.txt
+  | 1c1
+  | < glibc column
+  | ---
+  | > muzzle column
+  | PASS same exit=0 lines=1 stderr=12 files=1
+  | FAIL stderr_differs: stderr differs
+  | --- stderr_differs stderr (glibc)
+  | +++ stderr_differs stderr (muzzle release)
+  | @@ -1 +1 @@
+  | -glibc column
+  | +muzzle column
+  | PASS stdin_echo exit=0 lines=2 stderr=0 files=0
+  | FAIL stdout_differs: stdout differs
+  | --- stdout_differs stdout (glibc)
+  | +++ stdout_differs stdout (muzzle release)
+  | @@ -1 +1 @@
+  | -glibc column
+  | +muzzle column
+  | PASS tty_off exit=0 lines=1 stderr=0 files=0
+  | PASS tty_on exit=0 lines=1 stderr=0 files=0 tty
+  | FAIL own-breaks: exit 1
+  | FAIL breaks
+  | PASS own-holds checks=1
+  | difftest: tier=release pass=5 fail=5
+PASS files are compared
+PASS stderr is compared
+PASS stdout is compared
+PASS the exit status is compared
+PASS the control passes
+PASS stdin reaches the case
+PASS stdin's bytes, both columns
+PASS a tty case is marked
+PASS a tty case sees a terminal, both columns
+PASS an unmarked case does not
+PASS an own case that holds passes
+PASS an own case that fails is red
+PASS the count
+PASS difftest exits 1
+difftest-selftest: tier=release pass=14 fail=0
+END selftest.release exit=0
+BEGIN difftest.release
+difftest: tier=release glibc=glibc 2.39 Ubuntu clang version 18.1.3 (1ubuntu1)
+PASS errno exit=0 lines=10 stderr=0 files=0
+PASS exit exit=42 lines=1 stderr=0 files=0
+PASS exit_c17 exit=250 lines=1 stderr=0 files=0
+PASS exit_posix exit=3 lines=1 stderr=0 files=0
+PASS main_return exit=7 lines=1 stderr=0 files=0
+PASS malloc exit=0 lines=20 stderr=0 files=0
+PASS mem exit=0 lines=38 stderr=0 files=0
+PASS printf exit=0 lines=193 stderr=0 files=0
+PASS printf_grammar exit=0 lines=629765 stderr=0 files=0
+FAIL smoke: stdout differs
+--- smoke stdout (glibc)
++++ smoke stdout (muzzle release)
+@@ -4,8 +4,8 @@
+ [(null)] [] [        ab] [cd        ] [%] [%]
+ snprintf r=6 [abc]
+ snprintf0 r=6
+-x1.000000y
+-float r=10 e=0
++
++float r=-1 e=22
+ fputs line
+ puts line
+ !
+PASS snprintf exit=0 lines=255 stderr=0 files=0
+FAIL stdio_buf: stdout differs
+--- stdio_buf stdout (glibc)
++++ stdio_buf stdout (muzzle release)
+@@ -25,7 +25,7 @@
+ line16.setvbuf=0
+ line16.putc=0
+ line16.fputs=0
+-line16.fputs_nl=6
++line16.fputs_nl=5
+ line16.putc_nl=7
+ line16.fputs19=26
+ line.putc=0
+PASS stdio_char exit=0 lines=57 stderr=0 files=2
+PASS stdio_err exit=0 lines=1 stderr=51 files=0
+PASS stdio_exit exit=5 lines=1 stderr=0 files=3
+PASS stdio_exit_ exit=4 lines=1 stderr=0 files=2
+PASS stdio_open exit=0 lines=70 stderr=0 files=6
+PASS stdio_rw exit=0 lines=25 stderr=0 files=2
+PASS stdio_tty exit=0 lines=5 stderr=2 files=0 tty
+FAIL stdio_ungetc: stdout differs
+--- stdio_ungetc stdout (glibc)
++++ stdio_ungetc stdout (muzzle release)
+@@ -25,5 +25,5 @@
+ offset.after_fflush=2
+ read.after_fflush=99
+ fflush.with_pushback=0
+-offset.with_pushback=5
+-read.after_pushback_flush=100
++offset.with_pushback=2
++read.after_pushback_flush=99
+PASS str exit=0 lines=29 stderr=0 files=0
+PASS unistd exit=0 lines=44 stderr=0 files=2
+PASS vprintf exit=0 lines=15 stderr=0 files=1
+PASS write exit=0 lines=9 stderr=0 files=0
+FAIL own-printf_refusals: exit 1
+FAIL f
+FAIL F
+FAIL e
+FAIL E
+FAIL g
+FAIL G
+FAIL a
+FAIL A
+FAIL after_an_int
+difftest: tier=release pass=21 fail=4
+END difftest.release exit=1
+GAUNTLET done
+explore: container exit=0
+DONE 2026-11-01T23:33:49Z job=build6 exit=0

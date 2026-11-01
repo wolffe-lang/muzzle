@@ -1,0 +1,79 @@
+l16.putc_a=0
+l16.putc_b=0
+l16.fputs_cd=0
+l16.fprintf_ef=0
+l16.putc_nl=7
+l16.fwrite_gh=7
+lnull.putc_a=0
+lnull.fputs_bc=0
+lnull.fprintf=0
+lnull.fputs_nl=7
+lnull.putc_z=7
+lnull.fputs_q_nl=11
+lnull.fwrite5000=4107
+lnull.nl=5012
+l64.fputs_ab=0
+l64.fputs_nl=4
+l64.after70=4
+f256.w10=0
+f256.w600=512
+f256.flush=610
+f256.w256_exact=610
+f256.putc=866
+f256.w255=867
+f256.w1_fill=867
+f256.w1_over=1123
+f256.w300_empty=1380
+f256.flush2=1424
+f256.w1000_empty=2192
+f256.w100_w1000=3448
+fdef.w5000=4096
+fdef.w100=4096
+fdef.w9000=12288
+fdef.flush=14100
+fdef.fputs1000=14100
+f16.w16_exact=16
+f16.putc=16
+fputs.1=1
+fputs.100=1
+fputs.empty=1
+fputs.stderr=1
+o
+fputs.stdout=1
+p.eilseq=-1
+p.eilseq.errno=84
+p.eilseq.size=0
+p.einval=-1
+p.einval.errno=22
+p.einval.size=0
+p.big_then_bad=-1
+p.big_then_bad.errno=22
+p.big_then_bad.size=4097
+snp.eilseq r=-1 e=84 sb=[abc]
+snp.einval r=-1 e=22 sb=[abc]
+sp.einval r=-1 e=22 sb=[ab]
+u1 [%5k] [%-5k] [%.3k] [%#k] [%05k] [%k] [%+k] [%5.2k]
+u2 [%7k] [%.3k]
+u3 [%5K] [%k]
+fflush.stdin=0
+fflush.stdin.errno=0
+rd.offset_before=10
+rd.fflush=0
+rd.offset_after=2
+rd.fflush_unget=0
+rd.offset_unget=1
+rd.next=49
+fgets4 1 [012]
+fgets.eof 1 [kkk]
+fdopen.w_on_rdonly=0
+fdopen.errno=22
+fdopen.badmode=0
+fdopen.badmode.errno=22
+fdopen.badfd=0
+fdopen.badfd.errno=9
+fdopen.r.getc=48
+fdopen.fclose=0
+fdopen.closed_fd=-1
+fdopen.closed_fd.errno=9
+sv100.after150=0
+setbuf.after9000=8192

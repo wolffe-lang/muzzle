@@ -75,6 +75,20 @@ pub fn set_errno(e: i32) {
     }
 }
 
+/// errno's current value. stdio saves and restores it around the checks
+/// it makes for itself (the terminal test that picks a stream's
+/// buffering): C17 7.5p3 would allow a successful call to change errno,
+/// but glibc's leave it alone, and the cases compare errno.
+pub fn errno() -> i32 {
+    var e: i32 = 0
+    // # Safety: one thread (R4's first cut); __muzzle_errno is sys.S's
+    // 4-byte, 16-aligned int.
+    unsafe {
+        e = __muzzle_errno[0]
+    }
+    e
+}
+
 /// Ends the process: exit_group(2), every thread, `status & 0xff`.
 pub fn exit_group(status: i32) {
     let r = raw(SYS_EXIT_GROUP, status as i64, 0, 0, 0, 0, 0)

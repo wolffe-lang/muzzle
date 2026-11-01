@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# The differential can say no (lc02): each comparison tools/difftest
+# makes is planted once and must come back red by name, beside controls
+# that must stay green, so a comparison that silently stopped comparing
+# is caught (lc00's rule: every harness change is planted before it is
+# trusted).
+#
+# tests/selftest/cases/ holds one plant per comparison, each differing
+# between the columns in that one observable only (the case tells the
+# columns apart by glibc's __GLIBC__ macro): the written files, stderr,
+# stdout, the exit status. Its controls: a case the same in both, stdin
+# fed from its .in file and echoed, a `// difftest: tty` case that must
+# see a terminal, and one without the marker that must not.
+# tests/selftest/own/ holds an own case that holds and one that fails.
+#
+# They run through a scratch copy of tools/difftest (the real one, the
+# real archive), and every expected line is checked.
+#   tests/difftest-selftest [native|release]
+# Needs tools/build TIER first. Exits 1 on any failed check, 2 if it
+# cannot start.
+set -uo pipefail
+tier=${1:-native}
+root=$(cd "$(dirname "$0")/.." && pwd)
+[ -f "$root/build/$tier/libmuzzle.a" ] || { echo "difftest-selftest: no build/$tier (run tools/build $tier)" >&2; exit 2; }
+s="$root/out/difftest-selftest-$tier"
+rm -rf "$s"; mkdir -p "$s/tools" "$s/tests" "$s/build"
+cp "$root/tools/difftest" "$s/tools/"
+cp -R "$root/tests/lib" "$s/tests/lib"
+cp -R "$root/tests/selftest/cases" "$s/tests/cases"
+cp -R "$root/tests/selftest/own" "$s/tests/own"
+ln -s "$root/include" "$s/include"
+ln -s "$root/build/$tier" "$s/build/$tier"
+"$s/tools/difftest" "$tier" >"$s/difftest.log" 2>&1; rc=$?
+sed 's/^/  | /' "$s/difftest.log"
+o="$s/out/$tier"
+pass=0; fail=0
+want() {
+  if grep -qxF -- "$2" "$s/difftest.log"; then echo "PASS $1"; pass=$((pass+1))
+  else echo "FAIL $1: no line '$2'"; fail=$((fail+1)); fi
+}
+want_prefix() {
+  if grep -q "^$2" "$s/difftest.log"; then echo "PASS $1"; pass=$((pass+1))
+  else echo "FAIL $1: no line starting '$2'"; fail=$((fail+1)); fi
+}
+holds() {
+  if eval "$2"; then echo "PASS $1"; pass=$((pass+1)); else echo "FAIL $1: $2"; fail=$((fail+1)); fi
+}
+want "files are compared" "FAIL files_differ: the files it wrote differ"
+want "stderr is compared" "FAIL stderr_differs: stderr differs"
+want "stdout is compared" "FAIL stdout_differs: stdout differs"
+want "the exit status is compared" "FAIL exit_differs: exit glibc=0 muzzle=3"
+want_prefix "the control passes" "PASS same exit=0 lines=1 stderr=12 files=1$"
+want_prefix "stdin reaches the case" "PASS stdin_echo exit=0 lines=2 "
+holds "stdin's bytes, both columns" "cmp -s '$root/tests/selftest/cases/stdin_echo.in' '$o/stdin_echo.glibc.out' && cmp -s '$root/tests/selftest/cases/stdin_echo.in' '$o/stdin_echo.muzzle.out'"
+want_prefix "a tty case is marked" "PASS tty_on exit=0 lines=1 stderr=0 files=0 tty$"
+holds "a tty case sees a terminal, both columns" "grep -qx 'tty=1' '$o/tty_on.glibc.out' && grep -qx 'tty=1' '$o/tty_on.muzzle.out'"
+holds "an unmarked case does not" "grep -qx 'tty=0' '$o/tty_off.glibc.out' && grep -qx 'tty=0' '$o/tty_off.muzzle.out'"
+want "an own case that holds passes" "PASS own-holds checks=1"
+want "an own case that fails is red" "FAIL own-breaks: exit 1"
+want "the count" "difftest: tier=$tier pass=5 fail=5"
+holds "difftest exits 1" "[ $rc = 1 ]"
+echo "difftest-selftest: tier=$tier pass=$pass fail=$fail"
+[ $((pass+fail)) = 14 ] || { echo "difftest-selftest: expected 14 checks, ran $((pass+fail))" >&2; exit 1; }
+[ $fail = 0 ]

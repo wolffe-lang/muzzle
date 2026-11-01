@@ -1,0 +1,850 @@
+//! The printf family, C17 7.21.6.1 and 7.21.6.3–7.21.6.13: printf,
+//! fprintf, sprintf, snprintf and their va_list forms, one formatter
+//! over two sinks (a stream, or memory with a bound).
+//!
+//! The grammar, C17 7.21.6.1: `%` [flags] [width] [.precision] [length]
+//! conversion. Flags `-` `+` space `#` `0`, and POSIX's `'` (no grouping
+//! in the C locale); width and precision as digits or `*`; lengths `hh`
+//! `h` `l` `ll` `j` `z` `t` (and glibc's `q` = `ll`, `Z` = `z`, `L` = `ll`
+//! for an integer); conversions `d i u o x X c s p n %`, with POSIX's `C`
+//! (= `lc`) and `S` (= `ls`).
+//!
+//! **Refused by name** (R-lc02-1 = B: lc03 owns them): the floating
+//! conversions `f F e E g G a A`. A call that meets one answers -1 with
+//! errno EINVAL, as any failed call does: a stream receives none of its
+//! output, and in memory what came before it stays, with its null. Positional arguments (`%n$`, `*m$`) are refused the
+//! same way: not provided yet.
+//!
+//! Where C leaves a choice, glibc 2.39's observed answer decides
+//! (docs/LEDGER.md; notes/lc02-probes/g1.c, g3.c): `%p` of a null
+//! pointer is `(nil)`; `%s` of a null pointer is `(null)` unless a
+//! precision below 6 makes it empty; an unknown conversion is printed
+//! back from what was parsed; `%%` takes no width; `%lc`/`%ls` of a value
+//! outside ASCII fails with EILSEQ (the C locale); a count past INT_MAX
+//! fails with EOVERFLOW; and a failed call leaves none of its output in
+//! a stream (rolled back to where the call began, or, when a full buffer
+//! went out in between, to nothing pending), while in memory what came
+//! before the failure stays, with its null.
+//!
+//! Sources: C17 7.21.6.1 (every conversion, flag and length; "the
+//! result of converting a zero value with a precision of zero is no
+//! characters"; `#` with `o` "increases the precision, if and only if
+//! necessary, to force the first digit of the result to be a zero"),
+//! 7.21.6.5 (snprintf: "output characters beyond the n-1st are
+//! discarded"; the count "that would have been written had n been
+//! sufficiently large"), 7.16 (va_list); POSIX.1-2024 XSH fprintf
+//! (EOVERFLOW, EILSEQ, `'`, `C`, `S`); printf(3). Arguments follow
+//! wolf's `[abi.c.variadic]`. The design is muzzle's own.
+
+use sys
+
+/// The stage an unbuffered stream's output collects in for one call,
+/// so it reaches the descriptor in one write and a failed call writes
+/// nothing (sys.S, STAGE bytes).
+extern "c" let __muzzle_stage: *u8
+
+/// "(null)" and "(nil)", the texts glibc prints for a null `%s` and `%p`
+/// (sys.S: a str literal's bytes cannot reach a *u8 yet, wolf-lang#604).
+extern "c" let __muzzle_text_null: *u8
+
+extern "c" let __muzzle_text_nil: *u8
+
+const STAGE: i64 = 4096
+
+const INT_MAX: i64 = 2147483647
+
+const EINVAL_F: i32 = 22
+
+const EILSEQ: i32 = 84
+
+const EOVERFLOW: i32 = 75
+
+const FL_MINUS: i32 = 1
+
+const FL_PLUS: i32 = 2
+
+const FL_SPACE: i32 = 4
+
+const FL_ALT: i32 = 8
+
+const FL_ZERO: i32 = 16
+
+/// POSIX's `'`: no grouping in the C locale, but an unknown conversion
+/// prints it back.
+const FL_GROUP: i32 = 32
+
+/// An argument's width in bits as the length modifier gives it: 8 (hh),
+/// 16 (h), 32 (none), 64 (l ll j z t q Z L).
+const W8: i32 = 8
+
+const W16: i32 = 16
+
+const W32: i32 = 32
+
+const W64: i32 = 64
+
+/// Where formatted bytes go. A stream (file not null) takes them into
+/// its buffer; memory (file null) stores the first `room` bytes at dst.
+/// count is every byte produced, stored or not.
+#[repr(c)]
+struct Out {
+    file: *File,
+    dst: *u8,
+    room: u64,
+    count: i64,
+    // The errno to report, 0 while the call is going well.
+    err: i32,
+    // A newline went into the stream's buffer.
+    nl: i32,
+}
+
+/// One conversion specification's flags, width and precision.
+#[repr(c)]
+struct Spec {
+    flags: i32,
+    // W8, W16, W32 or W64.
+    bits: i32,
+    // 0 when none.
+    width: i64,
+    // -1 when none.
+    prec: i64,
+}
+
+fn emit(mut o: Out, b: u8) {
+    if o.err != 0 {
+        return
+    }
+    if o.count >= INT_MAX {
+        o.err = EOVERFLOW
+        return
+    }
+    o.count += 1
+    if o.file.is_null() {
+        if o.room > 0 {
+            // # Safety: the memory sink's dst has room bytes left.
+            unsafe {
+                o.dst[0] = b
+                o.dst = o.dst.with_addr(o.dst.addr() + 1)
+            }
+            o.room -= 1
+        }
+        return
+    }
+    let f = o.file
+    // # Safety: f is a live record readied by wbegin; buf holds size bytes.
+    unsafe {
+        if f[0].wpos >= f[0].size && !drain(f) {
+            o.err = sys.errno()
+            return
+        }
+        f[0].buf[f[0].wpos as int] = b
+        f[0].wpos += 1
+        f[0].flags = f[0].flags | F_WSET
+    }
+    if b == 10 {
+        o.nl = 1
+    }
+}
+
+/// n copies of b. Past a memory sink's room only the count grows, so a
+/// width of two billion into snprintf(NULL, 0, …) costs no loop.
+fn emit_n(mut o: Out, b: u8, n: i64) {
+    var k: i64 = 0
+    while k < n && o.err == 0 {
+        if o.file.is_null() && o.room == 0 {
+            let left = n - k
+            if o.count > INT_MAX - left {
+                o.err = EOVERFLOW
+            } else {
+                o.count += left
+            }
+            return
+        }
+        emit(mut o, b)
+        k += 1
+    }
+}
+
+/// p[0..n].
+fn emit_text(mut o: Out, p: *u8, n: i64) {
+    var k: i64 = 0
+    // # Safety: p addresses n readable bytes.
+    unsafe {
+        while k < n && o.err == 0 {
+            emit(mut o, p[k as int])
+            k += 1
+        }
+    }
+}
+
+fn digit(d: u64, upper: bool) -> u8 {
+    if d < 10 {
+        48 + d as u8
+    } else if upper {
+        55 + d as u8
+    } else {
+        87 + d as u8
+    }
+}
+
+/// The digits v has in base (1 for 0).
+fn ndigits(v: u64, base: u64) -> i64 {
+    var n: i64 = 1
+    var x = v
+    while x >= base {
+        x = x / base
+        n += 1
+    }
+    n
+}
+
+/// v's n digits in base, most significant first, with no buffer:
+/// base^(n-1) never exceeds v, so the power never overflows.
+fn emit_digits(mut o: Out, v: u64, base: u64, n: i64, upper: bool) {
+    var p: u64 = 1
+    var k: i64 = 1
+    while k < n {
+        p = p * base
+        k += 1
+    }
+    var x = v
+    while p > 0 && o.err == 0 {
+        let d = x / p
+        x = x % p
+        p = p / base
+        emit(mut o, digit(d, upper))
+    }
+}
+
+/// An integer conversion's field, C17 7.21.6.1: [pad][sign][prefix]
+/// [zeros][digits][pad]. sign is 0 for none; hex_prefix writes "0x" or
+/// "0X" (the alternate form of `o` is not a prefix: it raises the
+/// precision until the first digit is a zero).
+fn emit_int(mut o: Out, sp: Spec, sign: u8, mag: u64, base: u64, upper: bool, hex_prefix: bool) {
+    var digits: i64 = ndigits(mag, base)
+    if sp.prec == 0 && mag == 0 {
+        digits = 0
+    }
+    var zeros: i64 = 0
+    if sp.prec > digits {
+        zeros = sp.prec - digits
+    }
+    if sp.flags & FL_ALT != 0 && base == 8 && zeros == 0 && (mag != 0 || digits == 0) {
+        zeros = 1
+    }
+    let pre: i64 = if hex_prefix { 2 } else { 0 }
+    let sgn: i64 = if sign != 0 { 1 } else { 0 }
+    var len = sgn + pre + zeros + digits
+    if sp.flags & FL_ZERO != 0 && sp.flags & FL_MINUS == 0 && sp.prec < 0 && sp.width > len {
+        zeros += sp.width - len
+        len = sp.width
+    }
+    let pad = if sp.width > len { sp.width - len } else { 0 }
+    if sp.flags & FL_MINUS == 0 {
+        emit_n(mut o, 32, pad)
+    }
+    if sign != 0 {
+        emit(mut o, sign)
+    }
+    if hex_prefix {
+        emit(mut o, 48)
+        emit(mut o, if upper { 88 } else { 120 })
+    }
+    emit_n(mut o, 48, zeros)
+    if digits > 0 {
+        emit_digits(mut o, mag, base, digits, upper)
+    }
+    if sp.flags & FL_MINUS != 0 {
+        emit_n(mut o, 32, pad)
+    }
+}
+
+/// Text in a field: width pads with spaces (the `0` flag is ignored for
+/// `s`, `c` and `%p`'s "(nil)", as glibc does).
+fn emit_field(mut o: Out, sp: Spec, p: *u8, n: i64) {
+    let pad = if sp.width > n { sp.width - n } else { 0 }
+    if sp.flags & FL_MINUS == 0 {
+        emit_n(mut o, 32, pad)
+    }
+    emit_text(mut o, p, n)
+    if sp.flags & FL_MINUS != 0 {
+        emit_n(mut o, 32, pad)
+    }
+}
+
+/// One byte in a field.
+fn emit_char_field(mut o: Out, sp: Spec, b: u8) {
+    let pad = if sp.width > 1 { sp.width - 1 } else { 0 }
+    if sp.flags & FL_MINUS == 0 {
+        emit_n(mut o, 32, pad)
+    }
+    emit(mut o, b)
+    if sp.flags & FL_MINUS != 0 {
+        emit_n(mut o, 32, pad)
+    }
+}
+
+/// An unknown conversion is printed back from what was parsed, as glibc
+/// does (C17 7.21.6.1p9 leaves it undefined; notes/lc02-probes/g5.c):
+/// `%`, the flags in the order `# ' + - 0` (`+` hides space, `-` hides
+/// `0`), the width (a negative `*` width is `-` and its magnitude), a
+/// precision as `.` and its digits (a bare `.` is `.0`; a negative `*`
+/// precision is none), then the character. The length is dropped.
+fn emit_unknown(mut o: Out, sp: Spec, conv: u8) {
+    emit(mut o, 37)
+    if sp.flags & FL_ALT != 0 {
+        emit(mut o, 35)
+    }
+    if sp.flags & FL_GROUP != 0 {
+        emit(mut o, 39)
+    }
+    if sp.flags & FL_PLUS != 0 {
+        emit(mut o, 43)
+    } else if sp.flags & FL_SPACE != 0 {
+        emit(mut o, 32)
+    }
+    if sp.flags & FL_MINUS != 0 {
+        emit(mut o, 45)
+    } else if sp.flags & FL_ZERO != 0 {
+        emit(mut o, 48)
+    }
+    if sp.width > 0 {
+        let w = sp.width as u64
+        emit_digits(mut o, w, 10, ndigits(w, 10), false)
+    }
+    if sp.prec >= 0 {
+        emit(mut o, 46)
+        let p = sp.prec as u64
+        emit_digits(mut o, p, 10, ndigits(p, 10), false)
+    }
+    emit(mut o, conv)
+}
+
+/// The magnitude of an i64 as a u64, INT64_MIN included.
+fn magnitude(v: i64) -> u64 {
+    if v < 0 {
+        (0 - (v + 1)) as u64 + 1
+    } else {
+        v as u64
+    }
+}
+
+fn is_digit(c: u8) -> bool {
+    c >= 48 && c <= 57
+}
+
+/// d and i: a signed argument of sp.bits, then its field.
+fn conv_signed(mut o: Out, sp: Spec, mut ap: VaList) {
+    var v: i64 = 0
+    // # Safety: C passes an argument of the length's type, promoted.
+    unsafe {
+        if sp.bits == W64 {
+            v = va_arg[i64](mut ap)
+        } else {
+            let w = va_arg[i32](mut ap)
+            v = if sp.bits == W8 {
+                w as wrapping[i8] as i8 as i64
+            } else if sp.bits == W16 {
+                w as wrapping[i16] as i16 as i64
+            } else {
+                w as i64
+            }
+        }
+    }
+    var sign: u8 = 0
+    if v < 0 {
+        sign = 45
+    } else if sp.flags & FL_PLUS != 0 {
+        sign = 43
+    } else if sp.flags & FL_SPACE != 0 {
+        sign = 32
+    }
+    emit_int(mut o, sp, sign, magnitude(v), 10, false, false)
+}
+
+/// u o x X: an unsigned argument of sp.bits, then its field. `+` and
+/// space do not apply.
+fn conv_unsigned(mut o: Out, sp: Spec, conv: u8, mut ap: VaList) {
+    var v: u64 = 0
+    // # Safety: C passes an argument of the length's type, promoted.
+    unsafe {
+        if sp.bits == W64 {
+            v = va_arg[u64](mut ap)
+        } else {
+            let w = va_arg[u32](mut ap)
+            v = if sp.bits == W8 {
+                w as wrapping[u8] as u8 as u64
+            } else if sp.bits == W16 {
+                w as wrapping[u16] as u16 as u64
+            } else {
+                w as u64
+            }
+        }
+    }
+    let base: u64 = if conv == 117 { 10 } else if conv == 111 { 8 } else { 16 }
+    let upper = conv == 88
+    let pre = base == 16 && sp.flags & FL_ALT != 0 && v != 0
+    emit_int(mut o, sp, 0, v, base, upper, pre)
+}
+
+/// p: "0x" and the address in lower-case hex, with `+`, space, `0` and
+/// precision as for a signed conversion (glibc); a null pointer is
+/// "(nil)", width only.
+fn conv_pointer(mut o: Out, sp: Spec, mut ap: VaList) {
+    var v: u64 = 0
+    // # Safety: C passes a void *.
+    unsafe {
+        v = va_arg[*u8](mut ap).addr() as u64
+    }
+    if v == 0 {
+        emit_field(mut o, sp, __muzzle_text_nil, 5)
+        return
+    }
+    var sign: u8 = 0
+    if sp.flags & FL_PLUS != 0 {
+        sign = 43
+    } else if sp.flags & FL_SPACE != 0 {
+        sign = 32
+    }
+    emit_int(mut o, sp, sign, v, 16, false, true)
+}
+
+/// c, or lc (wide: a wint_t, ASCII only in the C locale).
+fn conv_char(mut o: Out, sp: Spec, wide: bool, mut ap: VaList) {
+    var b: u8 = 0
+    // # Safety: C passes an int (c) or a wint_t (lc), promoted.
+    unsafe {
+        if wide {
+            let w = va_arg[u32](mut ap)
+            if w > 127 {
+                o.err = EILSEQ
+                return
+            }
+            b = w as u8
+        } else {
+            b = va_arg[i32](mut ap) as wrapping[u8] as u8
+        }
+    }
+    emit_char_field(mut o, sp, b)
+}
+
+/// s: at most precision bytes of a string (a null pointer is "(null)",
+/// or nothing when a precision below 6 cannot hold it).
+fn conv_string(mut o: Out, sp: Spec, mut ap: VaList) {
+    // # Safety: C passes a string, or an array of at least precision
+    // bytes; the count never reads past precision or the null.
+    unsafe {
+        let s = va_arg[*u8](mut ap)
+        if s.is_null() {
+            if sp.prec < 0 || sp.prec >= 6 {
+                emit_field(mut o, sp, __muzzle_text_null, 6)
+            } else {
+                emit_field(mut o, sp, __muzzle_text_null, 0)
+            }
+            return
+        }
+        var n: i64 = 0
+        while (sp.prec < 0 || n < sp.prec) && s[n as int] != 0 {
+            n += 1
+        }
+        emit_field(mut o, sp, s, n)
+    }
+}
+
+/// ls: a wchar_t string, ASCII only in the C locale (EILSEQ otherwise),
+/// at most precision bytes.
+fn conv_wide_string(mut o: Out, sp: Spec, mut ap: VaList) {
+    // # Safety: C passes a wchar_t string; the count never reads past
+    // precision or the null.
+    unsafe {
+        let s = va_arg[*i32](mut ap)
+        if s.is_null() {
+            if sp.prec < 0 || sp.prec >= 6 {
+                emit_field(mut o, sp, __muzzle_text_null, 6)
+            } else {
+                emit_field(mut o, sp, __muzzle_text_null, 0)
+            }
+            return
+        }
+        var n: i64 = 0
+        while (sp.prec < 0 || n < sp.prec) && s[n as int] != 0 {
+            let w = s[n as int]
+            if w < 0 || w > 127 {
+                o.err = EILSEQ
+                return
+            }
+            n += 1
+        }
+        let pad = if sp.width > n { sp.width - n } else { 0 }
+        if sp.flags & FL_MINUS == 0 {
+            emit_n(mut o, 32, pad)
+        }
+        var k: i64 = 0
+        while k < n {
+            emit(mut o, s[k as int] as u8)
+            k += 1
+        }
+        if sp.flags & FL_MINUS != 0 {
+            emit_n(mut o, 32, pad)
+        }
+    }
+}
+
+/// n: the count so far, stored at the argument as the length says.
+fn conv_count(o: Out, sp: Spec, mut ap: VaList) {
+    let c = o.count
+    // # Safety: C passes a pointer to an object of the length's type.
+    unsafe {
+        if sp.bits == W8 {
+            let p = va_arg[*i8](mut ap)
+            p[0] = c as wrapping[i8] as i8
+        } else if sp.bits == W16 {
+            let p = va_arg[*i16](mut ap)
+            p[0] = c as wrapping[i16] as i16
+        } else if sp.bits == W32 {
+            let p = va_arg[*i32](mut ap)
+            p[0] = c as wrapping[i32] as i32
+        } else {
+            let p = va_arg[*i64](mut ap)
+            p[0] = c
+        }
+    }
+}
+
+/// Digits at fmt[i..] as a number, or -1 past INT_MAX (EOVERFLOW);
+/// i moves past them.
+fn parse_number(fmt: *u8, mut i: int) -> i64 {
+    var n: i64 = 0
+    var big = false
+    // # Safety: fmt is a string; the loop stops at a non-digit.
+    unsafe {
+        while is_digit(fmt[i]) {
+            if !big {
+                n = n * 10 + (fmt[i] - 48) as i64
+                if n > INT_MAX {
+                    big = true
+                }
+            }
+            i += 1
+        }
+    }
+    if big { -1 } else { n }
+}
+
+/// The formatter: fmt's bytes, each conversion specification replaced
+/// by its argument's text. Stops at the first error (o.err).
+fn render(mut o: Out, fmt: *u8, mut ap: VaList) {
+    var i: int = 0
+    // # Safety: C's precondition: fmt is a string and the arguments
+    // match its conversions (C17 7.21.6.1p9: anything else is undefined).
+    unsafe {
+        while o.err == 0 {
+            let c = fmt[i]
+            if c == 0 {
+                return
+            }
+            i += 1
+            if c != 37 {
+                emit(mut o, c)
+                continue
+            }
+            var sp = Spec { flags: 0, bits: W32, width: 0, prec: -1 }
+            var going = true
+            while going {
+                let d = fmt[i]
+                if d == 45 {
+                    sp.flags = sp.flags | FL_MINUS
+                } else if d == 43 {
+                    sp.flags = sp.flags | FL_PLUS
+                } else if d == 32 {
+                    sp.flags = sp.flags | FL_SPACE
+                } else if d == 35 {
+                    sp.flags = sp.flags | FL_ALT
+                } else if d == 48 {
+                    sp.flags = sp.flags | FL_ZERO
+                } else if d == 39 {
+                    sp.flags = sp.flags | FL_GROUP
+                } else {
+                    going = false
+                }
+                if going {
+                    i += 1
+                }
+            }
+            if fmt[i] == 42 {
+                i += 1
+                if is_digit(fmt[i]) {
+                    o.err = EINVAL_F
+                    return
+                }
+                let w = va_arg[i32](mut ap) as i64
+                if w < 0 {
+                    sp.flags = sp.flags | FL_MINUS
+                    sp.width = 0 - w
+                } else {
+                    sp.width = w
+                }
+                if sp.width > INT_MAX {
+                    o.err = EOVERFLOW
+                    return
+                }
+            } else if is_digit(fmt[i]) {
+                let w = parse_number(fmt, mut i)
+                if fmt[i] == 36 {
+                    o.err = EINVAL_F
+                    return
+                }
+                if w < 0 {
+                    o.err = EOVERFLOW
+                    return
+                }
+                sp.width = w
+            }
+            if fmt[i] == 46 {
+                i += 1
+                if fmt[i] == 42 {
+                    i += 1
+                    if is_digit(fmt[i]) {
+                        o.err = EINVAL_F
+                        return
+                    }
+                    let p = va_arg[i32](mut ap)
+                    sp.prec = if p < 0 { -1 } else { p as i64 }
+                } else {
+                    let p = parse_number(fmt, mut i)
+                    if p < 0 {
+                        o.err = EOVERFLOW
+                        return
+                    }
+                    sp.prec = p
+                }
+            }
+            var wide = false
+            let l = fmt[i]
+            if l == 104 {
+                i += 1
+                sp.bits = W16
+                if fmt[i] == 104 {
+                    i += 1
+                    sp.bits = W8
+                }
+            } else if l == 108 {
+                i += 1
+                sp.bits = W64
+                wide = true
+                if fmt[i] == 108 {
+                    i += 1
+                    wide = false
+                }
+            } else if l == 106 || l == 122 || l == 116 || l == 113 || l == 90 || l == 76 {
+                i += 1
+                sp.bits = W64
+            }
+            let conv = fmt[i]
+            if conv == 0 {
+                o.err = EINVAL_F
+                return
+            }
+            i += 1
+            if conv == 100 || conv == 105 {
+                conv_signed(mut o, sp, mut ap)
+            } else if conv == 117 || conv == 111 || conv == 120 || conv == 88 {
+                conv_unsigned(mut o, sp, conv, mut ap)
+            } else if conv == 99 {
+                conv_char(mut o, sp, wide, mut ap)
+            } else if conv == 67 {
+                conv_char(mut o, sp, true, mut ap)
+            } else if conv == 115 {
+                if wide {
+                    conv_wide_string(mut o, sp, mut ap)
+                } else {
+                    conv_string(mut o, sp, mut ap)
+                }
+            } else if conv == 83 {
+                conv_wide_string(mut o, sp, mut ap)
+            } else if conv == 112 {
+                conv_pointer(mut o, sp, mut ap)
+            } else if conv == 110 {
+                conv_count(o, sp, mut ap)
+            } else if conv == 37 {
+                emit(mut o, 37)
+            } else if conv == 102 || conv == 70 || conv == 101 || conv == 69 || conv == 103 || conv == 71 || conv == 97 || conv == 65 {
+                o.err = EINVAL_F
+                return
+            } else {
+                emit_unknown(mut o, sp, conv)
+            }
+        }
+    }
+}
+
+/// The stream sink: f's buffer takes the bytes; an unbuffered stream's
+/// go to the stage first and out in one write. On success an unbuffered
+/// stream is written out, and a line-buffered one that took a newline
+/// sends through its last newline (glibc's observed choice: "b\nc" sends
+/// "b\n" and keeps "c"). On failure none of the call's bytes stay
+/// pending, and errno is the failure's.
+fn to_stream(f: *File, fmt: *u8, mut ap: VaList) -> i32 {
+    if !wbegin(f) {
+        return -1
+    }
+    var staged = false
+    var start: i64 = 0
+    var epoch: u64 = 0
+    // # Safety: one thread; f is a live record readied by wbegin; the
+    // stage is STAGE bytes in sys.S, used by one call at a time.
+    unsafe {
+        epoch = flush_epoch
+        if f[0].mode == IONBF {
+            staged = true
+            f[0].buf = __muzzle_stage
+            f[0].size = STAGE
+            f[0].wpos = 0
+        }
+        start = f[0].wpos
+    }
+    var o = Out { file: f, dst: __muzzle_stage, room: 0, count: 0, err: 0, nl: 0 }
+    render(mut o, fmt, mut ap)
+    var r: i32 = 0
+    // # Safety: as above.
+    unsafe {
+        if o.err != 0 {
+            // Nothing of a failed call stays pending: back to where it
+            // began, or, when a full buffer went out in between, nothing.
+            f[0].wpos = if flush_epoch == epoch && !staged { start } else { 0 }
+            r = -1
+        } else {
+            r = o.count as i32
+            var ok = true
+            if staged {
+                ok = drain(f)
+            } else if f[0].mode == IOLBF && o.nl != 0 {
+                ok = drain_lines(f)
+            }
+            if !ok {
+                r = -1
+                o.err = sys.errno()
+            }
+        }
+        if staged {
+            f[0].buf = (f.addr() + offset_of(File, tiny) as uint) as *u8
+            f[0].size = 1
+            f[0].wpos = 0
+        }
+    }
+    if r < 0 {
+        sys.set_errno(o.err)
+    }
+    r
+}
+
+/// The memory sink: at most n-1 bytes at s, then a null (none when n
+/// is 0, and s may then be null).
+fn to_memory(s: *u8, n: uint, fmt: *u8, mut ap: VaList) -> i32 {
+    var o = Out { file: null_file(), dst: s, room: if n > 0 { (n - 1) as u64 } else { 0 }, count: 0, err: 0, nl: 0 }
+    render(mut o, fmt, mut ap)
+    if n > 0 {
+        // # Safety: C's precondition: s has room for n bytes, and dst is
+        // at most s + n - 1.
+        unsafe {
+            o.dst[0] = 0
+        }
+    }
+    if o.err != 0 {
+        sys.set_errno(o.err)
+        return -1
+    }
+    o.count as i32
+}
+
+/// C17 7.21.6.3.
+export fn printf(fmt: *u8, ...) -> i32 {
+    let f = cur_stdout()
+    // # Safety: start and end bracket the one use of the list.
+    unsafe {
+        var ap = va_start()
+        let r = to_stream(f, fmt, mut ap)
+        va_end(mut ap)
+        r
+    }
+}
+
+/// C17 7.21.6.1.
+export fn fprintf(stream: *File, fmt: *u8, ...) -> i32 {
+    ready()
+    // # Safety: start and end bracket the one use of the list.
+    unsafe {
+        var ap = va_start()
+        let r = to_stream(stream, fmt, mut ap)
+        va_end(mut ap)
+        r
+    }
+}
+
+/// C17 7.21.6.6: no bound (C's precondition: s has room).
+export fn sprintf(s: *u8, fmt: *u8, ...) -> i32 {
+    // # Safety: start and end bracket the one use of the list.
+    unsafe {
+        var ap = va_start()
+        let r = to_memory(s, 18446744073709551615, fmt, mut ap)
+        va_end(mut ap)
+        r
+    }
+}
+
+/// C17 7.21.6.5.
+export fn snprintf(s: *u8, n: uint, fmt: *u8, ...) -> i32 {
+    // # Safety: start and end bracket the one use of the list.
+    unsafe {
+        var ap = va_start()
+        let r = to_memory(s, n, fmt, mut ap)
+        va_end(mut ap)
+        r
+    }
+}
+
+/// C17 7.21.6.10. The list is copied: the caller's is not advanced.
+export fn vprintf(fmt: *u8, arg: *VaList) -> i32 {
+    let f = cur_stdout()
+    // # Safety: arg is C's live va_list; the copy is ended before return.
+    unsafe {
+        var ap = va_copy(arg[0])
+        let r = to_stream(f, fmt, mut ap)
+        va_end(mut ap)
+        r
+    }
+}
+
+/// C17 7.21.6.8.
+export fn vfprintf(stream: *File, fmt: *u8, arg: *VaList) -> i32 {
+    ready()
+    // # Safety: arg is C's live va_list; the copy is ended before return.
+    unsafe {
+        var ap = va_copy(arg[0])
+        let r = to_stream(stream, fmt, mut ap)
+        va_end(mut ap)
+        r
+    }
+}
+
+/// C17 7.21.6.13.
+export fn vsprintf(s: *u8, fmt: *u8, arg: *VaList) -> i32 {
+    // # Safety: arg is C's live va_list; the copy is ended before return.
+    unsafe {
+        var ap = va_copy(arg[0])
+        let r = to_memory(s, 18446744073709551615, fmt, mut ap)
+        va_end(mut ap)
+        r
+    }
+}
+
+/// C17 7.21.6.12.
+export fn vsnprintf(s: *u8, n: uint, fmt: *u8, arg: *VaList) -> i32 {
+    // # Safety: arg is C's live va_list; the copy is ended before return.
+    unsafe {
+        var ap = va_copy(arg[0])
+        let r = to_memory(s, n, fmt, mut ap)
+        va_end(mut ap)
+        r
+    }
+}

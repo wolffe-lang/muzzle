@@ -52,4 +52,79 @@ __muzzle_bins:
 __muzzle_scratch:
 	.zero	32
 
+/* stdio's storage (lc02), for the same reasons: a wolf var holds a
+ * scalar only and has no address (wolf-lang#597), and a module cannot
+ * export data (wolf-lang#516).
+ *
+ * __muzzle_std_files: the three standard streams' FILE records, one
+ *   256-byte slot each (stdio's ready() traps if its record outgrows a
+ *   slot).
+ * __muzzle_stage: 4096 bytes an unbuffered stream's printf output
+ *   collects in, so it reaches the descriptor in one write.
+ * __muzzle_termios: 64 bytes isatty's TCGETS fills (struct termios is
+ *   36 bytes on x86-64).
+ * __muzzle_stat: 144 bytes fstat fills (x86-64's struct stat). */
+	.balign	16
+	.globl	__muzzle_std_files
+	.type	__muzzle_std_files,@object
+	.size	__muzzle_std_files, 768
+__muzzle_std_files:
+	.zero	768
+	.globl	__muzzle_stage
+	.type	__muzzle_stage,@object
+	.size	__muzzle_stage, 4096
+__muzzle_stage:
+	.zero	4096
+	.globl	__muzzle_termios
+	.type	__muzzle_termios,@object
+	.size	__muzzle_termios, 64
+__muzzle_termios:
+	.zero	64
+	.globl	__muzzle_stat
+	.type	__muzzle_stat,@object
+	.size	__muzzle_stat, 144
+__muzzle_stat:
+	.zero	144
+
+/* C17 7.21.1p3's stdin, stdout and stderr: FILE pointers C reads, each
+ * at its standard stream's slot. The __muzzle_ names are the same
+ * objects, for wolf's `extern "c" let`. */
+	.data
+	.balign	8
+	.globl	stdin
+	.globl	__muzzle_stdin
+	.type	stdin,@object
+	.size	stdin, 8
+stdin:
+__muzzle_stdin:
+	.quad	__muzzle_std_files
+	.globl	stdout
+	.globl	__muzzle_stdout
+	.type	stdout,@object
+	.size	stdout, 8
+stdout:
+__muzzle_stdout:
+	.quad	__muzzle_std_files+256
+	.globl	stderr
+	.globl	__muzzle_stderr
+	.type	stderr,@object
+	.size	stderr, 8
+stderr:
+__muzzle_stderr:
+	.quad	__muzzle_std_files+512
+
+/* The texts glibc prints for a null %s and a null %p: a str literal's
+ * bytes cannot reach C as a *u8 yet (wolf-lang#604). */
+	.section .rodata
+	.globl	__muzzle_text_null
+	.type	__muzzle_text_null,@object
+	.size	__muzzle_text_null, 6
+__muzzle_text_null:
+	.ascii	"(null)"
+	.globl	__muzzle_text_nil
+	.type	__muzzle_text_nil,@object
+	.size	__muzzle_text_nil, 5
+__muzzle_text_nil:
+	.ascii	"(nil)"
+
 	.section .note.GNU-stack,"",@progbits

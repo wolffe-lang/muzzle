@@ -1,0 +1,799 @@
+//! <stdio.h> streams, C17 7.21.2–7.21.5 and POSIX.1-2024 XSH fdopen,
+//! fileno: the FILE record, the three standard streams, the list of open
+//! streams that exit flushes, buffering, and the file access functions
+//! (fopen, fdopen, fclose, fflush, setvbuf, setbuf) with feof, ferror,
+//! clearerr and fileno. Single-threaded, as errno is (R4's first cut):
+//! no stream lock.
+//!
+//! Sources: C17 7.21.2 (streams), 7.21.3 (files, and the three buffering
+//! modes: "unbuffered", "fully buffered", "line buffered"; stdin and
+//! stdout fully buffered "if and only if the stream can be determined
+//! not to refer to an interactive device"; stderr "not fully
+//! buffered"), 7.21.5.1–7.21.5.6, 7.21.10; POSIX.1-2024 XSH fopen (the
+//! mode strings and their open flags), fdopen, fclose, fflush (an input
+//! stream's offset), setvbuf, fileno; the Linux man pages fopen(3),
+//! setbuf(3), stdio(3). Where the standards leave a choice, glibc's
+//! observed behaviour decides (lc00's rule; docs/LEDGER.md), seen as a
+//! black box (notes/lc02-probes/g2.c, g3.c), never read. The design is
+//! muzzle's own; musl and the BSD libcs were not consulted.
+
+use sys
+use heap
+use string
+use unistd
+
+/// The FILE record. C sees only pointers to it (<stdio.h> declares an
+/// incomplete struct). A stream is reading (rpos..rend of buf holds
+/// read-ahead), writing (buf[0..wpos] waits to be written), or neither;
+/// never both at once.
+#[repr(c)]
+struct File {
+    fd: i32,
+    // F_* bits.
+    flags: i32,
+    // _IOFBF, _IOLBF, _IONBF, or UNDECIDED until the first transfer.
+    mode: i32,
+    // Bytes ungetc pushed back, in pb, the last one in the low byte.
+    npb: i32,
+    // The buffer, null until the first transfer or setvbuf.
+    buf: *u8,
+    size: i64,
+    rpos: i64,
+    rend: i64,
+    wpos: i64,
+    pb: u64,
+    // The one-byte buffer an unbuffered stream uses.
+    tiny: u64,
+    // The next open stream.
+    next: *File,
+}
+
+const F_READ: i32 = 1
+
+const F_WRITE: i32 = 2
+
+const F_EOF: i32 = 4
+
+const F_ERR: i32 = 8
+
+/// The buffer was allocated by muzzle (free it at fclose or setvbuf).
+const F_OWNBUF: i32 = 16
+
+/// One of the three standard streams, whose record lives in sys.S.
+const F_STD: i32 = 32
+
+/// The stream is open (a closed standard stream keeps its record).
+const F_OPEN: i32 = 64
+
+/// A byte has gone into the buffer since the stream got it. Until then
+/// a write of several bytes finds no room and takes the overflow path
+/// (glibc's observed choice: the first fputs into a 16-byte buffer of
+/// the program's own reaches the file at once; notes/lc02-probes/g2.c).
+const F_WSET: i32 = 128
+
+/// A buffer this size or larger keeps the tail of a write too big for
+/// it; a smaller one sends the whole write (glibc's observed choice:
+/// notes/lc02-probes/g5.c).
+const BLOCK_MIN: i64 = 128
+
+const IOFBF: i32 = 0
+
+const IOLBF: i32 = 1
+
+const IONBF: i32 = 2
+
+const UNDECIDED: i32 = 3
+
+const EOF: i32 = -1
+
+/// BUFSIZ in <stdio.h>, and a stream's buffer when its file names no
+/// preferred size.
+const BUFSIZ: i64 = 8192
+
+/// The most bytes ungetc pushes back (C17 7.21.7.10 guarantees one).
+const PUSHBACK_MAX: i32 = 8
+
+/// Each standard stream's slot in sys.S's __muzzle_std_files.
+const STD_SLOT: uint = 256
+
+const EBADF: i32 = 9
+
+const EINVAL: i32 = 22
+
+const EINTR: i32 = 4
+
+const ENOMEM: i32 = 12
+
+const EIO: i32 = 5
+
+/// O_ flags, asm-generic/fcntl.h.
+const O_RDONLY: i32 = 0
+
+const O_WRONLY: i32 = 1
+
+const O_RDWR: i32 = 2
+
+const O_ACCMODE: i32 = 3
+
+const O_CREAT: i32 = 64
+
+const O_EXCL: i32 = 128
+
+const O_TRUNC: i32 = 512
+
+const O_APPEND: i32 = 1024
+
+const O_CLOEXEC: i32 = 524288
+
+const SEEK_CUR: i32 = 1
+
+/// The three standard streams' records (sys.S: 3 slots of 256 bytes).
+extern "c" let __muzzle_std_files: *u8
+
+/// The C objects stdin, stdout and stderr (sys.S), each a FILE * C may
+/// read; muzzle reads them the same way, so a stream C reassigns to
+/// them is the one getchar and printf use.
+extern "c" let __muzzle_stdin: *u64
+
+extern "c" let __muzzle_stdout: *u64
+
+/// True once the standard streams' records are filled in.
+var std_ready: bool = false
+
+/// The first open stream's address (0 for none); the rest follow `next`.
+var open_head: u64 = 0
+
+/// Counts every buffer written out. A printf whose output fails part
+/// way through rolls the stream back to where it began only when no
+/// write happened between (format.lu).
+var flush_epoch: u64 = 0
+
+fn null_file() -> *File {
+    // # Safety: the null pointer.
+    unsafe {
+        0 as *File
+    }
+}
+
+fn std_slot(i: uint) -> *File {
+    // # Safety: sys.S reserves 3 slots of STD_SLOT bytes, 16-aligned;
+    // i is 0, 1 or 2.
+    unsafe {
+        (__muzzle_std_files.addr() + i * STD_SLOT) as *File
+    }
+}
+
+fn link(f: *File) {
+    // # Safety: one thread; f is a live record.
+    unsafe {
+        f[0].next = open_head as *File
+        open_head = f.addr() as u64
+    }
+}
+
+fn unlink(f: *File) {
+    // # Safety: one thread; the list holds live records only.
+    unsafe {
+        if open_head == f.addr() as u64 {
+            open_head = f[0].next.addr() as u64
+            return
+        }
+        var p = open_head as *File
+        while !p.is_null() {
+            let n = p[0].next
+            if n.addr() == f.addr() {
+                p[0].next = f[0].next
+                return
+            }
+            p = n
+        }
+    }
+}
+
+fn fill_record(f: *File, fd: i32, flags: i32, mode: i32) {
+    // # Safety: f addresses a record's worth of writable bytes.
+    unsafe {
+        f[0].fd = fd
+        f[0].flags = flags | F_OPEN
+        f[0].mode = mode
+        f[0].npb = 0
+        f[0].buf = 0 as *u8
+        f[0].size = 0
+        f[0].rpos = 0
+        f[0].rend = 0
+        f[0].wpos = 0
+        f[0].pb = 0
+        f[0].tiny = 0
+        f[0].next = 0 as *File
+    }
+}
+
+/// Fills in the standard streams' records once: stdin reads fd 0,
+/// stdout writes fd 1, both buffered as their descriptors decide at the
+/// first transfer; stderr writes fd 2, unbuffered (C17 7.21.3p7).
+fn ready() {
+    // # Safety: one thread.
+    unsafe {
+        if std_ready {
+            return
+        }
+        std_ready = true
+    }
+    // The record outgrowing its sys.S slot is a trap here (an unsigned
+    // underflow), never a silent overlap of stdout with stderr.
+    let room = STD_SLOT - size_of(File) as uint
+    fill_record(std_slot(0), 0, F_READ | F_STD, UNDECIDED)
+    fill_record(std_slot(1), 1, F_WRITE | F_STD, UNDECIDED)
+    fill_record(std_slot(2), 2, F_WRITE | F_STD, IONBF)
+    link(std_slot(2))
+    link(std_slot(1))
+    link(std_slot(0))
+}
+
+/// The stream C's `stdin` names now.
+fn cur_stdin() -> *File {
+    ready()
+    // # Safety: sys.S's stdin object holds a FILE pointer.
+    unsafe {
+        __muzzle_stdin[0] as *File
+    }
+}
+
+/// The stream C's `stdout` names now.
+fn cur_stdout() -> *File {
+    ready()
+    // # Safety: sys.S's stdout object holds a FILE pointer.
+    unsafe {
+        __muzzle_stdout[0] as *File
+    }
+}
+
+fn has(f: *File, bit: i32) -> bool {
+    var r = false
+    // # Safety: f is a live record (C's precondition for every stream
+    // function).
+    unsafe {
+        r = f[0].flags & bit != 0
+    }
+    r
+}
+
+fn set_flag(f: *File, bit: i32) {
+    // # Safety: f is a live record.
+    unsafe {
+        f[0].flags = f[0].flags | bit
+    }
+}
+
+fn clear_flag(f: *File, bit: i32) {
+    // # Safety: f is a live record.
+    unsafe {
+        f[0].flags = f[0].flags & !bit
+    }
+}
+
+/// Marks the stream's error indicator and errno, and answers false.
+fn refuse(f: *File, e: i32) -> bool {
+    set_flag(f, F_ERR)
+    sys.set_errno(e)
+    false
+}
+
+/// Decides a stream's buffering at its first transfer: line buffered on
+/// a terminal, fully buffered otherwise (C17 7.21.3p7), and gives it a
+/// buffer: the file's preferred I/O size, as glibc's 4096 for a
+/// regular file shows, else BUFSIZ. An unbuffered stream uses its
+/// one-byte `tiny`. A buffer malloc refuses makes the stream unbuffered.
+fn prepare(f: *File) {
+    // # Safety: f is a live record.
+    unsafe {
+        if f[0].mode == UNDECIDED {
+            f[0].mode = if unistd.is_terminal(f[0].fd) { IOLBF } else { IOFBF }
+        }
+        if !f[0].buf.is_null() {
+            return
+        }
+        if f[0].mode != IONBF {
+            var n = unistd.blksize(f[0].fd)
+            if n <= 0 {
+                n = BUFSIZ
+            }
+            let e = sys.errno()
+            let b = heap.malloc(n as uint)
+            sys.set_errno(e)
+            if !b.is_null() {
+                f[0].buf = b
+                f[0].size = n
+                f[0].flags = f[0].flags | F_OWNBUF
+                return
+            }
+            f[0].mode = IONBF
+        }
+        f[0].buf = (f.addr() + offset_of(File, tiny) as uint) as *u8
+        f[0].size = 1
+    }
+}
+
+/// Writes out buf[0..wpos]. On a write error the stream's error
+/// indicator is set, errno is the kernel's, and the pending bytes are
+/// dropped (glibc's choice: a failed fflush leaves nothing for fclose
+/// to retry). A write that makes no progress is EIO, never a loop.
+fn drain(f: *File) -> bool {
+    // # Safety: f is a live record and buf[0..wpos] is its pending data.
+    unsafe {
+        var done: i64 = 0
+        let n = f[0].wpos
+        if n > 0 {
+            flush_epoch += 1
+        }
+        while done < n {
+            let p = f[0].buf.with_addr(f[0].buf.addr() + done as uint)
+            let r = sys.raw(1, f[0].fd as i64, p.addr() as wrapping[i64] as i64, n - done, 0, 0, 0)
+            if sys.failed(r) {
+                if r == 0 - EINTR as i64 {
+                    continue
+                }
+                f[0].wpos = 0
+                return refuse(f, (0 - r) as i32)
+            }
+            if r == 0 {
+                f[0].wpos = 0
+                return refuse(f, EIO)
+            }
+            done += r
+        }
+        f[0].wpos = 0
+    }
+    true
+}
+
+/// Writes out the first k pending bytes and moves the rest to the front
+/// (a line-buffered stream sends through its last newline and keeps
+/// what follows: glibc's observed choice, notes/lc02-probes/g3.c, g4.c).
+fn drain_prefix(f: *File, k: i64) -> bool {
+    var all: i64 = 0
+    // # Safety: f is a live record; 0 < k <= wpos.
+    unsafe {
+        all = f[0].wpos
+    }
+    if k >= all {
+        return drain(f)
+    }
+    // # Safety: f is a live record and buf[0..wpos] is its pending data;
+    // the tail moves down within the buffer (memmove handles the overlap).
+    unsafe {
+        f[0].wpos = k
+        if !drain(f) {
+            return false
+        }
+        let tail = f[0].buf.with_addr(f[0].buf.addr() + k as uint)
+        let c = string.memmove(f[0].buf, tail, (all - k) as uint)
+        f[0].wpos = all - k
+    }
+    true
+}
+
+/// A line-buffered stream's pending bytes through the last newline go
+/// out and the rest stays; with a buffer under BLOCK_MIN everything goes
+/// (glibc's observed choice: "d\ne" into a 16-byte buffer sends the "e"
+/// too, into a 4096-byte one keeps it).
+fn drain_lines(f: *File) -> bool {
+    var k: i64 = 0
+    var small = false
+    // # Safety: f is a live record and buf[0..wpos] is its pending data.
+    unsafe {
+        small = f[0].size < BLOCK_MIN
+        var i = f[0].wpos
+        while i > 0 && k == 0 {
+            if f[0].buf[(i - 1) as int] == 10 {
+                k = i
+            }
+            i -= 1
+        }
+    }
+    if k == 0 {
+        return true
+    }
+    if small {
+        return drain(f)
+    }
+    drain_prefix(f, k)
+}
+
+/// Writes len bytes from p straight to the descriptor (a write too big
+/// for the buffer).
+fn direct(f: *File, p: *u8, len: i64) -> bool {
+    // # Safety: f is a live record; p addresses len readable bytes.
+    unsafe {
+        var done: i64 = 0
+        if len > 0 {
+            flush_epoch += 1
+        }
+        while done < len {
+            let q = p.with_addr(p.addr() + done as uint)
+            let r = sys.raw(1, f[0].fd as i64, q.addr() as wrapping[i64] as i64, len - done, 0, 0, 0)
+            if sys.failed(r) {
+                if r == 0 - EINTR as i64 {
+                    continue
+                }
+                return refuse(f, (0 - r) as i32)
+            }
+            if r == 0 {
+                return refuse(f, EIO)
+            }
+            done += r
+        }
+    }
+    true
+}
+
+/// Gives back read-ahead the program has not consumed: the descriptor's
+/// offset moves back over it (POSIX fflush on an input stream), and the
+/// buffer and the pushback are emptied. A descriptor that cannot seek
+/// keeps them (nothing is lost).
+fn unread(f: *File) -> bool {
+    // # Safety: f is a live record.
+    unsafe {
+        let back = f[0].rend - f[0].rpos + f[0].npb as i64
+        if back == 0 {
+            f[0].rpos = 0
+            f[0].rend = 0
+            return true
+        }
+        let e = sys.errno()
+        let r = unistd.lseek(f[0].fd, 0 - back, SEEK_CUR)
+        if r < 0 {
+            sys.set_errno(e)
+            return true
+        }
+        f[0].rpos = 0
+        f[0].rend = 0
+        f[0].npb = 0
+        f[0].pb = 0
+    }
+    true
+}
+
+/// Readies f for writing: it must be open for writing (else EBADF and
+/// the error indicator, as glibc reports), read-ahead is given back, and
+/// the buffer exists.
+fn wbegin(f: *File) -> bool {
+    if !has(f, F_OPEN) || !has(f, F_WRITE) {
+        return refuse(f, EBADF)
+    }
+    var reading = false
+    // # Safety: f is a live record.
+    unsafe {
+        reading = f[0].rend > 0 || f[0].npb > 0
+    }
+    if reading {
+        let k = unread(f)
+    }
+    prepare(f)
+    true
+}
+
+/// Readies f for reading: it must be open for reading (else EBADF and
+/// the error indicator), pending output goes out first, and the buffer
+/// exists.
+fn rbegin(f: *File) -> bool {
+    if !has(f, F_OPEN) || !has(f, F_READ) {
+        return refuse(f, EBADF)
+    }
+    var pending = false
+    // # Safety: f is a live record.
+    unsafe {
+        pending = f[0].wpos > 0
+    }
+    if pending && !drain(f) {
+        return false
+    }
+    prepare(f)
+    true
+}
+
+/// Writes out every line-buffered stream's pending output: C17 7.21.3p3,
+/// before input is requested from the host environment on an unbuffered
+/// or line-buffered stream.
+fn drain_line_buffered() {
+    // # Safety: one thread; the list holds live records.
+    unsafe {
+        var p = open_head as *File
+        while !p.is_null() {
+            if p[0].mode == IOLBF && p[0].wpos > 0 {
+                let k = drain(p)
+            }
+            p = p[0].next
+        }
+    }
+}
+
+/// Writes out every open stream's pending output (exit, fflush(NULL)).
+/// False if any write failed.
+pub fn flush_all() -> bool {
+    var ok = true
+    // # Safety: one thread; the list holds live records.
+    unsafe {
+        var p = open_head as *File
+        while !p.is_null() {
+            if p[0].wpos > 0 && !drain(p) {
+                ok = false
+            }
+            p = p[0].next
+        }
+    }
+    ok
+}
+
+/// What a mode string asks for: the open flags, the stream's F_ bits,
+/// or -1 for a string that is not a mode (EINVAL). The first byte is r,
+/// w or a (C17 7.21.5.3); after it, `+` opens for update, `x` (C17)
+/// opens exclusively, `e` (glibc, POSIX.1-2024's O_CLOEXEC) closes on
+/// exec, `b` is no change on POSIX, and any other byte is ignored, as
+/// glibc does ("rw" opens for reading).
+fn parse_mode(m: *u8, mut stream_flags: i32) -> i32 {
+    var o: i32 = 0
+    // # Safety: C's precondition: m is a string.
+    unsafe {
+        let c = m[0]
+        if c == 114 {
+            o = O_RDONLY
+            stream_flags = F_READ
+        } else if c == 119 {
+            o = O_WRONLY | O_CREAT | O_TRUNC
+            stream_flags = F_WRITE
+        } else if c == 97 {
+            o = O_WRONLY | O_CREAT | O_APPEND
+            stream_flags = F_WRITE
+        } else {
+            return -1
+        }
+        var i: int = 1
+        while m[i] != 0 && i < 7 {
+            let d = m[i]
+            if d == 43 {
+                o = (o & !O_ACCMODE) | O_RDWR
+                stream_flags = F_READ | F_WRITE
+            } else if d == 120 {
+                o = o | O_EXCL
+            } else if d == 101 {
+                o = o | O_CLOEXEC
+            }
+            i += 1
+        }
+    }
+    o
+}
+
+/// A new stream over fd, or null (ENOMEM).
+fn new_stream(fd: i32, stream_flags: i32) -> *File {
+    let p = heap.malloc(size_of(File) as uint)
+    if p.is_null() {
+        return null_file()
+    }
+    var f = null_file()
+    // # Safety: malloc answered at least size_of(File) bytes, 16-aligned.
+    unsafe {
+        f = p.addr() as *File
+    }
+    fill_record(f, fd, stream_flags, UNDECIDED)
+    link(f)
+    f
+}
+
+/// C17 7.21.5.3: opens the file at `filename` in `mode`, mode 0666 less
+/// the umask when it creates one. Null with errno set on failure:
+/// EINVAL for a mode that is not one, else open's errno.
+export fn fopen(filename: *u8, mode: *u8) -> *File {
+    ready()
+    var sf: i32 = 0
+    let o = parse_mode(mode, mut sf)
+    if o < 0 {
+        sys.set_errno(EINVAL)
+        return null_file()
+    }
+    var at: i64 = 0
+    // # Safety: reads filename's address only; the kernel reads the path.
+    unsafe {
+        at = filename.addr() as wrapping[i64] as i64
+    }
+    let fd = sys.ret(sys.raw(257, -100, at, o as i64, 438, 0, 0))
+    if fd < 0 {
+        return null_file()
+    }
+    let f = new_stream(fd as i32, sf)
+    if f.is_null() {
+        let c = unistd.close(fd as i32)
+        sys.set_errno(ENOMEM)
+    }
+    f
+}
+
+/// POSIX fdopen: a stream over an open descriptor. EBADF if fildes is
+/// not open, EINVAL if the mode is not one or asks for an access the
+/// descriptor was not opened with. The descriptor is not changed: no
+/// truncation for "w", no O_APPEND added for "a".
+export fn fdopen(fildes: i32, mode: *u8) -> *File {
+    ready()
+    var sf: i32 = 0
+    let o = parse_mode(mode, mut sf)
+    if o < 0 {
+        sys.set_errno(EINVAL)
+        return null_file()
+    }
+    let fl = unistd.status_flags(fildes)
+    if fl < 0 {
+        return null_file()
+    }
+    let acc = fl & O_ACCMODE
+    if (sf & F_READ != 0 && acc == O_WRONLY) || (sf & F_WRITE != 0 && acc == O_RDONLY) {
+        sys.set_errno(EINVAL)
+        return null_file()
+    }
+    let f = new_stream(fildes, sf)
+    if f.is_null() {
+        sys.set_errno(ENOMEM)
+    }
+    f
+}
+
+/// C17 7.21.5.2: writes out pending output (a null stream: every
+/// stream's); gives an input stream's read-ahead back to its file
+/// (POSIX). EOF with the error indicator and errno on a write error.
+export fn fflush(stream: *File) -> i32 {
+    ready()
+    if stream.is_null() {
+        return if flush_all() { 0 } else { EOF }
+    }
+    if !has(stream, F_OPEN) {
+        sys.set_errno(EBADF)
+        return EOF
+    }
+    var pending = false
+    var reading = false
+    // # Safety: stream is a live record.
+    unsafe {
+        pending = stream[0].wpos > 0
+        reading = stream[0].rend > 0 || stream[0].npb > 0
+    }
+    if pending {
+        return if drain(stream) { 0 } else { EOF }
+    }
+    if reading {
+        let k = unread(stream)
+    }
+    0
+}
+
+/// C17 7.21.5.1: writes out pending output, gives read-ahead back,
+/// closes the descriptor and releases the stream. EOF if the write or
+/// the close failed; the stream is released either way.
+export fn fclose(stream: *File) -> i32 {
+    ready()
+    if !has(stream, F_OPEN) {
+        sys.set_errno(EBADF)
+        return EOF
+    }
+    var r: i32 = 0
+    var pending = false
+    var reading = false
+    // # Safety: stream is a live record.
+    unsafe {
+        pending = stream[0].wpos > 0
+        reading = stream[0].rend > 0 || stream[0].npb > 0
+    }
+    if pending && !drain(stream) {
+        r = EOF
+    }
+    if reading {
+        let k = unread(stream)
+    }
+    var fd: i32 = 0
+    // # Safety: stream is a live record.
+    unsafe {
+        fd = stream[0].fd
+    }
+    if unistd.close(fd) < 0 {
+        r = EOF
+    }
+    unlink(stream)
+    // # Safety: stream is a live record; an owned buffer came from malloc.
+    unsafe {
+        if stream[0].flags & F_OWNBUF != 0 {
+            heap.free(stream[0].buf)
+        }
+        if stream[0].flags & F_STD != 0 {
+            stream[0].flags = F_STD
+            stream[0].buf = 0 as *u8
+        } else {
+            heap.free(stream.addr() as *u8)
+        }
+    }
+    r
+}
+
+/// C17 7.21.5.6: the buffering mode, and the caller's buffer of `size`
+/// bytes when buf is not null; with a null buf muzzle chooses the
+/// buffer at the first transfer. Nonzero for a mode that is not one of
+/// the three (errno unchanged, as glibc). C allows it only before the
+/// first operation; a later call discards nothing pending (it writes it
+/// out first).
+export fn setvbuf(stream: *File, buf: *u8, mode: i32, size: uint) -> i32 {
+    ready()
+    if mode != IOFBF && mode != IOLBF && mode != IONBF {
+        return EOF
+    }
+    var pending = false
+    // # Safety: stream is a live record.
+    unsafe {
+        pending = stream[0].wpos > 0
+    }
+    if pending {
+        let k = drain(stream)
+    }
+    // # Safety: stream is a live record; an owned buffer came from malloc;
+    // a caller's buffer holds `size` bytes for the stream's life
+    // (C17 7.21.5.6).
+    unsafe {
+        if stream[0].flags & F_OWNBUF != 0 {
+            heap.free(stream[0].buf)
+            stream[0].flags = stream[0].flags & !F_OWNBUF
+        }
+        stream[0].mode = mode
+        stream[0].flags = stream[0].flags & !F_WSET
+        stream[0].rpos = 0
+        stream[0].rend = 0
+        if mode == IONBF {
+            stream[0].buf = (stream.addr() + offset_of(File, tiny) as uint) as *u8
+            stream[0].size = 1
+        } else if !buf.is_null() && size > 0 {
+            stream[0].buf = buf
+            stream[0].size = size as i64
+        } else {
+            stream[0].buf = 0 as *u8
+            stream[0].size = 0
+        }
+    }
+    0
+}
+
+/// C17 7.21.5.5: setvbuf with BUFSIZ bytes at buf, or unbuffered.
+export fn setbuf(stream: *File, buf: *u8) {
+    let r = if buf.is_null() { setvbuf(stream, buf, IONBF, 0) } else { setvbuf(stream, buf, IOFBF, BUFSIZ as uint) }
+}
+
+/// C17 7.21.10.2.
+export fn feof(stream: *File) -> i32 {
+    ready()
+    if has(stream, F_EOF) { 1 } else { 0 }
+}
+
+/// C17 7.21.10.3.
+export fn ferror(stream: *File) -> i32 {
+    ready()
+    if has(stream, F_ERR) { 1 } else { 0 }
+}
+
+/// C17 7.21.10.1.
+export fn clearerr(stream: *File) {
+    ready()
+    clear_flag(stream, F_EOF | F_ERR)
+}
+
+/// POSIX fileno: the stream's descriptor.
+export fn fileno(stream: *File) -> i32 {
+    ready()
+    var fd: i32 = -1
+    // # Safety: stream is a live record.
+    unsafe {
+        fd = stream[0].fd
+    }
+    fd
+}
+
+/// True. The package root calls it so the build reaches this module:
+/// a module only C calls into is otherwise never compiled, and an
+/// import nothing uses is E0305 (wolf-lang#599).
+pub fn linked() -> bool {
+    true
+}

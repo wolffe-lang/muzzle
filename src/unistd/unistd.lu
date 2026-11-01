@@ -1,0 +1,141 @@
+//! The descriptor calls under stdio: POSIX.1-2024 XSH open, close, read,
+//! lseek and isatty, and the two questions stdio asks a descriptor
+//! itself (its preferred I/O size, its access mode). Each answers what
+//! the kernel answers, through the error convention (sys.ret): -1 with
+//! errno set as the kernel reports it.
+//!
+//! Sources: the XSH pages of each function (POSIX.1-2024), open(2),
+//! read(2), lseek(2), fstat(2) (st_blksize, "the preferred block size
+//! for efficient filesystem I/O"), fcntl(2) (F_GETFL), ioctl_tty(2)
+//! (TCGETS), and the uapi headers for the numbers: asm/unistd_64.h,
+//! asm-generic/fcntl.h, linux/fcntl.h (AT_FDCWD), asm-generic/ioctls.h,
+//! and asm/stat.h for struct stat's layout (st_blksize at byte 56).
+
+use sys
+
+/// struct termios as TCGETS fills it (sys.S, 64 bytes; isatty reads only
+/// the call's answer).
+extern "c" let __muzzle_termios: *u8
+
+/// struct stat as fstat(2) fills it (sys.S, 144 bytes).
+extern "c" let __muzzle_stat: *u8
+
+const SYS_READ: i64 = 0
+
+const SYS_CLOSE: i64 = 3
+
+const SYS_FSTAT: i64 = 5
+
+const SYS_LSEEK: i64 = 8
+
+const SYS_IOCTL: i64 = 16
+
+const SYS_FCNTL: i64 = 72
+
+const SYS_OPENAT: i64 = 257
+
+const AT_FDCWD: i64 = -100
+
+/// O_CREAT, 0100 in asm-generic/fcntl.h.
+const O_CREAT: i32 = 64
+
+/// __O_TMPFILE, 020000000: O_TMPFILE is it with O_DIRECTORY.
+const O_TMPFILE_BIT: i32 = 4194304
+
+/// TCGETS, 0x5401 in asm-generic/ioctls.h.
+const TCGETS: i64 = 21505
+
+const F_GETFL: i64 = 3
+
+/// st_blksize's offset in x86-64's struct stat (asm/stat.h).
+const ST_BLKSIZE: uint = 56
+
+fn addr_of(p: *u8) -> i64 {
+    var at: i64 = 0
+    // # Safety: reads p's address only.
+    unsafe {
+        at = p.addr() as wrapping[i64] as i64
+    }
+    at
+}
+
+/// POSIX open: openat(2) from the working directory. The mode is read
+/// only when O_CREAT or O_TMPFILE asks for one, as XSH open says.
+export fn open(path: *u8, oflag: i32, ...) -> i32 {
+    var mode: u32 = 0
+    // # Safety: C passes a mode_t (an unsigned int, unpromoted) exactly
+    // when oflag creates a file; va_start and va_end bracket the read.
+    unsafe {
+        var ap = va_start()
+        if oflag & O_CREAT != 0 || oflag & O_TMPFILE_BIT != 0 {
+            mode = va_arg[u32](mut ap)
+        }
+        va_end(mut ap)
+    }
+    sys.ret(sys.raw(SYS_OPENAT, AT_FDCWD, addr_of(path), oflag as i64, mode as i64, 0, 0)) as i32
+}
+
+/// POSIX close.
+pub export fn close(fildes: i32) -> i32 {
+    sys.ret(sys.raw(SYS_CLOSE, fildes as i64, 0, 0, 0, 0, 0)) as i32
+}
+
+/// POSIX read: the bytes read, 0 at end of file, or -1 with errno set.
+pub export fn read(fildes: i32, buf: *u8, nbyte: uint) -> i64 {
+    sys.ret(sys.raw(SYS_READ, fildes as i64, addr_of(buf), nbyte as wrapping[i64] as i64, 0, 0, 0))
+}
+
+/// POSIX lseek: the new offset, or -1 with errno set (ESPIPE on a pipe
+/// or a terminal, EINVAL for a bad whence or a negative result).
+pub export fn lseek(fildes: i32, offset: i64, whence: i32) -> i64 {
+    sys.ret(sys.raw(SYS_LSEEK, fildes as i64, offset, whence as i64, 0, 0, 0))
+}
+
+/// POSIX isatty: 1 for a terminal; otherwise 0 with errno set (ENOTTY,
+/// or EBADF for a descriptor that is not open), as the TCGETS request
+/// answers.
+pub export fn isatty(fildes: i32) -> i32 {
+    let r = sys.ret(sys.raw(SYS_IOCTL, fildes as i64, TCGETS, addr_of(__muzzle_termios), 0, 0, 0))
+    if r < 0 {
+        0
+    } else {
+        1
+    }
+}
+
+/// True when fildes is a terminal. errno is left as it was: stdio asks
+/// this for itself when it picks a stream's buffering.
+pub fn is_terminal(fildes: i32) -> bool {
+    let r = sys.raw(SYS_IOCTL, fildes as i64, TCGETS, addr_of(__muzzle_termios), 0, 0, 0)
+    !sys.failed(r)
+}
+
+/// The descriptor's preferred I/O size (fstat's st_blksize), or 0 when
+/// fstat fails. errno is left as it was.
+pub fn blksize(fildes: i32) -> i64 {
+    let r = sys.raw(SYS_FSTAT, fildes as i64, addr_of(__muzzle_stat), 0, 0, 0, 0)
+    if sys.failed(r) {
+        return 0
+    }
+    var n: i64 = 0
+    // # Safety: fstat filled the 144-byte, 16-aligned struct in sys.S;
+    // st_blksize is the long at byte 56.
+    unsafe {
+        let p = (__muzzle_stat.addr() + ST_BLKSIZE) as *i64
+        n = p[0]
+    }
+    n
+}
+
+/// fcntl(F_GETFL): the descriptor's status flags, or -1 with errno set
+/// (EBADF for a descriptor that is not open).
+pub fn status_flags(fildes: i32) -> i32 {
+    sys.ret(sys.raw(SYS_FCNTL, fildes as i64, F_GETFL, 0, 0, 0, 0)) as i32
+}
+
+/// True. The package root calls it so the build reaches this module:
+/// a module only C calls into is otherwise never compiled, and an
+/// import nothing uses is E0305 (wolf-lang#599).
+pub fn linked() -> bool {
+    true
+}

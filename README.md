@@ -7,21 +7,30 @@ muzzle talks to the kernel only through the Linux x86-64 syscall ABI,
 so a program linked against it statically is, unchanged, a userspace
 test for PAX.
 
-**State: the first layer (lc01).** Raw syscalls, errno, the memory and
-string core, the allocator and process exit, enough for a C program
-built with `clang -nostdlib` to run against muzzle alone. There is no
-`printf` yet. wolf 0.2.36 added C variadics (wolf-lang#515), so the
-printf family can now be written; it arrives with stdio, the next layer.
+**State: stdio (lc02), over the first layer (lc01).** Raw syscalls,
+errno, the memory and string core, the allocator and process exit
+(lc01); streams with the three buffering modes, the descriptor calls
+under them, and the printf family over wolf 0.2.36's C variadics
+(lc02). A C program built with `clang -nostdlib` runs against muzzle
+alone. The floating conversions (`%f %e %g %a`) are not here yet: a
+printf call that meets one answers -1 with errno `EINVAL`, and a stream
+receives none of its output (lc03 owns them; `docs/LEDGER.md`).
 
 ## What C gets
 
 | header | functions |
 |---|---|
+| `<stdio.h>` | `fopen` `fdopen` `fclose` `fflush` `setvbuf` `setbuf` `fileno` `fread` `fwrite` `fgetc` `getc` `getchar` `fgets` `ungetc` `fputc` `putc` `putchar` `fputs` `puts` `feof` `ferror` `clearerr`; `printf` `fprintf` `sprintf` `snprintf` `vprintf` `vfprintf` `vsprintf` `vsnprintf`; `stdin` `stdout` `stderr` |
 | `<string.h>` | `memcpy` `memmove` `memset` `memcmp` `strlen` `strcmp` `strncmp` `strchr` `strcpy` |
 | `<stdlib.h>` | `malloc` `free` `calloc` `realloc` `exit` `_Exit` |
-| `<unistd.h>` | `_exit` `write` |
-| `<errno.h>` | `errno` (`(*__errno_location())`), the 34 base E* numbers |
-| `<stddef.h>` | `size_t` `ptrdiff_t` `wchar_t` `max_align_t` `NULL` `offsetof` |
+| `<unistd.h>` | `read` `write` `lseek` `close` `isatty` `_exit` |
+| `<fcntl.h>` | `open` and its flags |
+| `<errno.h>` | `errno` (`(*__errno_location())`), the 34 base E* numbers, `EOVERFLOW`, `EILSEQ` |
+| `<stdarg.h>` `<stddef.h>` `<stdint.h>` `<limits.h>` `<sys/types.h>` `<wchar.h>` | the types and macros (`<wchar.h>`: its types only) |
+
+printf's conversions are `d i u o x X c s p n %` with every flag
+(`- + space # 0`, and `'`), width and precision (digits or `*`), and the
+lengths `hh h l ll j z t`; `%lc`, `%ls`, `%C` and `%S` in the C locale.
 
 ```sh
 clang -std=c17 -fno-builtin -fno-stack-protector \
@@ -30,8 +39,8 @@ clang -std=c17 -fno-builtin -fno-stack-protector \
 ```
 
 `crt0.o` holds `_start`, which calls `main(argc, argv, envp)` and then
-`exit`. `-fno-stack-protector` is needed until muzzle sets up TLS
-(`docs/LEDGER.md`).
+`exit`, which flushes every open stream. `-fno-stack-protector` is
+needed until muzzle sets up TLS (`docs/LEDGER.md`).
 
 ## Two design rules
 
@@ -54,10 +63,15 @@ clang -std=c17 -fno-builtin -fno-stack-protector \
 | `src/string/` | `<string.h>` |
 | `src/heap/` | the allocator, over `brk` and `mmap` |
 | `src/process/` | `exit`, `_Exit`, `_exit`, `write` |
-| `src/sys.S` | the one syscall routine and the static storage wolf cannot hold yet (ruling R2) |
+| `src/unistd/` | `open`, `close`, `read`, `lseek`, `isatty`, and what stdio asks a descriptor |
+| `src/stdio/` | streams (`file.lu`), character and direct I/O (`char.lu`), the printf family (`format.lu`) |
+| `src/sys.S` | the one syscall routine and the static storage wolf cannot hold yet (ruling R2): errno, the allocator's bins, the standard streams and `stdin`/`stdout`/`stderr` |
 | `src/crt0.S` | `_start` |
 | `include/` | the C headers, hand-written from the standards' synopses (ruling R3: muzzle's one permanent C) |
-| `tests/cases/` | the differential's cases, one per function family |
+| `tests/cases/` | the differential's cases, one per function family (a `.in` file beside a case is its stdin) |
+| `tests/own/` | cases where a ruling makes muzzle's behaviour its own (the floating conversions refused): self-checking, run against muzzle alone |
+| `tests/lib/` | `t.h` (the cases' write(2) output helper) and `ptyrun.c` (a pseudo-terminal for the `tty` cases) |
+| `tests/difftest-selftest` | each comparison `tools/difftest` makes, planted once and seen red by name (`tests/selftest/`) |
 | `tests/stale-compiler` | `tools/build` runs the pinned compiler or refuses: a stale one is staged on purpose (muzzle#4) |
 | `tools/` | `fetch-toolchain`, `build`, `difftest` |
 | `docs/SOURCES.md` | every source consulted (the clean-room record) |
@@ -71,12 +85,16 @@ On an x86-64 Linux host with clang:
 ```sh
 tools/fetch-toolchain        # wolf 0.2.36 by digest (wolf-toolchain.toml)
 tools/build native           # or release; gates the archive's symbols
+tests/difftest-selftest native   # the differential can say no
 tools/difftest native        # every case against glibc; non-zero on any difference
 ```
 
 `tools/difftest` compiles each case twice: against the host glibc, a
-black box, and statically against muzzle alone. It runs both and
-compares stdout and the exit status. A case that fails to build in
+black box, and statically against muzzle alone. It runs each column in
+a fresh directory of its own and compares, byte for byte, stdout,
+stderr, the exit status and every file the case wrote. A case reads its
+stdin from its `.in` file, and a case marked `// difftest: tty` runs
+with its stdout on a pseudo-terminal. A case that fails to build in
 either column is a failure, and so is a run where no case ran. CI
 (`.github/workflows/ci.yml`) runs both tiers on ubuntu x86-64.
 

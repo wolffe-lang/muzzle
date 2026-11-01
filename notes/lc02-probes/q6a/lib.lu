@@ -1,0 +1,53 @@
+//! q6a: a VaList record kept in memory behind *VaList (C's own shape):
+//! stored from the local, its fields read raw by the documented layout
+//! ([abi.c.variadic.list]), integers taken through a copy stored back,
+//! a double's bits read by hand. The route the floating conversions
+//! would need on x86_64-unknown-none, where f64 is refused (K10).
+
+fn take_i64(p: *VaList) -> i64 {
+    // # Safety: probe; the next argument is a long.
+    unsafe {
+        var cp = va_copy(p[0])
+        let v = va_arg[i64](mut cp)
+        p[0] = cp
+        va_end(mut cp)
+        v
+    }
+}
+
+fn bits_f64(p: *VaList) -> u64 {
+    // # Safety: probe; the next argument is a double. gp_offset u32 @0,
+    // fp_offset u32 @4, overflow_arg_area @8, reg_save_area @16.
+    unsafe {
+        let w = p.addr() as *u32
+        let q = p.addr() as *u64
+        let fp = w[1]
+        var bits: u64 = 0
+        if fp < 176 {
+            bits = ((q[2] + fp as u64) as uint as *u64)[0]
+            w[1] = fp + 16
+        } else {
+            let at = q[1]
+            bits = (at as uint as *u64)[0]
+            q[1] = at + 8
+        }
+        bits
+    }
+}
+
+export fn q6_mixed(buf: *VaList, n: i32, ...) -> u64 {
+    // # Safety: probe; C passes n (double, long) pairs.
+    unsafe {
+        var ap = va_start()
+        buf[0] = va_copy(ap)
+        var acc: u64 = 0
+        var i = 0
+        while i < n {
+            acc = acc ^ bits_f64(buf)
+            acc = acc ^ take_i64(buf) as u64
+            i += 1
+        }
+        va_end(mut ap)
+        acc
+    }
+}

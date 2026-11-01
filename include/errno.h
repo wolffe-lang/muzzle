@@ -1,6 +1,7 @@
 /* muzzle: <errno.h> (C17 7.5, POSIX.1-2024 XBD errno.h).
  * Hand-written (ruling R3). The numbers are Linux's, from the uapi
- * header asm-generic/errno-base.h (linux-api-headers 7.1, numbers only).
+ * header asm-generic/errno-base.h (linux-api-headers 7.1, numbers only),
+ * and two from asm-generic/errno.h (lc02).
  *
  * errno is one process-wide int in this first cut (ruling R4's
  * single-threaded errno); lc05 makes it per thread behind the same
@@ -45,5 +46,11 @@ int *__errno_location(void);
 #define EPIPE 32
 #define EDOM 33
 #define ERANGE 34
+
+/* Beyond the base set, from asm-generic/errno.h (numbers only): the two
+ * the printf family reports. C17 7.5 names EILSEQ beside EDOM and ERANGE;
+ * POSIX gives EOVERFLOW to a count that does not fit an int. */
+#define EOVERFLOW 75
+#define EILSEQ 84
 
 #endif

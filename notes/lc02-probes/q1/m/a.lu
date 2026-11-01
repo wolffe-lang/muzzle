@@ -1,0 +1,21 @@
+//! q1 m, file a.
+
+export fn q1_twice(x: i64) -> i64 {
+    helper(x)
+}
+
+export fn q1_first(p: *u8) -> i32 {
+    first(p) as i32
+}
+
+export fn q1_pair(p: *Pair) -> i64 {
+    // # Safety: probe; C passes a live Pair.
+    unsafe {
+        p[0].a + p[0].b
+    }
+}
+
+/// True; the root calls it so the module is compiled.
+pub fn linked() -> bool {
+    true
+}

@@ -74,7 +74,7 @@ export fn memcmp(a: *u8, b: *u8, n: uint) -> i32 {
 }
 
 /// C17 7.24.6.3: the bytes before the terminating null.
-export fn strlen(s: *u8) -> uint {
+pub export fn strlen(s: *u8) -> uint {
     var n: uint = 0
     // # Safety: C's precondition: s is a string, null-terminated.
     unsafe {

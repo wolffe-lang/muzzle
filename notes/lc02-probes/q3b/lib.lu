@@ -1,0 +1,11 @@
+//! q3b: va_arg[f64] on x86_64-unknown-none (expected refused by name).
+
+export fn q3b_f(n: i32, ...) -> i64 {
+    // # Safety: probe.
+    unsafe {
+        var ap = va_start()
+        let d = va_arg[f64](mut ap)
+        va_end(mut ap)
+        0
+    }
+}

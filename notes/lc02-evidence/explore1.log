@@ -1,0 +1,388 @@
+QUEUED 2026-11-01T20:22:27Z job=explore1 block=B pid=1157903 inner=/home/mfwolffe/lanes/lc02/hasu/job-explore.sh 8d5896faf7d17a460c4e3d664faf9d92c986462f explore1
+explore: sha=8d5896faf7d17a460c4e3d664faf9d92c986462f block=B cpus=6-11 out=/home/mfwolffe/lanes/lc02/out-explore1
+BEGIN env
+Ubuntu clang version 18.1.3 (1ubuntu1)
+Target: x86_64-pc-linux-gnu
+glibc 2.39
+Linux 7.2.4 x86_64
+6
+script: /usr/bin/script
+nm: /usr/bin/nm
+readelf: /usr/bin/readelf
+ar: /usr/bin/ar
+objdump: /usr/bin/objdump
+python3: /usr/bin/python3
+od: /usr/bin/od
+xxd: absent
+cmp: /usr/bin/cmp
+diff: /usr/bin/diff
+timeout: /usr/bin/timeout
+strace: absent
+-rwxr-xr-x 1 root root 31104 Aug 19 16:47 /usr/bin/taskset
+crw-rw-rw- 1 nobody nogroup 1, 7 Oct 16 16:00 /dev/full
+crw-rw-rw- 1 nobody nogroup 1, 3 Oct 16 16:00 /dev/null
+lrwxrwxrwx 1 root   root       8 Nov  1 20:22 /dev/ptmx -> pts/ptmx
+resource-dir: /usr/lib/llvm-18/lib/clang/18
+END env exit=0
+BEGIN fetch
+fetch-toolchain: wolf-0.2.36-x86_64-unknown-linux-gnu.tar.gz d383c74c8cd123b9… -> /work/.wolf-bin/wolf-0.2.36-x86_64-unknown-linux-gnu/wolf
+END fetch exit=0
+BEGIN stale.native
+stale-compiler: tier=native pin='wolf 0.2.36 (wolfgang, pin 5adf3d9)' stale='wolf 0.0.1 (wolfgang, pin 0000000)'
+PASS control: the pin's compiler alone
+PASS an older compiler staged beside the pin's
+PASS an older compiler staged alone
+PASS the pin's directory holding another version
+PASS WOLF naming another version
+stale-compiler: tier=native pass=5 fail=0
+END stale.native exit=0
+BEGIN build.native
+build: native: 6 objects, 19 exports defined, 19 internal references, 0 imports -> /work/build/native/libmuzzle.a
+END build.native exit=0
+BEGIN difftest.native
+difftest: tier=native glibc=glibc 2.39 Ubuntu clang version 18.1.3 (1ubuntu1)
+PASS errno exit=0 lines=10
+PASS exit exit=42 lines=1
+PASS exit_c17 exit=250 lines=1
+PASS exit_posix exit=3 lines=1
+PASS main_return exit=7 lines=1
+PASS malloc exit=0 lines=20
+PASS mem exit=0 lines=38
+PASS str exit=0 lines=29
+PASS write exit=0 lines=9
+difftest: tier=native pass=9 fail=0
+END difftest.native exit=0
+BEGIN stale.release
+stale-compiler: tier=release pin='wolf 0.2.36 (wolfgang, pin 5adf3d9)' stale='wolf 0.0.1 (wolfgang, pin 0000000)'
+PASS control: the pin's compiler alone
+PASS an older compiler staged beside the pin's
+PASS an older compiler staged alone
+PASS the pin's directory holding another version
+PASS WOLF naming another version
+stale-compiler: tier=release pass=5 fail=0
+END stale.release exit=0
+BEGIN build.release
+build: release: 4 objects, 19 exports defined, 5 internal references, 0 imports -> /work/build/release/libmuzzle.a
+END build.release exit=0
+BEGIN difftest.release
+difftest: tier=release glibc=glibc 2.39 Ubuntu clang version 18.1.3 (1ubuntu1)
+PASS errno exit=0 lines=10
+PASS exit exit=42 lines=1
+PASS exit_c17 exit=250 lines=1
+PASS exit_posix exit=3 lines=1
+PASS main_return exit=7 lines=1
+PASS malloc exit=0 lines=20
+PASS mem exit=0 lines=38
+PASS str exit=0 lines=29
+PASS write exit=0 lines=9
+difftest: tier=release pass=9 fail=0
+END difftest.release exit=0
+BEGIN probe.q1.native
+probe q1 native build exit=2
+  | error[W0313]: this `pub` item has no doc comment
+  |   --> ./m/a.lu:18:1
+  |    |
+  | 18 | pub fn linked() -> bool {
+  |    | ^^^ exported, but undocumented
+  |    |
+  |    = note: an exported item carries a `///` contract: what it computes, what each row tag means,
+  |      when it traps. If it is not worth documenting, it is rarely worth exporting.
+  |    = note: this is a warning promoted by the lint configuration (`deny W0313`); the program's
+  |      meaning is unaffected — allow it, fix it, or drop the deny.
+  | 
+  | wolf build: the package does not compile; fix the errors above (`wolf --explain W0313` explains this code, or any other, by name)
+END probe.q1.native exit=2
+BEGIN probe.q1.release
+probe q1 release build exit=2
+  | error[W0313]: this `pub` item has no doc comment
+  |   --> ./m/a.lu:18:1
+  |    |
+  | 18 | pub fn linked() -> bool {
+  |    | ^^^ exported, but undocumented
+  |    |
+  |    = note: an exported item carries a `///` contract: what it computes, what each row tag means,
+  |      when it traps. If it is not worth documenting, it is rarely worth exporting.
+  |    = note: this is a warning promoted by the lint configuration (`deny W0313`); the program's
+  |      meaning is unaffected — allow it, fix it, or drop the deny.
+  | 
+  | wolf build: the package does not compile; fix the errors above (`wolf --explain W0313` explains this code, or any other, by name)
+END probe.q1.release exit=2
+BEGIN probe.q2.native
+probe q2 native build exit=2
+  | error[E0401]: this is `i64`, but `raw pointer index` needs its 1st argument to be `int`
+  |   --> ./lib.lu:49:11
+  |    |
+  | 49 |         b[f[0].n] = c as wrapping[u8] as u8
+  |    |           ^^^^^^ found `i64` here
+  |    |
+  |    = note: expected `int`, found `i64`
+  |    = note: wolf never converts numbers implicitly; convert explicitly, e.g. `x as int`.
+  | 
+  | wolf build: the package does not compile; fix the errors above (`wolf --explain E0401` explains this code, or any other, by name)
+END probe.q2.native exit=2
+BEGIN probe.q2.release
+probe q2 release build exit=2
+  | error[E0401]: this is `i64`, but `raw pointer index` needs its 1st argument to be `int`
+  |   --> ./lib.lu:49:11
+  |    |
+  | 49 |         b[f[0].n] = c as wrapping[u8] as u8
+  |    |           ^^^^^^ found `i64` here
+  |    |
+  |    = note: expected `int`, found `i64`
+  |    = note: wolf never converts numbers implicitly; convert explicitly, e.g. `x as int`.
+  | 
+  | wolf build: the package does not compile; fix the errors above (`wolf --explain E0401` explains this code, or any other, by name)
+END probe.q2.release exit=2
+BEGIN probe.q2b.native
+probe q2b native build exit=2
+  | error[E0401]: this is `i64`, but `raw pointer index` needs its 1st argument to be `int`
+  |   --> ./lib.lu:14:19
+  |    |
+  | 14 |             s.dst[s.count] = b
+  |    |                   ^^^^^^^ found `i64` here
+  |    |
+  |    = note: expected `int`, found `i64`
+  |    = note: wolf never converts numbers implicitly; convert explicitly, e.g. `x as int`.
+  | 
+  | wolf build: the package does not compile; fix the errors above (`wolf --explain E0401` explains this code, or any other, by name)
+END probe.q2b.native exit=2
+BEGIN probe.q2b.release
+probe q2b release build exit=2
+  | error[E0401]: this is `i64`, but `raw pointer index` needs its 1st argument to be `int`
+  |   --> ./lib.lu:14:19
+  |    |
+  | 14 |             s.dst[s.count] = b
+  |    |                   ^^^^^^^ found `i64` here
+  |    |
+  |    = note: expected `int`, found `i64`
+  |    = note: wolf never converts numbers implicitly; convert explicitly, e.g. `x as int`.
+  | 
+  | wolf build: the package does not compile; fix the errors above (`wolf --explain E0401` explains this code, or any other, by name)
+END probe.q2b.release exit=2
+BEGIN probe.q3a.native
+probe q3a native build exit=4
+  | wolf build: cannot compile this yet — members on this type (the std surface) (pipeline is honest through `resolve`; the conservatism ledger, not a bug in your program)
+  |  --> ./lib.lu:9:17
+  |   |
+  | 9 |         let g = ap.gp_offset
+  |   |                 ^^^^^^^^^^^^
+  |   |
+END probe.q3a.native exit=4
+BEGIN probe.q3a.release
+probe q3a release build exit=4
+  | wolf build: cannot compile this yet — members on this type (the std surface) (pipeline is honest through `resolve`; the conservatism ledger, not a bug in your program)
+  |  --> ./lib.lu:9:17
+  |   |
+  | 9 |         let g = ap.gp_offset
+  |   |                 ^^^^^^^^^^^^
+  |   |
+END probe.q3a.release exit=4
+BEGIN probe.q3b.native
+probe q3b native build exit=4
+  | wolf build: cannot compile this yet — a floating-point value (`f64`) on target x86_64-unknown-none (K10: kernel code keeps no SSE or x87 state) @184..212 (pipeline is honest through `wir`; the conservatism ledger, not a bug in your program)
+END probe.q3b.native exit=4
+BEGIN probe.q3b.release
+probe q3b release build exit=4
+  | wolf build: cannot compile this yet — a floating-point value (`f64`) on target x86_64-unknown-none (K10: kernel code keeps no SSE or x87 state) @184..212 (pipeline is honest through `wir`; the conservatism ledger, not a bug in your program)
+END probe.q3b.release exit=4
+BEGIN probe.q4.native
+probe q4 native build exit=0
+  objects: lib.o 
+  undefined: wolf_trap 
+  link exit=0
+q4.mag_min_ok=1
+q4.mag=42
+muzzle: trap 1 at ./lib.lu:17
+  run exit=134
+END probe.q4.native exit=134
+BEGIN probe.q4.release
+probe q4 release build exit=0
+  objects: lib.o 
+  undefined: wolf_trap 
+  link exit=0
+q4.mag_min_ok=1
+q4.mag=42
+muzzle: trap 1 at ./lib.lu:17
+  run exit=134
+END probe.q4.release exit=134
+BEGIN probe.q5.native
+probe q5 native build exit=0
+  objects: lib.o 
+  undefined: wolf_trap 
+  link exit=0
+q5.cycle=42
+q5.ok=1
+  run exit=0
+END probe.q5.native exit=0
+BEGIN probe.q5.release
+probe q5 release build exit=0
+  objects: lib.o 
+  undefined: wolf_trap 
+  link exit=0
+q5.cycle=42
+q5.ok=1
+  run exit=0
+END probe.q5.release exit=0
+BEGIN glibc.g1
+  exit=0
+1 [(nil)] ->9 e=0
+2 [0x1234] ->10 e=0
+3 [              0x1234] ->24 e=0
+4 [0x1234              ] ->24 e=0
+5 [+0x1234] ->11 e=0
+6 [ 0x1234] ->11 e=0
+7 [0x1234] ->10 e=0
+8 [0x000000000000001234] ->24 e=0
+9 [0x00001234] ->14 e=0
+10 [     (nil)] ->15 e=0
+11 [(nil)     ] ->15 e=0
+12 [(nil)] ->10 e=0
+13 [(nil)] ->10 e=0
+14 [     (nil)] ->15 e=0
+15 [(nil)] ->10 e=0
+16 [0x1234] ->11 e=0
+20 [(null)] ->11 e=0
+21 [] ->5 e=0
+22 [(null)] ->11 e=0
+23 [    (null)] ->15 e=0
+24 [] ->5 e=0
+25 [(null)  ] ->13 e=0
+26 [(null)] ->11 e=0
+30 [0] ->6 e=0
+31 [0] ->6 e=0
+32 [] ->5 e=0
+33 [0] ->6 e=0
+34 [] ->5 e=0
+35 [  010] ->10 e=0
+36 [010] ->8 e=0
+37 [010] ->8 e=0
+38 [0x001] ->10 e=0
+39 [+] ->6 e=0
+40 [ ] ->6 e=0
+41 [     ] ->10 e=0
+50 [   ab] ->10 e=0
+51 [42   ] ->10 e=0
+52 [+42] ->8 e=0
+53 [+42] ->8 e=0
+54 [44] ->7 e=0
+55 [255] ->8 e=0
+56 [4464] ->9 e=0
+57 [%] ->6 e=0
+58 [%] ->6 e=0
+59 [    x] ->10 e=0
+60 [x    ] ->10 e=0
+61 [x] ->6 e=0
+62 [    x] ->10 e=0
+63 [A] ->6 e=0
+64 [x] ->6 e=0
+65 [x] ->6 e=0
+70 [A] ->6 e=0
+ ->-1 e=84
+72 [ab] ->7 e=0
+ ->-1 e=84
+74 [    B] ->10 e=0
+80 [42   ] ->10 e=0
+81 [42] ->7 e=0
+82 [42   ] ->10 e=0
+83 [ -0007] ->11 e=0
+84 [-0007 ] ->11 e=0
+90 [-1] ->7 e=0
+91 [-9223372036854775808] ->25 e=0
+92 [-9223372036854775808] ->25 e=0
+93 [-9223372036854775808] ->25 e=0
+94 [ffffffffffffffff] ->21 e=0
+95 [0XFF] ->9 e=0
+96 [0x0000ff] ->13 e=0
+97 [     0ff] ->13 e=0
+98 [18446744073709551615] ->25 e=0
+99 [ffffffffffffffff] ->21 e=0
+100 [-9223372036854775808] ->26 e=0
+101 [18446744073709551615] ->26 e=0
+102 [1777777777777777777777] ->28 e=0
+103 [01777777777777777777777] ->29 e=0
+104 [ff] ->8 e=0
+105 [ffff] ->10 e=0
+106 [377] ->9 e=0
+107 [0XAB] ->10 e=0
+108 [ffffffffffffffff] ->22 e=0
+109 [ffffffffffffffff] ->22 e=0
+110 [-5] ->8 e=0
+120 [%k] ->8 e=0
+121 [%y5] ->9 e=0
+122 [122 122] ->13 e=0
+123 [1234567] ->13 e=0
+124 [+0   ] ->11 e=0
+125 [0] ->7 e=0
+126 [-32768] ->12 e=0
+127 [] ->6 e=0
+128 [5] ->7 e=0
+129 [x] ->7 e=0
+130 [ab] ->8 e=0
+131 [q] ->7 e=0
+132 [5] ->7 e=0
+133 [5] ->7 e=0
+134 [5] ->7 e=0
+135 [5] ->7 e=0
+136 [5] ->7 e=0
+137 [ab] ->8 e=0
+138 [010     ] ->14 e=0
+139 [8       ] ->14 e=0
+140 [%] ->7 e=0
+141 [0x00a   ] ->14 e=0
+142 [-0000005] ->14 e=0
+143 [ 0000005] ->14 e=0
+144 [-0000005] ->14 e=0
+145 [-0000000005] ->17 e=0
+146 [12345] ->11 e=0
+147 [] ->6 e=0
+148 [0] ->7 e=0
+149 [ 0] ->8 e=0
+150 [01] ->8 e=0
+ ->-1 e=22
+
+ ->-1 e=22
+
+ ->-1 e=22
+
+ ->-1 e=22
+
+ ->-1 e=22
+
+ ->-1 e=22
+
+166 [%] ->7 e=0
+167 [%] ->7 e=0
+168 [%h] ->8 e=0
+169 [%l] ->8 e=0
+170 [5] ->7 e=0
+171 [%] ->7 e=0
+172 [Success] ->13 e=0
+173 [A] ->7 e=0
+174 [ab] ->8 e=0
+180 abc ->7 e=0
+n=7
+181 ab ->6 e=0
+n=6 6 6 6 6 6 6
+182 [] ->6 e=0
+n=5
+big1 2147483646 e=0
+big2 2147483647 e=0
+big3 -1 e=75
+big4 -1 e=75
+big5 -1 e=75
+big6 -1 e=75
+trunc 6 [abc] 88
+zero 2 [abc]
+one 2 [] 98
+nul 2 97 0
+BUFSIZ=8192 EOF=-1 FOPEN_MAX=16 FILENAME_MAX=4096 L_tmpnam=20 TMP_MAX=238328
+SEEK 0 1 2 IOFBF 0 IOLBF 1 IONBF 2
+END glibc.g1 exit=0
+BEGIN glibc.g2
+/probes/g2.c:110:18: error: call to undeclared function 'fileno'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  110 |     kv("fileno", fileno(stdin) * 100 + fileno(stdout) * 10 + fileno(stderr));
+      |                  ^
+1 error generated.
+END glibc.g2 exit=1
+explore: container exit=0
+DONE 2026-11-01T20:22:33Z job=explore1 exit=0
