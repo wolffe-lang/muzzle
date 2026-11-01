@@ -13,7 +13,8 @@ void *calloc(size_t nmemb, size_t size);
 void *realloc(void *ptr, size_t size);
 void free(void *ptr);
 
-/* No atexit handlers and no streams yet (lc04, lc08): exit is _Exit. */
+/* exit flushes every open stream, then ends the process (no atexit
+ * handlers yet: C function pointers, wolf-lang#520). _Exit does not. */
 _Noreturn void exit(int status);
 _Noreturn void _Exit(int status);
 
