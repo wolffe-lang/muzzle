@@ -1,0 +1,26 @@
+//! q2b: a struct local passed by `mut`, modified by the callee.
+
+#[repr(c)]
+struct S {
+    count: i64,
+    cap: i64,
+    dst: *u8,
+}
+
+fn bump(mut s: S, b: u8) {
+    // # Safety: probe; dst has room for cap bytes.
+    unsafe {
+        if s.count < s.cap {
+            s.dst[s.count as int] = b
+        }
+    }
+    s.count += 1
+}
+
+export fn q2b_fill(d: *u8, cap: i64) -> i64 {
+    var s = S { count: 0, cap: cap, dst: d }
+    bump(mut s, 104)
+    bump(mut s, 105)
+    bump(mut s, 33)
+    s.count
+}

@@ -1,0 +1,314 @@
+QUEUED 2026-11-01T20:24:58Z job=explore2 block=B pid=1221361 inner=/home/mfwolffe/lanes/lc02/hasu/job-explore.sh 8d5896faf7d17a460c4e3d664faf9d92c986462f explore2
+explore: sha=8d5896faf7d17a460c4e3d664faf9d92c986462f block=B cpus=6-11 out=/home/mfwolffe/lanes/lc02/out-explore2
+BEGIN env
+Ubuntu clang version 18.1.3 (1ubuntu1)
+Target: x86_64-pc-linux-gnu
+glibc 2.39
+Linux 7.2.4 x86_64
+6
+script: /usr/bin/script
+nm: /usr/bin/nm
+readelf: /usr/bin/readelf
+ar: /usr/bin/ar
+objdump: /usr/bin/objdump
+python3: /usr/bin/python3
+od: /usr/bin/od
+xxd: absent
+cmp: /usr/bin/cmp
+diff: /usr/bin/diff
+timeout: /usr/bin/timeout
+strace: absent
+-rwxr-xr-x 1 root root 31104 Aug 19 16:47 /usr/bin/taskset
+crw-rw-rw- 1 nobody nogroup 1, 7 Oct 16 16:00 /dev/full
+crw-rw-rw- 1 nobody nogroup 1, 3 Oct 16 16:00 /dev/null
+lrwxrwxrwx 1 root   root       8 Nov  1 20:24 /dev/ptmx -> pts/ptmx
+resource-dir: /usr/lib/llvm-18/lib/clang/18
+END env exit=0
+BEGIN fetch
+fetch-toolchain: wolf-0.2.36-x86_64-unknown-linux-gnu.tar.gz d383c74c8cd123b9… -> /work/.wolf-bin/wolf-0.2.36-x86_64-unknown-linux-gnu/wolf
+END fetch exit=0
+BEGIN build.native
+build: native: 6 objects, 19 exports defined, 19 internal references, 0 imports -> /work/build/native/libmuzzle.a
+END build.native exit=0
+BEGIN build.release
+build: release: 4 objects, 19 exports defined, 5 internal references, 0 imports -> /work/build/release/libmuzzle.a
+END build.release exit=0
+BEGIN probe.q1.native
+probe q1 native build exit=0
+  objects: lib.m.o lib.root.o 
+  undefined:  _Wm.linked$806adadb53d62367 wolf_trap 
+  link exit=0
+q1.twice=42
+q1.first=65
+q1.pair=7
+q1.ok=1
+  run exit=0
+END probe.q1.native exit=0
+BEGIN probe.q1.release
+probe q1 release build exit=0
+  objects: lib.o 
+  undefined: wolf_trap 
+  link exit=0
+q1.twice=42
+q1.first=65
+q1.pair=7
+q1.ok=1
+  run exit=0
+END probe.q1.release exit=0
+BEGIN probe.q2.native
+probe q2 native build exit=0
+  objects: lib.o 
+  undefined: wolf_trap 
+  link exit=0
+q2.size=240816
+q2.size_ok=1
+q2.get=5
+q2.buf0=90
+q2.after_set.n=2
+q2.after_set.flags=5
+q2.deref=2
+q2.put.byte=65
+q2.put.n=3
+q2.ok=1
+  run exit=0
+END probe.q2.native exit=0
+BEGIN probe.q2.release
+probe q2 release build exit=0
+  objects: lib.o 
+  undefined: wolf_trap 
+  link exit=0
+q2.size=240816
+q2.size_ok=1
+q2.get=5
+q2.buf0=90
+q2.after_set.n=2
+q2.after_set.flags=5
+q2.deref=2
+q2.put.byte=65
+q2.put.n=3
+q2.ok=1
+  run exit=0
+END probe.q2.release exit=0
+BEGIN probe.q2b.native
+probe q2b native build exit=0
+  objects: lib.o 
+  undefined: wolf_trap 
+  link exit=0
+q2b.count=3
+q2b.b0=104
+q2b.b1=105
+q2b.b2=0
+q2b.ok=1
+  run exit=0
+END probe.q2b.native exit=0
+BEGIN probe.q2b.release
+probe q2b release build exit=0
+  objects: lib.o 
+  undefined: wolf_trap 
+  link exit=0
+q2b.count=3
+q2b.b0=104
+q2b.b1=105
+q2b.b2=0
+q2b.ok=1
+  run exit=0
+END probe.q2b.release exit=0
+BEGIN probe.q4.native
+probe q4 native build exit=0
+  objects: lib.o 
+  undefined: wolf_trap 
+  link exit=0
+q4.mag_min_ok=1
+q4.mag=42
+q4.bits_ok=1
+q4.wrap_ok=1
+q4.narrow=-12734592
+q4.ok=1
+  run exit=0
+END probe.q4.native exit=0
+BEGIN probe.q4.release
+probe q4 release build exit=0
+  objects: lib.o 
+  undefined: 
+  link exit=0
+q4.mag_min_ok=1
+q4.mag=42
+q4.bits_ok=1
+q4.wrap_ok=1
+q4.narrow=-12734592
+q4.ok=1
+  run exit=0
+END probe.q4.release exit=0
+BEGIN probe.q6a.native
+probe q6a native build exit=2
+  | error[E1001]: `cp` is used here after its value moved away
+  |   --> ./lib.lu:13:20
+  |    |
+  | 12 |         p[0] = cp
+  |    |                -- `cp` moved here
+  | 13 |         va_end(mut cp)
+  |    |                    ^^ used after the move
+  |    |
+  |    = note: re-initializing the place (assigning to it) also makes it usable again.
+  | help: to keep the original, copy it at the move
+  |    |
+  | 12 |         p[0] = copy cp
+  |    |
+  | 
+  | wolf build: the package does not compile; fix the errors above (`wolf --explain E1001` explains this code, or any other, by name)
+END probe.q6a.native exit=2
+BEGIN probe.q6a.release
+probe q6a release build exit=2
+  | error[E1001]: `cp` is used here after its value moved away
+  |   --> ./lib.lu:13:20
+  |    |
+  | 12 |         p[0] = cp
+  |    |                -- `cp` moved here
+  | 13 |         va_end(mut cp)
+  |    |                    ^^ used after the move
+  |    |
+  |    = note: re-initializing the place (assigning to it) also makes it usable again.
+  | help: to keep the original, copy it at the move
+  |    |
+  | 12 |         p[0] = copy cp
+  |    |
+  | 
+  | wolf build: the package does not compile; fix the errors above (`wolf --explain E1001` explains this code, or any other, by name)
+END probe.q6a.release exit=2
+BEGIN probe.q6b.native
+probe q6b native build exit=0
+  objects: lib.o 
+  undefined: wolf_trap 
+  link exit=0
+muzzle: trap 1 at ./lib.lu:47
+  run exit=134
+END probe.q6b.native exit=134
+BEGIN probe.q6b.release
+probe q6b release build exit=0
+  objects: lib.o 
+  undefined: wolf_trap 
+  link exit=0
+muzzle: trap 1 at ./lib.lu:47
+  run exit=134
+END probe.q6b.release exit=134
+BEGIN probe.q7.native
+probe q7 native build exit=2
+  | error[E0401]: this is `u32`, but the other side of `<<` makes it `wrapping[u64]`
+  |  --> ./lib.lu:4:30
+  |   |
+  | 4 |     ((x as wrapping[u64]) << s) as u64
+  |   |      -------------------- this operand fixed the type
+  |   |                              ^ found `u32` here
+  |   |
+  |   = note: expected `wrapping[u64]`, found `u32`
+  |   = note: wolf never converts numbers implicitly; convert explicitly, e.g. `x as wrapping[u64]`.
+  | 
+  | wolf build: the package does not compile; fix the errors above (`wolf --explain E0401` explains this code, or any other, by name)
+END probe.q7.native exit=2
+BEGIN probe.q7.release
+probe q7 release build exit=2
+  | error[E0401]: this is `u32`, but the other side of `<<` makes it `wrapping[u64]`
+  |  --> ./lib.lu:4:30
+  |   |
+  | 4 |     ((x as wrapping[u64]) << s) as u64
+  |   |      -------------------- this operand fixed the type
+  |   |                              ^ found `u32` here
+  |   |
+  |   = note: expected `wrapping[u64]`, found `u32`
+  |   = note: wolf never converts numbers implicitly; convert explicitly, e.g. `x as wrapping[u64]`.
+  | 
+  | wolf build: the package does not compile; fix the errors above (`wolf --explain E0401` explains this code, or any other, by name)
+END probe.q7.release exit=2
+BEGIN glibc.g2
+  exit=0
+setvbuf16=0
+full16.after16=0
+full16.after17=16
+full16.after31=16
+full16.after32=16
+full16.after33=32
+full16.flushed=33
+fwrite40=40
+full16.after_fwrite40=73
+fwrite5=5
+full16.after_fwrite5=73
+fwrite12=12
+full16.after_fwrite12=90
+fputs20=1
+full16.after_fputs20=110
+closed=110
+setvbuf_lbf=0
+lbf.after_ab=2
+lbf.after_nl=5
+lbf.after_19=24
+default.after5000=4096
+default.after10000=8192
+nbf.after_abc=3
+nbf.after_d=4
+nbf.fprintf=5
+nbf.after_fprintf=9
+ret.fputs=1
+ret.fputs_empty=1
+ret.fputc=233
+ret.fwrite0size=0
+ret.fwrite0n=0
+ret.fclose=0
+puts-line
+ret.puts=10
+
+ret.puts_empty=1
+Qret.putchar=81
+
+unget.first=97
+unget.push1=90
+unget.push2=89
+unget.read1=89
+unget.read2=90
+unget.after=98
+unget.eof_push=-1
+fgets1=1
+fgets1.len=0
+fgets0.null=1
+fputc_on_r=-1
+fputc_on_r.errno=9
+fputc_on_r.ferror=1
+cleared=0
+eof=1
+eof.ungetc=107
+eof.after_ungetc=0
+eof.read_k=107
+eof.again=-1
+fgetc_on_w=-1
+fgetc_on_w.errno=9
+fgetc_on_w.ferror=1
+fgetc_on_w.feof=0
+badmode.null=1
+badmode.errno=22
+mode_rw.null=0
+mode_r+bx.null=0
+mode_r+bx.errno=0
+enoent.null=1
+enoent.errno=2
+full.fflush=-1
+full.errno=28
+full.ferror=1
+full.fclose=0
+full.fclose_errno=0
+rplus.get=97
+rplus.flush=0
+rplus.put=88
+rplus.file=aXcdef
+aplus.get=97
+append.file=aXcdefgh
+isatty1=0
+isatty1.errno=25
+isatty99=0
+isatty99.errno=9
+fileno=12
+setvbuf_bad=-1
+setvbuf_bad.errno=0
+fread.short=0
+fread.eof=1
+buffered-then-exitEND glibc.g2 exit=0
+explore: container exit=0
+DONE 2026-11-01T20:25:02Z job=explore2 exit=0

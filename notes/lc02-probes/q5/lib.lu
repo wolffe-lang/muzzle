@@ -1,0 +1,25 @@
+//! q5: module vars holding an address and a flag, across calls.
+
+var head: u64 = 0
+
+var ready: bool = false
+
+fn touch(v: u64) {
+    // # Safety: probe; one thread.
+    unsafe {
+        head = v
+        ready = true
+    }
+}
+
+export fn q5_cycle(v: u64) -> u64 {
+    touch(v)
+    var r: u64 = 0
+    // # Safety: probe; one thread.
+    unsafe {
+        if ready {
+            r = head + 1
+        }
+    }
+    r
+}

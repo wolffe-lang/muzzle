@@ -1,0 +1,13 @@
+//! q7: shifts. `<<` is overflow-checked (q4 trapped); the wrapping form.
+
+export fn q7_shl(x: u64, s: u32) -> u64 {
+    ((x as wrapping[u64]) << (s as wrapping[u64])) as u64
+}
+
+export fn q7_shr(x: u64) -> u64 {
+    x >> 60
+}
+
+export fn q7_mulw(x: u64) -> u64 {
+    ((x as wrapping[u64]) * (10 as wrapping[u64])) as u64
+}

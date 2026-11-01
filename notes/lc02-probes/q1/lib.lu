@@ -1,0 +1,7 @@
+//! q1: one module (directory m) of two files; a private fn, a private
+//! struct and a *u8-taking private fn in b.lu, used from a.lu.
+use m
+
+fn reach() -> bool {
+    m.linked()
+}

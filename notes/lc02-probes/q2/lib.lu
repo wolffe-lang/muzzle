@@ -1,0 +1,52 @@
+//! q2: a #[repr(c)] struct with a pointer field, through *F.
+
+#[repr(c)]
+struct F {
+    fd: i32,
+    flags: i32,
+    buf: *u8,
+    n: i64,
+}
+
+export fn q2_size() -> i64 {
+    size_of(F) as i64 * 10000 + offset_of(F, buf) as i64 * 100 + offset_of(F, n) as i64
+}
+
+export fn q2_get(f: *F) -> i32 {
+    // # Safety: probe.
+    unsafe {
+        f[0].fd
+    }
+}
+
+export fn q2_deref(f: *F) -> i64 {
+    // # Safety: probe.
+    unsafe {
+        (*f).n
+    }
+}
+
+export fn q2_set(f: *F, v: i64) {
+    // # Safety: probe.
+    unsafe {
+        f[0].n = v
+        f[0].flags |= 4
+    }
+}
+
+export fn q2_buf0(f: *F) -> i32 {
+    // # Safety: probe; buf points at one byte.
+    unsafe {
+        let b = f[0].buf
+        b[0] as i32
+    }
+}
+
+export fn q2_put(f: *F, c: i32) {
+    // # Safety: probe; buf has room at n.
+    unsafe {
+        let b = f[0].buf
+        b[f[0].n as int] = c as wrapping[u8] as u8
+        f[0].n += 1
+    }
+}
