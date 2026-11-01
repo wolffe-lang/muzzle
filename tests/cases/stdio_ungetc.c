@@ -1,8 +1,11 @@
 /* ungetc, C17 7.21.7.10: one byte pushed back is guaranteed, read next,
  * as unsigned char; it clears the end-of-file indicator; EOF is never
  * pushed. Two pushed back come out last in first out (glibc takes
- * more than one; docs/LEDGER.md). fflush gives pushed-back and
- * read-ahead bytes back to the file (POSIX XSH fflush). Reports through
+ * more than one; docs/LEDGER.md). fflush gives read-ahead back to the
+ * file and drops pushed-back bytes, the offset moved back over them (POSIX
+ * XSH fflush), here with the buffer empty. With read-ahead and pushback
+ * both pending glibc departs from POSIX (docs/LEDGER.md), so that shape
+ * is muzzle's own case (tests/own/fflush_pushback.c). Reports through
  * write(2) (t.h). */
 #define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
@@ -50,7 +53,7 @@ int main(void) {
     t_kv("offset.after_two_reads", lseek(fileno(f), 0, SEEK_CUR));
     t_kv("fflush.r", fflush(f));
     t_kv("offset.after_fflush", lseek(fileno(f), 0, SEEK_CUR));
-    t_kv("read.after_fflush", fgetc(f));
+    t_kv("fflush.empty", fflush(f));
     ungetc('W', f);
     t_kv("fflush.with_pushback", fflush(f));
     t_kv("offset.with_pushback", lseek(fileno(f), 0, SEEK_CUR));
