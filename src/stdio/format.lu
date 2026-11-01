@@ -382,7 +382,8 @@ fn conv_unsigned(mut o: Out, sp: Spec, conv: u8, mut ap: VaList) {
         }
     }
     let base: u64 = if conv == 117 { 10 } else if conv == 111 { 8 } else { 16 }
-    let upper = conv == 88
+    // PLANT (lc02-plant-X-lower, never merged): %X prints lower case.
+    let upper = false
     let pre = base == 16 && sp.flags & FL_ALT != 0 && v != 0
     emit_int(mut o, sp, 0, v, base, upper, pre)
 }
