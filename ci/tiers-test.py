@@ -42,20 +42,20 @@ def say(ok, what):
 
 wf = open(WORKFLOW, encoding="utf-8").read()
 JOBS = re.findall(r"^  ([A-Za-z0-9_-]+):\s*$", wf[wf.index("\njobs:\n"):], re.M)
-EVERY = [j for j in JOBS if j not in ("tier", "nightly-red")]
+EVERY = [j for j in JOBS if j not in ("plan", "tier", "nightly-red")]
 blocks = {}
 for j in JOBS:
     m = re.search(r"^  %s:\s*\n(.*?)(?=^  [A-Za-z0-9_-]+:\s*$|\Z)" % re.escape(j), wf, re.M | re.S)
     blocks[j] = m.group(1) if m else ""
 
 # --- T4 the wiring ---------------------------------------------------------------
-say(JOBS == ["difftest", "tier", "nightly-red"], "T4 the workflow's jobs: %s" % " ".join(JOBS))
+say(JOBS == ["plan", "difftest", "tier", "nightly-red"], "T4 the workflow's jobs: %s" % " ".join(JOBS))
 t = blocks["tier"]
 say("    name: tier full\n" in t, "T4 the verdict job is named tier full")
 needs = re.search(r"^    needs: \[(.*)\]$", t, re.M)
 say(needs is not None and sorted(x.strip() for x in needs.group(1).split(",")) == sorted(EVERY),
     "T4 the tier job needs every job (%s)" % (needs.group(1) if needs else "none"))
-say(re.findall(r"^    if: (.*)$", t, re.M) == ["${{ !cancelled() }}"], "T4 the tier job runs on !cancelled(), never always()")
+say(re.findall(r"^    if: (.*)$", t, re.M) == ["${{ (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full-matrix') || contains(github.event.pull_request.labels.*.name, 'ci') || contains(github.event.pull_request.labels.*.name, 'release-matrix')) && (!cancelled()) }}"], "T4 the tier job runs on !cancelled(), never always()")
 say("        run: python3 ci/tiers-test.py\n" in t and "        run: python3 ci/tiers.py verdict\n" in t
     and t.index("ci/tiers-test.py") < t.index("ci/tiers.py verdict") and "          NEEDS: ${{ toJSON(needs) }}\n" in t,
     "T4 the tier job proves the wiring, then checks the verdict over toJSON(needs)")
