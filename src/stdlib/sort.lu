@@ -1,0 +1,186 @@
+//! <stdlib.h> searching and sorting: C17 7.22.5.1 bsearch, 7.22.5.2 qsort.
+//!
+//! qsort is a stable merge sort: elements that compare equal
+//! keep their order, as glibc's do at every size the probes tried
+//! (docs/LEDGER.md), though C17 7.22.5.2p4 leaves it unspecified. Runs of
+//! RUN elements are sorted in place by insertion, then merged pairwise
+//! between the array and a buffer of the same size from malloc. When no
+//! buffer can be had the whole array is sorted by insertion, still
+//! stable. Elements move as bytes (string.memcpy), whatever their size.
+//!
+//! The comparator is a C function pointer, which wolf cannot type yet
+//! (wolf-lang#520): it is called through sys.S's __muzzle_call2.
+//!
+//! Sources: C17 7.22.5 (both functions' contracts: the comparator's
+//! sign, bsearch's key-first argument order), qsort(3), bsearch(3). The
+//! algorithm is the textbook bottom-up merge sort; no library's code was
+//! read.
+
+use sys
+use heap
+use string
+
+extern "c" fn __muzzle_call2(f: u64, a: *u8, b: *u8) -> i32
+
+/// The run length sorted by insertion before the first merge.
+const RUN: uint = 8
+
+/// compar(a, b) for the C function pointer f.
+fn cmp(f: u64, a: *u8, b: *u8) -> i32 {
+    var r: i32 = 0
+    // # Safety: f is C's comparator (qsort's and bsearch's precondition);
+    // the trampoline calls it with a and b and answers its int.
+    unsafe {
+        r = __muzzle_call2(f, a, b)
+    }
+    r
+}
+
+/// The address of element i.
+fn at(base: *u8, i: uint, size: uint) -> *u8 {
+    // # Safety: callers stay inside the array C described.
+    unsafe {
+        (base.addr() + i * size) as *u8
+    }
+}
+
+/// Exchanges two elements, byte by byte.
+fn swap(a: *u8, b: *u8, size: uint) {
+    var i: uint = 0
+    // # Safety: a and b each address size bytes of the array.
+    unsafe {
+        while i < size {
+            let t = a[i as int]
+            a[i as int] = b[i as int]
+            b[i as int] = t
+            i += 1
+        }
+    }
+}
+
+/// Stable insertion sort of elements lo..hi by adjacent exchanges: an
+/// element moves left only past one that compares strictly greater.
+fn insertion(base: *u8, lo: uint, hi: uint, size: uint, f: u64) {
+    var i = lo + 1
+    while i < hi {
+        var j = i
+        var moving = true
+        while moving && j > lo {
+            let a = at(base, j - 1, size)
+            let b = at(base, j, size)
+            if cmp(f, a, b) > 0 {
+                swap(a, b, size)
+                j -= 1
+            } else {
+                moving = false
+            }
+        }
+        i += 1
+    }
+}
+
+/// Merges src's sorted runs lo..mid and mid..hi into dst's lo..hi. On a
+/// tie the left run's element goes first: the order of equal elements is
+/// kept.
+fn merge(src: *u8, dst: *u8, lo: uint, mid: uint, hi: uint, size: uint, f: u64) {
+    var i = lo
+    var j = mid
+    var k = lo
+    while i < mid && j < hi {
+        let a = at(src, i, size)
+        let b = at(src, j, size)
+        if cmp(f, b, a) < 0 {
+            let c = string.memcpy(at(dst, k, size), b, size)
+            j += 1
+        } else {
+            let c = string.memcpy(at(dst, k, size), a, size)
+            i += 1
+        }
+        k += 1
+    }
+    if i < mid {
+        let c = string.memcpy(at(dst, k, size), at(src, i, size), (mid - i) * size)
+        k += mid - i
+    }
+    if j < hi {
+        let c = string.memcpy(at(dst, k, size), at(src, j, size), (hi - j) * size)
+    }
+}
+
+/// C17 7.22.5.2: sorts nmemb elements of size bytes at base, ascending by
+/// compar. errno is left as it was, even when the buffer cannot be had.
+export fn qsort(base: *u8, nmemb: uint, size: uint, compar: u64) {
+    if nmemb < 2 || size == 0 {
+        return
+    }
+    var lo: uint = 0
+    while lo < nmemb {
+        let hi = if nmemb - lo < RUN { nmemb } else { lo + RUN }
+        insertion(base, lo, hi, size, compar)
+        lo = hi
+    }
+    if nmemb <= RUN {
+        return
+    }
+    let saved = sys.errno()
+    var tmp = base
+    // # Safety: the null pointer.
+    unsafe {
+        tmp = 0 as *u8
+    }
+    if nmemb <= 18446744073709551615 / size {
+        tmp = heap.malloc(nmemb * size)
+    }
+    if tmp.is_null() {
+        sys.set_errno(saved)
+        insertion(base, 0, nmemb, size, compar)
+        return
+    }
+    var src = base
+    var dst = tmp
+    var width = RUN
+    while width < nmemb {
+        var start: uint = 0
+        while start < nmemb {
+            let mid = if nmemb - start < width { nmemb } else { start + width }
+            let hi = if nmemb - mid < width { nmemb } else { mid + width }
+            merge(src, dst, start, mid, hi, size, compar)
+            start = hi
+        }
+        let t = src
+        src = dst
+        dst = t
+        width = if width > nmemb / 2 { nmemb } else { width * 2 }
+    }
+    if src.addr() != base.addr() {
+        let c = string.memcpy(base, src, nmemb * size)
+    }
+    heap.free(tmp)
+    sys.set_errno(saved)
+}
+
+/// C17 7.22.5.1: an element of the ascending array base[0..nmemb] that
+/// compares equal to key (compar(key, element) == 0), or a null pointer.
+/// Which of several equal elements is unspecified; this one halves the
+/// range from the middle.
+export fn bsearch(key: *u8, base: *u8, nmemb: uint, size: uint, compar: u64) -> *u8 {
+    var lo: uint = 0
+    var hi = nmemb
+    while lo < hi {
+        let mid = lo + (hi - lo) / 2
+        let p = at(base, mid, size)
+        let c = cmp(compar, key, p)
+        if c == 0 {
+            return p
+        }
+        if c < 0 {
+            hi = mid
+        } else {
+            lo = mid + 1
+        }
+    }
+    // # Safety: the null pointer.
+    unsafe {
+        0 as *u8
+    }
+}
