@@ -1,0 +1,123 @@
+//! <dirent.h>: POSIX.1-2024 XSH opendir, readdir and closedir, over
+//! getdents64(2) (217).
+//!
+//! A DIR is the directory's descriptor (opened read-only with
+//! O_DIRECTORY and O_CLOEXEC, so a file is ENOTDIR) and a 32 KiB buffer
+//! of the kernel's records. Each record is laid out as <dirent.h>'s
+//! struct dirent is (d_ino, d_off, d_reclen, d_type, then the name and
+//! its null), so readdir answers a pointer into the buffer, valid until
+//! the next readdir or closedir on that stream (XSH readdir allows it).
+//! The order is the file system's. At the end readdir answers a null
+//! pointer and leaves errno alone; on an error it sets errno.
+//!
+//! Sources: POSIX.1-2024 XSH opendir, readdir, closedir, XBD dirent.h;
+//! getdents64(2) (struct linux_dirent64), readdir(3) (d_type's names;
+//! their values are S_IFMT's bits shifted down 12, uapi linux/stat.h).
+
+use sys
+use heap
+
+const SYS_GETDENTS64: i64 = 217
+
+/// The buffer's size.
+const DIRBUF: uint = 32768
+
+/// A directory stream: its descriptor, and the unread part pos..end of
+/// the records that follow the struct.
+#[repr(c)]
+struct Dir {
+    fd: i32,
+    pad: i32,
+    pos: i64,
+    end: i64,
+}
+
+/// 24: the records start right after the struct, 8-aligned as getdents64
+/// lays its records out.
+const HEAD: uint = 24
+
+fn null_dir() -> *Dir {
+    // # Safety: the null pointer.
+    unsafe {
+        0 as *Dir
+    }
+}
+
+/// XSH opendir: a stream for the directory, or a null pointer with errno
+/// set (ENOENT, ENOTDIR, ENOMEM, …).
+export fn opendir(dirname: *u8) -> *Dir {
+    let fd = open_dir(dirname)
+    if fd < 0 {
+        return null_dir()
+    }
+    let p = heap.malloc(HEAD + DIRBUF)
+    if p.is_null() {
+        let saved = sys.errno()
+        let c = close(fd)
+        sys.set_errno(saved)
+        return null_dir()
+    }
+    // # Safety: malloc answered HEAD + DIRBUF bytes, 16-aligned.
+    unsafe {
+        let d = p.addr() as *Dir
+        d[0].fd = fd
+        d[0].pad = 0
+        d[0].pos = 0
+        d[0].end = 0
+        d
+    }
+}
+
+/// XSH readdir: the next entry, or a null pointer at the end (errno left
+/// alone) or on an error (errno set).
+export fn readdir(dirp: *Dir) -> *u8 {
+    var base: uint = 0
+    var pos: i64 = 0
+    var end: i64 = 0
+    var fd: i32 = 0
+    // # Safety: C's precondition: dirp came from opendir.
+    unsafe {
+        base = dirp.addr() + HEAD
+        pos = dirp[0].pos
+        end = dirp[0].end
+        fd = dirp[0].fd
+    }
+    if pos >= end {
+        let n = sys.ret(sys.raw(SYS_GETDENTS64, fd as i64, base as wrapping[i64] as i64, DIRBUF as i64, 0, 0, 0))
+        if n <= 0 {
+            // # Safety: the null pointer.
+            unsafe {
+                return 0 as *u8
+            }
+        }
+        pos = 0
+        end = n
+    }
+    // # Safety: pos..end holds whole records the kernel wrote; d_reclen
+    // is the u16 at byte 16 of each.
+    unsafe {
+        let e = base + pos as uint
+        let reclen = ((e + 16) as *u16)[0]
+        dirp[0].pos = pos + reclen as i64
+        dirp[0].end = end
+        e as *u8
+    }
+}
+
+/// XSH closedir: closes the descriptor and frees the stream; close's
+/// answer.
+export fn closedir(dirp: *Dir) -> i32 {
+    var fd: i32 = 0
+    var at: uint = 0
+    // # Safety: C's precondition: dirp came from opendir.
+    unsafe {
+        fd = dirp[0].fd
+        at = dirp.addr()
+    }
+    let r = close(fd)
+    // # Safety: at is the block opendir allocated.
+    unsafe {
+        heap.free(at as *u8)
+    }
+    r
+}
