@@ -208,4 +208,89 @@ __muzzle_errbuf:
 __muzzle_sigbuf:
 	.zero	32
 
+/* <time.h>'s storage and texts (lc03, the second part):
+ * __muzzle_tm: the struct tm gmtime and localtime answer (C17 7.27.3p1:
+ *   the broken-down time they share may be overwritten by the next call).
+ * __muzzle_ts: a struct timespec time() asks the kernel to fill.
+ * __muzzle_day_names, __muzzle_mon_names: the C locale's names
+ *   (C17 7.27.3.5p7), as tables of pointers; the abbreviations are their
+ *   first three letters.
+ * __muzzle_text_gmt, __muzzle_text_utc: tm_zone for gmtime_r and for
+ *   localtime_r (the local zone is UTC). */
+	.bss
+	.balign	16
+	.globl	__muzzle_tm
+	.type	__muzzle_tm,@object
+	.size	__muzzle_tm, 64
+__muzzle_tm:
+	.zero	64
+	.globl	__muzzle_ts
+	.type	__muzzle_ts,@object
+	.size	__muzzle_ts, 16
+__muzzle_ts:
+	.zero	16
+
+	.section .data.rel.ro,"aw"
+	.balign	8
+	.globl	__muzzle_day_names
+	.type	__muzzle_day_names,@object
+	.size	__muzzle_day_names, 56
+__muzzle_day_names:
+	.quad	.Lday0
+	.quad	.Lday1
+	.quad	.Lday2
+	.quad	.Lday3
+	.quad	.Lday4
+	.quad	.Lday5
+	.quad	.Lday6
+	.globl	__muzzle_mon_names
+	.type	__muzzle_mon_names,@object
+	.size	__muzzle_mon_names, 96
+__muzzle_mon_names:
+	.quad	.Lmon0
+	.quad	.Lmon1
+	.quad	.Lmon2
+	.quad	.Lmon3
+	.quad	.Lmon4
+	.quad	.Lmon5
+	.quad	.Lmon6
+	.quad	.Lmon7
+	.quad	.Lmon8
+	.quad	.Lmon9
+	.quad	.Lmon10
+	.quad	.Lmon11
+
+	.section .rodata.str1.1,"aMS",@progbits,1
+.Lday0:	.asciz	"Sunday"
+.Lday1:	.asciz	"Monday"
+.Lday2:	.asciz	"Tuesday"
+.Lday3:	.asciz	"Wednesday"
+.Lday4:	.asciz	"Thursday"
+.Lday5:	.asciz	"Friday"
+.Lday6:	.asciz	"Saturday"
+.Lmon0:	.asciz	"January"
+.Lmon1:	.asciz	"February"
+.Lmon2:	.asciz	"March"
+.Lmon3:	.asciz	"April"
+.Lmon4:	.asciz	"May"
+.Lmon5:	.asciz	"June"
+.Lmon6:	.asciz	"July"
+.Lmon7:	.asciz	"August"
+.Lmon8:	.asciz	"September"
+.Lmon9:	.asciz	"October"
+.Lmon10:	.asciz	"November"
+.Lmon11:	.asciz	"December"
+
+	.section .rodata
+	.globl	__muzzle_text_gmt
+	.type	__muzzle_text_gmt,@object
+	.size	__muzzle_text_gmt, 4
+__muzzle_text_gmt:
+	.asciz	"GMT"
+	.globl	__muzzle_text_utc
+	.type	__muzzle_text_utc,@object
+	.size	__muzzle_text_utc, 4
+__muzzle_text_utc:
+	.asciz	"UTC"
+
 	.section .note.GNU-stack,"",@progbits
