@@ -110,3 +110,28 @@ allowed as a design reference, was not needed. qsort's stable bottom-up
 merge sort, strtod's exact big-integer scaling with one rounding, the
 aligned block inside a carrier, and the environment's copy-on-append are
 textbook methods written here from the standards' contracts.
+
+## lc03, the second part (2026-11-09): time and the file layer
+
+**Standards and manuals**
+
+| source | where | used for |
+|---|---|---|
+| ISO C17, draft N2176 | 7.27 `<time.h>` (7.27.1 struct tm's members, 7.27.2.1 clock, 7.27.2.3 mktime's normalization, 7.27.2.4 time, 7.27.3.3 gmtime, 7.27.3.4 localtime, 7.27.3.5 strftime and its C-locale table); 7.21.4.2 rename | `src/chrono/`, `include/time.h`, `src/unistd/fs.lu` |
+| POSIX.1-2024 (XSH, XBD) | XSH clock_gettime, nanosleep, gmtime, localtime, mktime, timegm, strftime (the `0` and `+` flags, field widths, %s), open/openat, stat, fstat, lstat, unlink, rename, mkdir, rmdir, getcwd, chdir, dup, dup2, pipe, access, symlink, readlink, opendir, readdir, closedir; XBD 4.19 (seconds since the epoch), time.h (tm_gmtoff, tm_zone), sys/stat.h, dirent.h | the same, and the headers |
+| ISO 8601 | the week-based year and week number (week 1 holds the year's first Thursday) | strftime's %G, %g and %V |
+| H. Hinnant, "chrono-Compatible Low-Level Date Algorithms" (public domain) | `days_from_civil` and `civil_from_days` over 400-year eras | `src/chrono/civil.lu` |
+| the Linux man-pages project | clock_gettime(2), nanosleep(2), stat(2), getdents64(2) (struct linux_dirent64), readdir(3) (d_type's names), access(2), getcwd(2), ctime(3), timegm(3), strftime(3) | the same |
+| Linux uapi headers (numbers and constants only; each file's package checked with `dpkg -S` first, `notes/lc03-evidence/red1c.log`) | `asm/unistd_64.h` (stat 4, lstat 6, access 21, pipe 22, dup 32, dup2 33, nanosleep 35, getcwd 79, chdir 80, rename 82, mkdir 83, rmdir 84, unlink 87, symlink 88, readlink 89, getdents64 217, clock_gettime 228), `linux/time.h` (the clock ids), `linux/fcntl.h` (the AT_ flags), `linux/stat.h` (the mode bits, from which d_type's values follow), `asm/stat.h` (x86-64's struct stat) | `include/time.h`, `include/sys/stat.h`, `include/dirent.h`, `include/fcntl.h`, `src/chrono/`, `src/unistd/` |
+
+**glibc as a black box.** glibc 2.39's answers where the standards leave
+a choice open (the cases' reference column, `notes/lc03-probes/g1.c`) are
+the reference: the zone names, mktime's tm_isdst rule, strftime's widths,
+its negative years and what it copies back, never its source or headers.
+DT_REG, DT_DIR and DT_LNK's values were also printed by `file_dir.c`
+against glibc, and agree with S_IFMT's bits shifted down 12.
+
+**Not consulted:** any C library's source or headers; musl's and the BSD
+libcs' documentation was not needed. The DIR stream (a descriptor and a
+buffer of the kernel's records, answered in place) and strftime's single
+pass with a counting dry run for padded composites are muzzle's own.
