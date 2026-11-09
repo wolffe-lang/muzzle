@@ -7,7 +7,7 @@
  * pointers to them (C17 7.21.1p3 asks for expressions of type FILE *).
  *
  * Not provided yet: the floating conversions of the printf family
- * (f F e E g G a A, and the L length), which lc03 owns; a call that
+ * (f F e E g G a A, and the L length), a later layer's; a call that
  * meets one returns a negative value with errno EINVAL, and a stream
  * receives none of its output (docs/LEDGER.md). Nor positional
  * arguments (%n$), the scanf family, positioning (fseek, ftell, fgetpos,
