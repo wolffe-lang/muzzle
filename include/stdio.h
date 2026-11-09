@@ -11,7 +11,7 @@
  * meets one returns a negative value with errno EINVAL, and a stream
  * receives none of its output (docs/LEDGER.md). Nor positional
  * arguments (%n$), the scanf family, positioning (fseek, ftell, fgetpos,
- * fsetpos, rewind), freopen, remove, rename, tmpfile, tmpnam,
+ * fsetpos, rewind), freopen, remove, tmpfile, tmpnam,
  * getline. */
 #ifndef _MUZZLE_STDIO_H
 #define _MUZZLE_STDIO_H
@@ -91,6 +91,9 @@ int puts(const char *s);
 /* C17 7.21.10.4: "s: " (when s is neither null nor empty), then
  * strerror(errno) and a newline, on stderr; errno is left as it was. */
 void perror(const char *s);
+
+/* C17 7.21.4.2 and POSIX rename. */
+int rename(const char *old, const char *new);
 int ungetc(int c, FILE *stream);
 
 /* C17 7.21.8 direct input/output */
