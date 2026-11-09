@@ -9,7 +9,7 @@
 //! for an integer); conversions `d i u o x X c s p n %`, with POSIX's `C`
 //! (= `lc`) and `S` (= `ls`).
 //!
-//! **Refused by name** (R-lc02-1 = B: lc03 owns them): the floating
+//! **Refused by name** (a later layer provides them): the floating
 //! conversions `f F e E g G a A`. A call that meets one answers -1 with
 //! errno EINVAL, as any failed call does: a stream receives none of its
 //! output, and in memory what came before it stays, with its null. Positional arguments (`%n$`, `*m$`) are refused the
