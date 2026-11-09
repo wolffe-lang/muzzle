@@ -13,8 +13,8 @@
 # side of stdio (line buffering, isatty) is compared too.
 #
 # Then every case in tests/own/ runs against muzzle alone: behaviour a
-# ruling makes muzzle's own, where glibc is not the oracle (R-lc02-1:
-# the floating conversions refused). Each checks itself and must exit 0.
+# decision makes muzzle's own, where glibc is not the oracle (the
+# floating conversions refused). Each checks itself and must exit 0.
 #
 # Exits 1 on any disagreement, on a case that fails to build in either
 # column, on an own case that fails, and when no case ran.
