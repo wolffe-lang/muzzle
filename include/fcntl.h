@@ -25,6 +25,10 @@
 #define O_TMPFILE 020200000
 
 #define AT_FDCWD (-100)
+#define AT_SYMLINK_NOFOLLOW 0x100
+#define AT_REMOVEDIR 0x200
+#define AT_EACCESS 0x200
+#define AT_SYMLINK_FOLLOW 0x400
 
 #define SEEK_SET 0
 #define SEEK_CUR 1
@@ -32,5 +36,6 @@
 
 /* The mode argument is read only when O_CREAT or O_TMPFILE is given. */
 int open(const char *path, int oflag, ...);
+int openat(int fd, const char *path, int oflag, ...);
 
 #endif
