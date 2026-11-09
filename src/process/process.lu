@@ -1,19 +1,138 @@
-//! Leaving the process, and the one output path: C17 7.22.4.4 exit,
-//! 7.22.4.5 _Exit; POSIX.1-2024 XSH _exit and write.
+//! Leaving the process, and the one output path: C17 7.22.4.2 atexit,
+//! 7.22.4.4 exit, 7.22.4.5 _Exit, 7.22.4.1 abort; POSIX.1-2024 XSH _exit
+//! and write.
 //!
-//! exit writes out every open stream's pending output (C17 7.22.4.4p4),
-//! then ends the process; _Exit and _exit do not flush (C17 7.22.4.5p2
-//! leaves it to the implementation; muzzle does not, as glibc does not).
-//! No atexit handlers yet (C function pointers, wolf-lang#520).
+//! exit runs the atexit handlers, last registered first (C17 7.22.4.4p3),
+//! then writes out every open stream's pending output (p4) and ends the
+//! process. A handler that registers another during exit has it run
+//! next. The table holds 32 (C17 7.22.4.2p3's minimum) in sys.S and moves
+//! to the heap, doubling, past that. _Exit and _exit run no handler and
+//! do not flush (C17 7.22.4.5p2 leaves the flush to the implementation;
+//! muzzle does not, as glibc does not). A handler is a C function
+//! pointer, called through sys.S's __muzzle_call0 (wolf-lang#520).
+//!
+//! abort raises SIGABRT for the calling thread with the signal unblocked
+//! (POSIX XSH abort: abnormal termination, unless a handler does not
+//! return); if the program survives it (a handler returned, or the
+//! signal was ignored), the default action is restored and the signal
+//! raised again, and exit_group(127) is the last resort. No stream is
+//! flushed and no handler runs (C17 7.22.4.1p2 leaves the flush open;
+//! glibc does not flush).
+//!
+//! Sources, beyond lc01's: C17 7.22.4.1, 7.22.4.2; POSIX.1-2024 XSH
+//! abort, atexit; rt_sigaction(2), rt_sigprocmask via sigprocmask(2),
+//! tgkill(2), getpid(2), gettid(2); the uapi asm/unistd_64.h (13, 14,
+//! 39, 186, 234), asm/signal.h (SIGABRT 6) and asm-generic/signal-defs.h
+//! (SIG_UNBLOCK 1, SIG_DFL 0), for the numbers; x86-64's kernel struct
+//! sigaction (handler, flags, restorer, mask: four 8-byte words).
 
 use sys
+use heap
+use string
 use stdio
+
+extern "c" fn __muzzle_call0(f: u64)
+
+/// The first 32 handlers' table (sys.S, 256 bytes).
+extern "c" let __muzzle_atexit: *u64
+
+/// abort's signal set and struct sigaction (sys.S, 32 bytes).
+extern "c" let __muzzle_sigbuf: *u64
+
+const SYS_RT_SIGACTION: i64 = 13
+
+const SYS_RT_SIGPROCMASK: i64 = 14
+
+const SYS_GETPID: i64 = 39
+
+const SYS_GETTID: i64 = 186
+
+const SYS_TGKILL: i64 = 234
+
+const SIGABRT: i64 = 6
+
+const SIG_UNBLOCK: i64 = 1
+
+/// The table's address (0: sys.S's), its room and the handlers in it.
+var at_table: u64 = 0
+
+var at_room: uint = 0
+
+var at_count: uint = 0
+
+/// C17 7.22.4.2: 0 once func will run at exit; nonzero when there is no
+/// room for it.
+export fn atexit(func: u64) -> i32 {
+    var table: u64 = 0
+    var room: uint = 0
+    var count: uint = 0
+    // # Safety: one thread; scalars.
+    unsafe {
+        table = at_table
+        room = at_room
+        count = at_count
+    }
+    if table == 0 {
+        table = __muzzle_atexit.addr() as u64
+        room = 32
+    }
+    if count == room {
+        let saved = sys.errno()
+        let fresh = heap.malloc(room * 16)
+        sys.set_errno(saved)
+        if fresh.is_null() {
+            return -1
+        }
+        // # Safety: the old table holds room 8-byte entries.
+        unsafe {
+            let c = string.memcpy(fresh, table as uint as *u8, room * 8)
+            if table != __muzzle_atexit.addr() as u64 {
+                heap.free(table as uint as *u8)
+            }
+        }
+        table = fresh.addr() as u64
+        room = room * 2
+    }
+    // # Safety: count < room; one thread.
+    unsafe {
+        (table as uint as *u64)[count as int] = func
+        at_table = table
+        at_room = room
+        at_count = count + 1
+    }
+    0
+}
+
+/// Runs the handlers, last first, each taken off the table before it
+/// runs, so one that calls atexit is run in its turn.
+fn run_handlers() {
+    var going = true
+    while going {
+        var f: u64 = 0
+        // # Safety: one thread; at_count entries of the table are handlers.
+        unsafe {
+            if at_count == 0 {
+                going = false
+            } else {
+                at_count = at_count - 1
+                f = (at_table as uint as *u64)[at_count as int]
+            }
+        }
+        if going {
+            // # Safety: f is a handler C passed to atexit, a void (*)(void).
+            unsafe {
+                __muzzle_call0(f)
+            }
+        }
+    }
+}
 
 const SYS_WRITE: i64 = 1
 
-/// C17 7.22.4.4: the streams' pending output, then the process's end.
-/// The descriptors close with the process.
+/// C17 7.22.4.4: the atexit handlers, the streams' pending output, then
+/// the process's end. The descriptors close with the process.
 export fn exit(status: i32) {
+    run_handlers()
     let ok = stdio.flush_all()
     sys.exit_group(status)
 }
@@ -21,6 +140,30 @@ export fn exit(status: i32) {
 /// C17 7.22.4.5.
 export fn _Exit(status: i32) {
     sys.exit_group(status)
+}
+
+/// C17 7.22.4.1: SIGABRT, and the process does not return.
+export fn abort() {
+    // # Safety: one thread; sys.S's 32 bytes hold the signal set (one
+    // word) and then the kernel's struct sigaction (four words).
+    unsafe {
+        __muzzle_sigbuf[0] = 32
+    }
+    let set = __muzzle_sigbuf.addr() as i64
+    let u = sys.raw(SYS_RT_SIGPROCMASK, SIG_UNBLOCK, set, 0, 8, 0, 0)
+    let pid = sys.raw(SYS_GETPID, 0, 0, 0, 0, 0, 0)
+    let tid = sys.raw(SYS_GETTID, 0, 0, 0, 0, 0, 0)
+    let k = sys.raw(SYS_TGKILL, pid, tid, SIGABRT, 0, 0, 0)
+    // # Safety: as above; SIG_DFL with no flags, no restorer, no mask.
+    unsafe {
+        __muzzle_sigbuf[0] = 0
+        __muzzle_sigbuf[1] = 0
+        __muzzle_sigbuf[2] = 0
+        __muzzle_sigbuf[3] = 0
+    }
+    let a = sys.raw(SYS_RT_SIGACTION, SIGABRT, set, 0, 8, 0, 0)
+    let k2 = sys.raw(SYS_TGKILL, pid, tid, SIGABRT, 0, 0, 0)
+    sys.exit_group(127)
 }
 
 /// POSIX.1-2024 XSH _exit.
