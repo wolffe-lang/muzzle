@@ -165,6 +165,11 @@ int main(void) {
     snprintf(first, sizeof first, "%s", strerror(EACCES));
     printf("again=%d\n", strcmp(first, strerror(EACCES)) == 0);
 
+    /* glibc's first perror on a stderr that has had no output leaves
+     * errno EINVAL, whatever it was (probes g2 and g3, docs/LEDGER.md);
+     * muzzle leaves errno alone. stderr gets a line first, so the rows
+     * below compare what both promise. */
+    fputs("perror rows:\n", stderr);
     static const int pe[] = {0, EPERM, ENOENT, EINVAL, ERANGE, EHWPOISON, 41, 134, 1000, -1};
     for (size_t i = 0; i < sizeof pe / sizeof *pe; i++) {
         errno = pe[i];
