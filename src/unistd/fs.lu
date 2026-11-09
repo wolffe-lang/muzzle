@@ -1,0 +1,178 @@
+//! The POSIX file layer beyond lc02's descriptor calls: XSH openat, stat,
+//! fstat, lstat, unlink, rename (C17 7.21.4.2), mkdir, rmdir, getcwd,
+//! chdir, dup, dup2, pipe, access, symlink and readlink.
+//!
+//! Each is the kernel's call, its answer through the error convention
+//! (sys.ret): -1 with errno as the kernel reports it, which is what
+//! POSIX lists for each. A struct stat is the kernel's x86-64 layout,
+//! which <sys/stat.h> declares, so the kernel fills C's own. Two checks
+//! come before the kernel, as POSIX words them: getcwd with a size of 0
+//! is EINVAL (the kernel would say ERANGE), and getcwd answers its
+//! buffer, not the kernel's length.
+//!
+//! Sources: POSIX.1-2024 XSH openat (with open), stat, fstat, lstat,
+//! unlink, rename, mkdir, rmdir, getcwd, chdir, dup, dup2, pipe, access,
+//! symlink, readlink; C17 7.21.4.2; the man pages of each system call;
+//! the uapi asm/unistd_64.h (stat 4, fstat 5, lstat 6, access 21, pipe
+//! 22, dup 32, dup2 33, getcwd 79, chdir 80, rename 82, mkdir 83, rmdir
+//! 84, unlink 87, symlink 88, readlink 89, openat 257) and asm/stat.h
+//! (x86-64's struct stat).
+
+use sys
+
+const SYS_STAT: i64 = 4
+
+const SYS_LSTAT: i64 = 6
+
+const SYS_ACCESS: i64 = 21
+
+const SYS_PIPE: i64 = 22
+
+const SYS_DUP: i64 = 32
+
+const SYS_DUP2: i64 = 33
+
+const SYS_GETCWD: i64 = 79
+
+const SYS_CHDIR: i64 = 80
+
+const SYS_RENAME: i64 = 82
+
+const SYS_MKDIR: i64 = 83
+
+const SYS_RMDIR: i64 = 84
+
+const SYS_UNLINK: i64 = 87
+
+const SYS_SYMLINK: i64 = 88
+
+const SYS_READLINK: i64 = 89
+
+const EINVAL: i32 = 22
+
+/// O_DIRECTORY, 0200000 in asm-generic/fcntl.h.
+const O_DIRECTORY: i32 = 65536
+
+/// O_CLOEXEC, 02000000.
+const O_CLOEXEC: i32 = 524288
+
+fn call1(n: i64, a: *u8) -> i32 {
+    sys.ret(sys.raw(n, addr_of(a), 0, 0, 0, 0, 0)) as i32
+}
+
+fn call2(n: i64, a: *u8, b: *u8) -> i32 {
+    sys.ret(sys.raw(n, addr_of(a), addr_of(b), 0, 0, 0, 0)) as i32
+}
+
+/// POSIX openat: open relative to the directory fd (AT_FDCWD for the
+/// working one). The mode is read only when O_CREAT or O_TMPFILE asks
+/// for one, as for open.
+export fn openat(fd: i32, path: *u8, oflag: i32, ...) -> i32 {
+    var mode: u32 = 0
+    // # Safety: C passes a mode_t exactly when oflag creates a file;
+    // va_start and va_end bracket the read.
+    unsafe {
+        var ap = va_start()
+        if oflag & O_CREAT != 0 || oflag & O_TMPFILE_BIT != 0 {
+            mode = va_arg[u32](mut ap)
+        }
+        va_end(mut ap)
+    }
+    sys.ret(sys.raw(SYS_OPENAT, fd as i64, addr_of(path), oflag as i64, mode as i64, 0, 0)) as i32
+}
+
+/// The directory at path, for opendir: read-only, close-on-exec.
+fn open_dir(path: *u8) -> i32 {
+    sys.ret(sys.raw(SYS_OPENAT, AT_FDCWD, addr_of(path), (O_DIRECTORY | O_CLOEXEC) as i64, 0, 0, 0)) as i32
+}
+
+/// POSIX stat.
+export fn stat(path: *u8, buf: *u8) -> i32 {
+    call2(SYS_STAT, path, buf)
+}
+
+/// POSIX fstat.
+export fn fstat(fildes: i32, buf: *u8) -> i32 {
+    sys.ret(sys.raw(SYS_FSTAT, fildes as i64, addr_of(buf), 0, 0, 0, 0)) as i32
+}
+
+/// POSIX lstat: a symbolic link itself, not what it names.
+export fn lstat(path: *u8, buf: *u8) -> i32 {
+    call2(SYS_LSTAT, path, buf)
+}
+
+/// POSIX unlink.
+export fn unlink(path: *u8) -> i32 {
+    call1(SYS_UNLINK, path)
+}
+
+/// C17 7.21.4.2 and POSIX rename.
+export fn rename(old: *u8, new: *u8) -> i32 {
+    call2(SYS_RENAME, old, new)
+}
+
+/// POSIX mkdir: mode as the umask leaves it.
+export fn mkdir(path: *u8, mode: u32) -> i32 {
+    sys.ret(sys.raw(SYS_MKDIR, addr_of(path), mode as i64, 0, 0, 0, 0)) as i32
+}
+
+/// POSIX rmdir.
+export fn rmdir(path: *u8) -> i32 {
+    call1(SYS_RMDIR, path)
+}
+
+/// POSIX chdir.
+export fn chdir(path: *u8) -> i32 {
+    call1(SYS_CHDIR, path)
+}
+
+/// POSIX getcwd: buf with the working directory's absolute path, or a
+/// null pointer with errno EINVAL (size 0) or as the kernel reports it
+/// (ERANGE when it does not fit).
+export fn getcwd(buf: *u8, size: uint) -> *u8 {
+    var ok = true
+    if size == 0 {
+        sys.set_errno(EINVAL)
+        ok = false
+    } else if sys.ret(sys.raw(SYS_GETCWD, addr_of(buf), size as wrapping[i64] as i64, 0, 0, 0, 0)) < 0 {
+        ok = false
+    }
+    if ok {
+        return buf
+    }
+    // # Safety: the null pointer.
+    unsafe {
+        0 as *u8
+    }
+}
+
+/// POSIX dup: the lowest free descriptor, sharing fildes's file.
+export fn dup(fildes: i32) -> i32 {
+    sys.ret(sys.raw(SYS_DUP, fildes as i64, 0, 0, 0, 0, 0)) as i32
+}
+
+/// POSIX dup2.
+export fn dup2(fildes: i32, fildes2: i32) -> i32 {
+    sys.ret(sys.raw(SYS_DUP2, fildes as i64, fildes2 as i64, 0, 0, 0, 0)) as i32
+}
+
+/// POSIX pipe: the read end in fildes[0], the write end in fildes[1].
+export fn pipe(fildes: *u8) -> i32 {
+    call1(SYS_PIPE, fildes)
+}
+
+/// POSIX access, by the real user and group.
+export fn access(path: *u8, amode: i32) -> i32 {
+    sys.ret(sys.raw(SYS_ACCESS, addr_of(path), amode as i64, 0, 0, 0, 0)) as i32
+}
+
+/// POSIX symlink: a link at path2 whose text is path1.
+export fn symlink(path1: *u8, path2: *u8) -> i32 {
+    call2(SYS_SYMLINK, path1, path2)
+}
+
+/// POSIX readlink: the link's text, not null-terminated, at most bufsize
+/// bytes; the count, or -1.
+export fn readlink(path: *u8, buf: *u8, bufsize: uint) -> i64 {
+    sys.ret(sys.raw(SYS_READLINK, addr_of(path), addr_of(buf), bufsize as wrapping[i64] as i64, 0, 0, 0))
+}
