@@ -1,0 +1,11 @@
+//! <stdlib.h>'s layer beyond memory and exit (lc03): sorting and
+//! searching (sort.lu), the integer conversions (conv.lu), strtod
+//! (float.lu), arithmetic and rand (arith.lu), the environment (env.lu).
+//! atexit and abort are process's; the allocator is heap's.
+
+/// True. The package root calls it so the build reaches this module:
+/// a module only C calls into is otherwise never compiled, and an
+/// import nothing uses is E0305 (wolf-lang#599).
+pub fn linked() -> bool {
+    true
+}
