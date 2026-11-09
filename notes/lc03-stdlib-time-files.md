@@ -11,9 +11,9 @@ of library code. §1, §4 and §5 are filled in at the end.
 | input as written | at origin | drift |
 |---|---|---|
 | muzzle trunk `230cd000`, wolf 0.2.36 | `origin/trunk` = `230cd00012b6…`; `wolf-toolchain.toml` pins 0.2.36, rev `5adf3d91`, `wolf 0.2.36 (wolfgang, pin 5adf3d9)`, linux x86-64 `d383c74c8cd1…` | none |
-| the pinned archive | release API digest `sha256:d383c74c8cd1…`, 82,827,649 bytes (read 1); `sha256sum` twice on hasu of the staged copy (read 2): `d383c74c8cd1…`; `tools/fetch-toolchain` checks it a third time in every job | none |
+| the pinned archive | release API digest `sha256:d383c74c8cd1…`, 82,827,649 bytes (read 1); `sha256sum` twice on the Linux test host of the staged copy (read 2): `d383c74c8cd1…`; `tools/fetch-toolchain` checks it a third time in every job | none |
 | newer wolf | 0.2.37 and 0.2.38 are out; neither release note touches the freestanding target, the C membrane, C function pointers or floating point on `x86_64-unknown-none` | no pin move: this lane stays `module` |
-| the build host | hasu, `localhost/px75-ubuntu:2`: clang 18.1.3, glibc 2.39, kernel 7.2.4, x86-64; `TZ` unset, `/etc/localtime` → `Etc/UTC`; `ulimit -c` unlimited and the core pattern a pipe to the host's handler; the job's directories on ext4 (`notes/lc03-evidence/explore1.log`) | see R-lc03-10 for the core pattern |
+| the build host | the Linux test host, in an Ubuntu container: clang 18.1.3, glibc 2.39, kernel 7.2.4, x86-64; `TZ` unset, `/etc/localtime` → `Etc/UTC`; `ulimit -c` unlimited and the core pattern a pipe to the host's handler; the job's directories on ext4 (`notes/lc03-evidence/explore1.log`) | see R-lc03-10 for the core pattern |
 | the baseline at trunk | job `explore1` (block B): `tests/stale-compiler`, `tools/build` and `tools/difftest` on both tiers, every step exit 0, 25 of 25 cases on each | none |
 | the licence | trunk already carries `LICENSE-EXCEPTION`, the muzzle Library Exception 1.0 (`7c95300`, muzzle#2): a GPLv3 section 7 permission modelled on the wolf Runtime Library Exception (`crates/wolf_rt/LICENSE-EXCEPTION` at wolf-lang `v0.2.36`, the file the release archives carry) and GCC's, for Independent Modules in any language, "statically or dynamically"; the README's licence section says the same in plain prose | the exception the lane was to add exists; R-lc03-2 |
 | what lc02 left to this layer | the floating printf conversions (R-lc02-1 = B, "lc03 owns them" in the README and the ledger) | this lane's scope does not list them; R-lc03-12 |
@@ -89,7 +89,7 @@ each equal to glibc's (`notes/lc03-evidence/uapi-errno.txt`).
 ### The cases and their expected output
 
 20 new cases, each a C program written from the standards; their expected
-output is glibc's, taken on hasu (job `glibc1`: the case built as
+output is glibc's, taken on the Linux test host (job `glibc1`: the case built as
 `tools/difftest` builds it, run in a fresh directory with `TZ=UTC`), kept
 whole in `notes/lc03-evidence/expected/` with `SHA256SUMS`:
 

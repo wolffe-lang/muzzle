@@ -1,5 +1,5 @@
-QUEUED 2026-11-09T18:46:34Z job=glibc1 block=C pid=1297642 inner=/home/mfwolffe/lanes/lc03/hasu/job.sh 4d0389b1470b5b6ed97497675c50231ed66f48b3 glibc1
-job: sha=4d0389b1470b5b6ed97497675c50231ed66f48b3 block=C cpus=12-17 out=/home/mfwolffe/lanes/lc03/out-glibc1 ctr=ctr-glibc.sh
+QUEUED 2026-11-09T18:46:34Z job=glibc1 block=C pid=1297642 inner=<lane>/job.sh 4d0389b1470b5b6ed97497675c50231ed66f48b3 glibc1
+job: sha=4d0389b1470b5b6ed97497675c50231ed66f48b3 block=C cpus=12-17 out=<lane>/out-glibc1 ctr=ctr-glibc.sh
 BEGIN glibc
 /scripts/ctr-glibc.sh: line 13:    10 Aborted                 ( cd "$out/$n.d" && ulimit -c 0 && TZ=UTC exec timeout 120 "$out/$n.bin" ) < "$in" > "$out/$n.out" 2> "$out/$n.err"
   stdlib_abort exit=134 lines=1 stderr=55 left=0 secs=0
