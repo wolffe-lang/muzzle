@@ -127,4 +127,85 @@ __muzzle_text_null:
 __muzzle_text_nil:
 	.ascii	"(nil)"
 
+/* lc03. C function pointers (qsort's comparator, atexit's handlers):
+ * wolf has no C function-pointer type yet (wolf-lang#520), so a call
+ * through one goes by a trampoline that moves the arguments down one
+ * register and tail-jumps to the pointer (psABI 3.2.3). */
+	.text
+/* int __muzzle_call2(void *f, const void *a, const void *b): f(a, b). */
+	.globl	__muzzle_call2
+	.type	__muzzle_call2,@function
+__muzzle_call2:
+	mov	%rdi, %rax
+	mov	%rsi, %rdi
+	mov	%rdx, %rsi
+	jmp	*%rax
+	.size	__muzzle_call2, .-__muzzle_call2
+
+/* void __muzzle_call0(void (*f)(void)): f(). */
+	.globl	__muzzle_call0
+	.type	__muzzle_call0,@function
+__muzzle_call0:
+	jmp	*%rdi
+	.size	__muzzle_call0, .-__muzzle_call0
+
+/* double strtod(const char *nptr, char **endptr), C17 7.22.1.3. The
+ * conversion is wolf's (stdlib), and answers the double's bits in %rax:
+ * wolf has no floating point type on this target. The psABI returns a
+ * double in %xmm0 (3.2.3), so the entry moves the bits there. The
+ * sub keeps %rsp 16-byte aligned at the call. */
+	.globl	strtod
+	.type	strtod,@function
+strtod:
+	sub	$8, %rsp
+	call	__muzzle_strtod
+	add	$8, %rsp
+	movq	%rax, %xmm0
+	ret
+	.size	strtod, .-strtod
+
+/* POSIX.1-2024 XBD 8.1's environ: _start (crt0.S) stores the initial
+ * environment's address here; setenv may point it at a list of its own.
+ * __muzzle_environ is the same object, for wolf's `extern "c" let`. */
+	.data
+	.balign	8
+	.globl	environ
+	.globl	__muzzle_environ
+	.type	environ,@object
+	.size	environ, 8
+environ:
+__muzzle_environ:
+	.quad	0
+
+/* lc03's storage, for the reasons above (a var holds a scalar only and
+ * has no address, wolf-lang#597):
+ * __muzzle_atexit: the first 32 atexit handlers (C17 7.22.4.2p3's
+ *   minimum); more move the table to the heap.
+ * __muzzle_limbs: strtod's three big integers, 160 32-bit limbs each.
+ * __muzzle_errbuf: strerror's "Unknown error N" (C17 7.24.6.2p2 lets a
+ *   later call overwrite it).
+ * __muzzle_sigbuf: abort's signal set and its struct sigaction. */
+	.bss
+	.balign	16
+	.globl	__muzzle_atexit
+	.type	__muzzle_atexit,@object
+	.size	__muzzle_atexit, 256
+__muzzle_atexit:
+	.zero	256
+	.globl	__muzzle_limbs
+	.type	__muzzle_limbs,@object
+	.size	__muzzle_limbs, 1920
+__muzzle_limbs:
+	.zero	1920
+	.globl	__muzzle_errbuf
+	.type	__muzzle_errbuf,@object
+	.size	__muzzle_errbuf, 32
+__muzzle_errbuf:
+	.zero	32
+	.globl	__muzzle_sigbuf
+	.type	__muzzle_sigbuf,@object
+	.size	__muzzle_sigbuf, 32
+__muzzle_sigbuf:
+	.zero	32
+
 	.section .note.GNU-stack,"",@progbits
