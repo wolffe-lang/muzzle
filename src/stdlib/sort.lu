@@ -152,7 +152,12 @@ export fn qsort(base: *u8, nmemb: uint, size: uint, compar: u64) {
         dst = t
         width = if width > nmemb / 2 { nmemb } else { width * 2 }
     }
-    if src.addr() != base.addr() {
+    var moved = false
+    // # Safety: compares the two arrays' addresses only.
+    unsafe {
+        moved = src.addr() != base.addr()
+    }
+    if moved {
         let c = string.memcpy(base, src, nmemb * size)
     }
     heap.free(tmp)

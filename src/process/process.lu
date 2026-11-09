@@ -72,8 +72,13 @@ export fn atexit(func: u64) -> i32 {
         room = at_room
         count = at_count
     }
+    var first: u64 = 0
+    // # Safety: reads the static table's address only.
+    unsafe {
+        first = __muzzle_atexit.addr() as u64
+    }
     if table == 0 {
-        table = __muzzle_atexit.addr() as u64
+        table = first
         room = 32
     }
     if count == room {
@@ -86,11 +91,14 @@ export fn atexit(func: u64) -> i32 {
         // # Safety: the old table holds room 8-byte entries.
         unsafe {
             let c = string.memcpy(fresh, table as uint as *u8, room * 8)
-            if table != __muzzle_atexit.addr() as u64 {
+            if table != first {
                 heap.free(table as uint as *u8)
             }
         }
-        table = fresh.addr() as u64
+        // # Safety: reads the new table's address only.
+        unsafe {
+            table = fresh.addr() as u64
+        }
         room = room * 2
     }
     // # Safety: count < room; one thread.
@@ -149,7 +157,11 @@ export fn abort() {
     unsafe {
         __muzzle_sigbuf[0] = 32
     }
-    let set = __muzzle_sigbuf.addr() as i64
+    var set: i64 = 0
+    // # Safety: reads the scratch's address only.
+    unsafe {
+        set = __muzzle_sigbuf.addr() as i64
+    }
     let u = sys.raw(SYS_RT_SIGPROCMASK, SIG_UNBLOCK, set, 0, 8, 0, 0)
     let pid = sys.raw(SYS_GETPID, 0, 0, 0, 0, 0, 0)
     let tid = sys.raw(SYS_GETTID, 0, 0, 0, 0, 0, 0)

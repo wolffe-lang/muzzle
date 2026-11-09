@@ -55,7 +55,12 @@ pub fn digit(c: u8) -> u64 {
 }
 
 fn scan(s: *u8, base0: i32) -> Scan {
-    var r = Scan { mag: 0, neg: false, over: false, end: s.addr(), bad_base: false }
+    var at: uint = 0
+    // # Safety: reads s's address only.
+    unsafe {
+        at = s.addr()
+    }
+    var r = Scan { mag: 0, neg: false, over: false, end: at, bad_base: false }
     if base0 < 0 || base0 == 1 || base0 > 36 {
         r.bad_base = true
         return r
@@ -103,7 +108,7 @@ fn scan(s: *u8, base0: i32) -> Scan {
         return r
     }
     r.mag = acc
-    r.end = s.addr() + i as uint
+    r.end = at + i as uint
     r
 }
 
@@ -201,7 +206,7 @@ export fn atoll(nptr: *u8) -> i64 {
 
 /// The unsigned value of a NaN's n-char-sequence, read as strtoull reads
 /// base 0, when it is all digits of that base and ends at `stop`; else 0.
-pub fn payload(s: *u8, stop: uint) -> u64 {
+fn payload(s: *u8, stop: uint) -> u64 {
     let r = scan(s, 0)
     if r.end != stop || r.over || r.neg {
         return 0

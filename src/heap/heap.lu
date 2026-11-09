@@ -319,7 +319,11 @@ fn aligned_block(align: uint, n: uint) -> *u8 {
     if carrier.is_null() {
         return carrier
     }
-    let c = carrier.addr()
+    var c: uint = 0
+    // # Safety: reads the carrier's address only.
+    unsafe {
+        c = carrier.addr()
+    }
     if c % align == 0 {
         return carrier
     }
