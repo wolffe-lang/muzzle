@@ -1,0 +1,444 @@
+QUEUED 2026-11-09T18:03:15Z job=explore1 block=B pid=134069 inner=/home/mfwolffe/lanes/lc03/hasu/job.sh 230cd00012b65714931b7891a380d494d3151468 explore1
+job: sha=230cd00012b65714931b7891a380d494d3151468 block=B cpus=6-11 out=/home/mfwolffe/lanes/lc03/out-explore1 ctr=ctr-explore.sh
+BEGIN env
+Ubuntu clang version 18.1.3 (1ubuntu1)
+Target: x86_64-pc-linux-gnu
+glibc 2.39
+Linux 7.2.4 x86_64
+6
+0
+script: /usr/bin/script
+nm: /usr/bin/nm
+readelf: /usr/bin/readelf
+ar: /usr/bin/ar
+objdump: /usr/bin/objdump
+python3: /usr/bin/python3
+od: /usr/bin/od
+cmp: /usr/bin/cmp
+diff: /usr/bin/diff
+timeout: /usr/bin/timeout
+strace: absent
+TZ=unset
+lrwxrwxrwx 1 root root 27 Oct 27 02:32 /etc/localtime -> /usr/share/zoneinfo/Etc/UTC
+Africa
+America
+Antarctica
+ulimit -c: unlimited
+|/nix/store/nsnnq7d20i8rb12w0dk6xpcxi4nc7xcd-systemd/lib/systemd/systemd-coredump %P %u %g %s %t %c %h %d %F %I
+env names: CASES HOME HOSTNAME OLDPWD PATH PROBES PWD QUICK SHLVL STOP_ON_FAIL _ container 
+fs of /out: ext2/ext3
+fs of /work: ext2/ext3
+END env exit=0
+BEGIN fetch
+fetch-toolchain: wolf-0.2.36-x86_64-unknown-linux-gnu.tar.gz d383c74c8cd123b9… -> /work/.wolf-bin/wolf-0.2.36-x86_64-unknown-linux-gnu/wolf
+END fetch exit=0
+BEGIN stale.native
+stale-compiler: tier=native pin='wolf 0.2.36 (wolfgang, pin 5adf3d9)' stale='wolf 0.0.1 (wolfgang, pin 0000000)'
+PASS control: the pin's compiler alone
+PASS an older compiler staged beside the pin's
+PASS an older compiler staged alone
+PASS the pin's directory holding another version
+PASS WOLF naming another version
+stale-compiler: tier=native pass=5 fail=0
+END stale.native exit=0
+BEGIN build.native
+build: native: 8 objects, 57 exports defined, 43 internal references, 0 imports -> /work/build/native/libmuzzle.a
+END build.native exit=0
+BEGIN difftest.native
+difftest: tier=native glibc=glibc 2.39 Ubuntu clang version 18.1.3 (1ubuntu1)
+PASS errno exit=0 lines=10 stderr=0 files=0
+PASS exit exit=42 lines=1 stderr=0 files=0
+PASS exit_c17 exit=250 lines=1 stderr=0 files=0
+PASS exit_posix exit=3 lines=1 stderr=0 files=0
+PASS main_return exit=7 lines=1 stderr=0 files=0
+PASS malloc exit=0 lines=20 stderr=0 files=0
+PASS mem exit=0 lines=38 stderr=0 files=0
+PASS printf exit=0 lines=193 stderr=0 files=0
+PASS printf_grammar exit=0 lines=629765 stderr=0 files=0
+PASS snprintf exit=0 lines=255 stderr=0 files=0
+PASS stdio_buf exit=0 lines=50 stderr=0 files=9
+PASS stdio_char exit=0 lines=57 stderr=0 files=2
+PASS stdio_err exit=0 lines=1 stderr=51 files=0
+PASS stdio_exit exit=5 lines=1 stderr=0 files=3
+PASS stdio_exit_ exit=4 lines=1 stderr=0 files=2
+PASS stdio_open exit=0 lines=70 stderr=0 files=6
+PASS stdio_rw exit=0 lines=25 stderr=0 files=2
+PASS stdio_tty exit=0 lines=5 stderr=2 files=0 tty
+PASS stdio_ungetc exit=0 lines=29 stderr=0 files=1
+PASS str exit=0 lines=29 stderr=0 files=0
+PASS unistd exit=0 lines=44 stderr=0 files=2
+PASS vprintf exit=0 lines=15 stderr=0 files=1
+PASS write exit=0 lines=9 stderr=0 files=0
+PASS own-fflush_pushback checks=8
+PASS own-printf_refusals checks=20
+difftest: tier=native pass=25 fail=0
+END difftest.native exit=0
+BEGIN stale.release
+stale-compiler: tier=release pin='wolf 0.2.36 (wolfgang, pin 5adf3d9)' stale='wolf 0.0.1 (wolfgang, pin 0000000)'
+PASS control: the pin's compiler alone
+PASS an older compiler staged beside the pin's
+PASS an older compiler staged alone
+PASS the pin's directory holding another version
+PASS WOLF naming another version
+stale-compiler: tier=release pass=5 fail=0
+END stale.release exit=0
+BEGIN build.release
+build: release: 9 objects, 57 exports defined, 48 internal references, 0 imports -> /work/build/release/libmuzzle.a
+END build.release exit=0
+BEGIN difftest.release
+difftest: tier=release glibc=glibc 2.39 Ubuntu clang version 18.1.3 (1ubuntu1)
+PASS errno exit=0 lines=10 stderr=0 files=0
+PASS exit exit=42 lines=1 stderr=0 files=0
+PASS exit_c17 exit=250 lines=1 stderr=0 files=0
+PASS exit_posix exit=3 lines=1 stderr=0 files=0
+PASS main_return exit=7 lines=1 stderr=0 files=0
+PASS malloc exit=0 lines=20 stderr=0 files=0
+PASS mem exit=0 lines=38 stderr=0 files=0
+PASS printf exit=0 lines=193 stderr=0 files=0
+PASS printf_grammar exit=0 lines=629765 stderr=0 files=0
+PASS snprintf exit=0 lines=255 stderr=0 files=0
+PASS stdio_buf exit=0 lines=50 stderr=0 files=9
+PASS stdio_char exit=0 lines=57 stderr=0 files=2
+PASS stdio_err exit=0 lines=1 stderr=51 files=0
+PASS stdio_exit exit=5 lines=1 stderr=0 files=3
+PASS stdio_exit_ exit=4 lines=1 stderr=0 files=2
+PASS stdio_open exit=0 lines=70 stderr=0 files=6
+PASS stdio_rw exit=0 lines=25 stderr=0 files=2
+PASS stdio_tty exit=0 lines=5 stderr=2 files=0 tty
+PASS stdio_ungetc exit=0 lines=29 stderr=0 files=1
+PASS str exit=0 lines=29 stderr=0 files=0
+PASS unistd exit=0 lines=44 stderr=0 files=2
+PASS vprintf exit=0 lines=15 stderr=0 files=1
+PASS write exit=0 lines=9 stderr=0 files=0
+PASS own-fflush_pushback checks=8
+PASS own-printf_refusals checks=20
+difftest: tier=release pass=25 fail=0
+END difftest.release exit=0
+BEGIN probe.p1-names.native
+probe p1-names native build exit=0
+  objects: lib.o 
+  defined: abort abs access aligned_alloc atexit atoi atol atoll bsearch chdir clock clock_gettime closedir div dup dup2 environ fstat getcwd getenv gmtime gmtime_r labs ldiv llabs lldiv localtime localtime_r lstat mkdir mktime nanosleep openat opendir perror pipe posix_memalign qsort rand readdir readlink rename rmdir setenv srand stat strerror strftime strtod strtol strtoll strtoul strtoull symlink time timegm unlink unsetenv 
+  undefined: 
+END probe.p1-names.native exit=0
+BEGIN probe.p1-names.release
+probe p1-names release build exit=0
+  objects: lib.o 
+  defined: abort abs access aligned_alloc atexit atoi atol atoll bsearch chdir clock clock_gettime closedir div dup dup2 environ fstat getcwd getenv gmtime gmtime_r labs ldiv llabs lldiv localtime localtime_r lstat mkdir mktime nanosleep openat opendir perror pipe posix_memalign qsort rand readdir readlink rename rmdir setenv srand stat strerror strftime strtod strtol strtoll strtoul strtoull symlink time timegm unlink unsetenv 
+  undefined: 
+END probe.p1-names.release exit=0
+BEGIN probe.p2-abi.native
+probe p2-abi native build exit=0
+  objects: lib.asm-t1.o lib.asm-t2.o lib.o 
+  defined:  __p2_call0 __p2_call2 __p2_env p2_apply p2_div p2_env_first p2_ldiv p2_mul p2_run 
+  undefined:  __p2_call0 __p2_call2 __p2_env wolf_trap 
+  link exit=0
+div.quot=-3
+div.rem=-1
+ldiv.quot=-2333333333
+ldiv.rem=-1
+apply=-4
+run.hits=3
+env.first=66
+mul=4294967294
+  run exit=0
+END probe.p2-abi.native exit=0
+BEGIN probe.p2-abi.release
+probe p2-abi release build exit=0
+  objects: lib.asm-t1.o lib.asm-t2.o lib.o 
+  defined:  __p2_call0 __p2_call2 __p2_env p2_apply p2_div p2_env_first p2_ldiv p2_mul p2_run 
+  undefined:  __p2_call0 __p2_call2 __p2_env wolf_trap 
+  link exit=0
+div.quot=-3
+div.rem=-1
+ldiv.quot=-2333333333
+ldiv.rem=-1
+apply=-4
+run.hits=3
+env.first=66
+mul=4294967294
+  run exit=0
+END probe.p2-abi.release exit=0
+BEGIN probe.p3a-f64.native
+probe p3a-f64 native build exit=4
+  | wolf build: cannot compile this yet — a floating-point value (`f64`) on target x86_64-unknown-none (K10: kernel code keeps no SSE or x87 state) @130..134 (pipeline is honest through `wir`; the conservatism ledger, not a bug in your program)
+END probe.p3a-f64.native exit=4
+BEGIN probe.p3a-f64.release
+probe p3a-f64 release build exit=4
+  | wolf build: cannot compile this yet — a floating-point value (`f64`) on target x86_64-unknown-none (K10: kernel code keeps no SSE or x87 state) @130..134 (pipeline is honest through `wir`; the conservatism ledger, not a bug in your program)
+END probe.p3a-f64.release exit=4
+BEGIN probe.p3b-u128.native
+probe p3b-u128 native build exit=2
+  | error[E0301]: nothing named `u128` is in scope
+  |  --> ./lib.lu:5:18
+  |   |
+  | 5 |     let w = a as u128 * b as u128
+  |   |                  ^^^^ not found
+  |   |
+  | 
+  | error[E0301]: nothing named `u128` is in scope
+  |  --> ./lib.lu:5:30
+  |   |
+  | 5 |     let w = a as u128 * b as u128
+  |   |                              ^^^^ not found
+  |   |
+  | 
+  | wolf build: the package does not compile; fix the errors above (`wolf --explain E0301` explains this code, or any other, by name)
+END probe.p3b-u128.native exit=2
+BEGIN probe.p3b-u128.release
+probe p3b-u128 release build exit=2
+  | error[E0301]: nothing named `u128` is in scope
+  |  --> ./lib.lu:5:18
+  |   |
+  | 5 |     let w = a as u128 * b as u128
+  |   |                  ^^^^ not found
+  |   |
+  | 
+  | error[E0301]: nothing named `u128` is in scope
+  |  --> ./lib.lu:5:30
+  |   |
+  | 5 |     let w = a as u128 * b as u128
+  |   |                              ^^^^ not found
+  |   |
+  | 
+  | wolf build: the package does not compile; fix the errors above (`wolf --explain E0301` explains this code, or any other, by name)
+END probe.p3b-u128.release exit=2
+BEGIN glibc.g1
+/probes/g1.c:54:34: warning: requested alignment is not a power of 2 [-Wnon-power-of-two-alignment]
+   54 |     errno = 0; p = aligned_alloc(3, 10); printf("aligned_alloc(3) null=%d errno=%d\n", p == NULL, errno);
+      |                                  ^
+1 warning generated.
+  exit=0
+qsort.stable n=5 mod=2 1
+qsort.stable n=40 mod=3 1
+qsort.stable n=1000 mod=7 1
+qsort.stable n=100000 mod=10 1
+qsort.stable n=2000000 mod=10 1
+strerror -2 [Unknown error -2]
+strerror -1 [Unknown error -1]
+strerror 0 [Success]
+strerror 1 [Operation not permitted]
+strerror 2 [No such file or directory]
+strerror 3 [No such process]
+strerror 4 [Interrupted system call]
+strerror 5 [Input/output error]
+strerror 6 [No such device or address]
+strerror 7 [Argument list too long]
+strerror 8 [Exec format error]
+strerror 9 [Bad file descriptor]
+strerror 10 [No child processes]
+strerror 11 [Resource temporarily unavailable]
+strerror 12 [Cannot allocate memory]
+strerror 13 [Permission denied]
+strerror 14 [Bad address]
+strerror 15 [Block device required]
+strerror 16 [Device or resource busy]
+strerror 17 [File exists]
+strerror 18 [Invalid cross-device link]
+strerror 19 [No such device]
+strerror 20 [Not a directory]
+strerror 21 [Is a directory]
+strerror 22 [Invalid argument]
+strerror 23 [Too many open files in system]
+strerror 24 [Too many open files]
+strerror 25 [Inappropriate ioctl for device]
+strerror 26 [Text file busy]
+strerror 27 [File too large]
+strerror 28 [No space left on device]
+strerror 29 [Illegal seek]
+strerror 30 [Read-only file system]
+strerror 31 [Too many links]
+strerror 32 [Broken pipe]
+strerror 33 [Numerical argument out of domain]
+strerror 34 [Numerical result out of range]
+strerror 35 [Resource deadlock avoided]
+strerror 36 [File name too long]
+strerror 37 [No locks available]
+strerror 38 [Function not implemented]
+strerror 39 [Directory not empty]
+strerror 40 [Too many levels of symbolic links]
+strerror 41 [Unknown error 41]
+strerror 42 [No message of desired type]
+strerror 43 [Identifier removed]
+strerror 44 [Channel number out of range]
+strerror 45 [Level 2 not synchronized]
+strerror 46 [Level 3 halted]
+strerror 47 [Level 3 reset]
+strerror 48 [Link number out of range]
+strerror 49 [Protocol driver not attached]
+strerror 50 [No CSI structure available]
+strerror 51 [Level 2 halted]
+strerror 52 [Invalid exchange]
+strerror 53 [Invalid request descriptor]
+strerror 54 [Exchange full]
+strerror 55 [No anode]
+strerror 56 [Invalid request code]
+strerror 57 [Invalid slot]
+strerror 58 [Unknown error 58]
+strerror 59 [Bad font file format]
+strerror 60 [Device not a stream]
+strerror 61 [No data available]
+strerror 62 [Timer expired]
+strerror 63 [Out of streams resources]
+strerror 64 [Machine is not on the network]
+strerror 65 [Package not installed]
+strerror 66 [Object is remote]
+strerror 67 [Link has been severed]
+strerror 68 [Advertise error]
+strerror 69 [Srmount error]
+strerror 70 [Communication error on send]
+strerror 71 [Protocol error]
+strerror 72 [Multihop attempted]
+strerror 73 [RFS specific error]
+strerror 74 [Bad message]
+strerror 75 [Value too large for defined data type]
+strerror 76 [Name not unique on network]
+strerror 77 [File descriptor in bad state]
+strerror 78 [Remote address changed]
+strerror 79 [Can not access a needed shared library]
+strerror 80 [Accessing a corrupted shared library]
+strerror 81 [.lib section in a.out corrupted]
+strerror 82 [Attempting to link in too many shared libraries]
+strerror 83 [Cannot exec a shared library directly]
+strerror 84 [Invalid or incomplete multibyte or wide character]
+strerror 85 [Interrupted system call should be restarted]
+strerror 86 [Streams pipe error]
+strerror 87 [Too many users]
+strerror 88 [Socket operation on non-socket]
+strerror 89 [Destination address required]
+strerror 90 [Message too long]
+strerror 91 [Protocol wrong type for socket]
+strerror 92 [Protocol not available]
+strerror 93 [Protocol not supported]
+strerror 94 [Socket type not supported]
+strerror 95 [Operation not supported]
+strerror 96 [Protocol family not supported]
+strerror 97 [Address family not supported by protocol]
+strerror 98 [Address already in use]
+strerror 99 [Cannot assign requested address]
+strerror 100 [Network is down]
+strerror 101 [Network is unreachable]
+strerror 102 [Network dropped connection on reset]
+strerror 103 [Software caused connection abort]
+strerror 104 [Connection reset by peer]
+strerror 105 [No buffer space available]
+strerror 106 [Transport endpoint is already connected]
+strerror 107 [Transport endpoint is not connected]
+strerror 108 [Cannot send after transport endpoint shutdown]
+strerror 109 [Too many references: cannot splice]
+strerror 110 [Connection timed out]
+strerror 111 [Connection refused]
+strerror 112 [Host is down]
+strerror 113 [No route to host]
+strerror 114 [Operation already in progress]
+strerror 115 [Operation now in progress]
+strerror 116 [Stale file handle]
+strerror 117 [Structure needs cleaning]
+strerror 118 [Not a XENIX named type file]
+strerror 119 [No XENIX semaphores available]
+strerror 120 [Is a named type file]
+strerror 121 [Remote I/O error]
+strerror 122 [Disk quota exceeded]
+strerror 123 [No medium found]
+strerror 124 [Wrong medium type]
+strerror 125 [Operation canceled]
+strerror 126 [Required key not available]
+strerror 127 [Key has expired]
+strerror 128 [Key has been revoked]
+strerror 129 [Key was rejected by service]
+strerror 130 [Owner died]
+strerror 131 [State not recoverable]
+strerror 132 [Operation not possible due to RF-kill]
+strerror 133 [Memory page has hardware error]
+strerror 134 [Unknown error 134]
+strerror 135 [Unknown error 135]
+strerror 136 [Unknown error 136]
+strerror 1000 [^UmM-^Ng^E]
+strerror INT_MIN [Unknown error -2147483648]
+strtod [1e-320] bits=00000000000007e8 end=6 errno=34
+strtod [4.9e-324] bits=0000000000000001 end=8 errno=34
+strtod [2.4703282292062327e-324] bits=0000000000000000 end=23 errno=34
+strtod [2.4703282292062328e-324] bits=0000000000000001 end=23 errno=34
+strtod [1e-400] bits=0000000000000000 end=6 errno=34
+strtod [1e400] bits=7ff0000000000000 end=5 errno=34
+strtod [0x1p-1074] bits=0000000000000001 end=9 errno=0
+strtod [0x1p-1075] bits=0000000000000000 end=9 errno=34
+strtod [0x1.8p-1075] bits=0000000000000001 end=11 errno=34
+strtod [0x1.fffffffffffff8p1023] bits=7ff0000000000000 end=23 errno=34
+strtod [nan(123)] bits=7ff800000000007b end=8 errno=0
+strtod [-nan] bits=fff8000000000000 end=4 errno=0
+strtod [nan(] bits=7ff8000000000000 end=3 errno=0
+strtod [infinity] bits=7ff0000000000000 end=8 errno=0
+strtod [INF] bits=7ff0000000000000 end=3 errno=0
+strtod [infinit] bits=7ff0000000000000 end=3 errno=0
+strtod [2.2250738585072011e-308] bits=000fffffffffffff end=23 errno=34
+strtod [2.2250738585072014e-308] bits=0010000000000000 end=23 errno=0
+strtod [0x] bits=0000000000000000 end=1 errno=0
+strtod [0x.p1] bits=0000000000000000 end=1 errno=0
+strtod [1e] bits=3ff0000000000000 end=1 errno=0
+strtod [1e+] bits=3ff0000000000000 end=1 errno=0
+strtod [.] bits=0000000000000000 end=0 errno=0
+strtod [-.5e-1] bits=bfa999999999999a end=6 errno=0
+strtod [  +12] bits=4028000000000000 end=5 errno=0
+strtod [0x1P] bits=3ff0000000000000 end=3 errno=0
+strtod [1.7976931348623158e308] bits=7fefffffffffffff end=22 errno=0
+strtod [1.7976931348623159e308] bits=7ff0000000000000 end=22 errno=34
+strtol [  -0x1Z] base=0 v=-1 end=6 errno=0 ul=18446744073709551615 errno=0
+strtol [  -0x1Z] base=1 v=0 end=6 errno=22 ul=0 errno=22
+strtol [  -0x1Z] base=37 v=0 end=6 errno=22 ul=0 errno=22
+strtol [  -0x1Z] base=16 v=-1 end=6 errno=0 ul=18446744073709551615 errno=0
+strtol [  -0x1Z] base=36 v=-42839 end=7 errno=0 ul=18446744073709508777 errno=0
+strtol [0x] base=0 v=0 end=1 errno=0 ul=0 errno=0
+strtol [0x] base=1 v=0 end=1 errno=22 ul=0 errno=22
+strtol [0x] base=37 v=0 end=1 errno=22 ul=0 errno=22
+strtol [0x] base=16 v=0 end=1 errno=0 ul=0 errno=0
+strtol [0x] base=36 v=33 end=2 errno=0 ul=33 errno=0
+strtol [08] base=0 v=0 end=1 errno=0 ul=0 errno=0
+strtol [08] base=1 v=0 end=1 errno=22 ul=0 errno=22
+strtol [08] base=37 v=0 end=1 errno=22 ul=0 errno=22
+strtol [08] base=16 v=8 end=2 errno=0 ul=8 errno=0
+strtol [08] base=36 v=8 end=2 errno=0 ul=8 errno=0
+strtol [z] base=0 v=0 end=0 errno=0 ul=0 errno=0
+strtol [z] base=1 v=0 end=0 errno=22 ul=0 errno=22
+strtol [z] base=37 v=0 end=0 errno=22 ul=0 errno=22
+strtol [z] base=16 v=0 end=0 errno=0 ul=0 errno=0
+strtol [z] base=36 v=35 end=1 errno=0 ul=35 errno=0
+strtol [  +] base=0 v=0 end=0 errno=0 ul=0 errno=0
+strtol [  +] base=1 v=0 end=0 errno=22 ul=0 errno=22
+strtol [  +] base=37 v=0 end=0 errno=22 ul=0 errno=22
+strtol [  +] base=16 v=0 end=0 errno=0 ul=0 errno=0
+strtol [  +] base=36 v=0 end=0 errno=0 ul=0 errno=0
+strtol [-9223372036854775809] base=0 v=-9223372036854775808 end=20 errno=34 ul=9223372036854775807 errno=0
+strtol [-9223372036854775809] base=1 v=0 end=20 errno=22 ul=0 errno=22
+strtol [-9223372036854775809] base=37 v=0 end=20 errno=22 ul=0 errno=22
+strtol [-9223372036854775809] base=16 v=-9223372036854775808 end=20 errno=34 ul=18446744073709551615 errno=34
+strtol [-9223372036854775809] base=36 v=-9223372036854775808 end=20 errno=34 ul=18446744073709551615 errno=34
+strtol [18446744073709551616] base=0 v=9223372036854775807 end=20 errno=34 ul=18446744073709551615 errno=34
+strtol [18446744073709551616] base=1 v=0 end=20 errno=22 ul=0 errno=22
+strtol [18446744073709551616] base=37 v=0 end=20 errno=22 ul=0 errno=22
+strtol [18446744073709551616] base=16 v=9223372036854775807 end=20 errno=34 ul=18446744073709551615 errno=34
+strtol [18446744073709551616] base=36 v=9223372036854775807 end=20 errno=34 ul=18446744073709551615 errno=34
+strtol [-1] base=0 v=-1 end=2 errno=0 ul=18446744073709551615 errno=0
+strtol [-1] base=1 v=0 end=2 errno=22 ul=0 errno=22
+strtol [-1] base=37 v=0 end=2 errno=22 ul=0 errno=22
+strtol [-1] base=16 v=-1 end=2 errno=0 ul=18446744073709551615 errno=0
+strtol [-1] base=36 v=-1 end=2 errno=0 ul=18446744073709551615 errno=0
+RAND_MAX=2147483647 rand=1804289383,846930886,1681692777
+realloc0 null=1 errno=0
+aligned_alloc(3) null=1 errno=22
+aligned_alloc(16,10) null=0 errno=0
+posix_memalign(4) r=22 errno=0
+atexit ok=100
+strftime gm [GMT|+0000|Thu Jan  1 00:00:00 1970|01/01/70|00:00:00|12:00:00 AM|AM|Thu Jan  1 00:00:00 1970|%Ox|1970-01|0| 0|12|am|%+] zone=GMT off=0
+strftime local [UTC|+0000] zone=UTC off=0 isdst=0 TZ=(unset)
+mktime isdst=1 -> -3600 isdst=0
+mktime isdst=-1 -> 0 isdst=0 zone=UTC
+strftime zero tm [UTC][+0000]
+CLOCKS_PER_SEC=1000000
+
+  stderr:
+p: Success
+Invalid argument
+Invalid argument
+END glibc.g1 exit=0
+job: container exit=0
+DONE 2026-11-09T18:03:35Z job=explore1 exit=0

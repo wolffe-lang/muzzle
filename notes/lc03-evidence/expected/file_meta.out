@@ -1,0 +1,58 @@
+fstat open r=0 reg perm=640 size=10 nlink=1
+stat f.txt r=0 reg perm=640 size=10 nlink=1
+mtime in window=1 atim nsec=1
+blksize>0=1 blocks>=0=1
+stat missing r=-1 errno=2
+stat under file r=-1 errno=20
+stat empty r=-1 errno=2
+fstat bad r=-1 errno=9
+stat . r=0 dir perm=755 size=4096 nlink=2
+fstat pipe r=0 fifo perm=600 size=0 nlink=1
+fstat /dev/null r=0 chr perm=666 size=0 nlink=1
+symlink r=0 errno=0
+lstat ln r=0 lnk perm=777 size=5 nlink=1
+stat ln r=0 reg perm=640 size=10 nlink=1
+readlink r=5 errno=0 [f.txt] next=#
+readlink short r=3 [f.t]
+readlink not a link r=-1 errno=22
+readlink missing r=-1 errno=2
+symlink exists r=-1 errno=17
+symlink dangling r=0 errno=0
+lstat dangle r=0 lnk perm=777 size=7 nlink=1
+stat dangle r=-1 errno=2
+unlink dangle r=0 errno=0
+unlink ln r=0 errno=0
+stat f.txt after unlink ln r=0 reg perm=640 size=10 nlink=1
+mkdir d r=0 errno=0
+stat d r=0 dir perm=750 size=4096 nlink=2
+mkdir d again r=-1 errno=17
+mkdir no parent r=-1 errno=2
+mkdir under file r=-1 errno=20
+mkdir d/e r=0 errno=0
+stat d (2 links more) r=0 dir perm=750 size=4096 nlink=3
+rmdir non-empty r=-1 errno=39
+rmdir file r=-1 errno=20
+rmdir missing r=-1 errno=2
+rmdir dot r=-1 errno=22
+unlink dir r=-1 errno=21
+rmdir d/e r=0 errno=0
+rename f->h r=0 errno=0
+stat f gone r=-1 errno=2
+rename onto existing r=0 errno=0
+stat h r=0 reg perm=600 size=2 nlink=1
+rename missing r=-1 errno=2
+rename same r=0 errno=0
+rename into dir r=0 errno=0
+mkdir k r=0 errno=0
+rename dir onto non-empty r=-1 errno=39
+rename file onto dir r=-1 errno=21
+rename dir onto file r=-1 errno=20
+rename dir into itself r=-1 errno=22
+rename dir onto empty dir r=0 errno=0
+rmdir d2 r=0 errno=0
+unlink missing r=-1 errno=2
+unlink m r=0 errno=0
+unlink under file r=-1 errno=20
+unlink d/h r=0 errno=0
+rmdir d r=0 errno=0
+umask-free mode bits checked: S_IRWXU=700 S_IFMT=170000 S_IFDIR=40000 S_IFREG=100000 S_IFLNK=120000

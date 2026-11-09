@@ -1,0 +1,35 @@
+PATH set=1
+getenv(LC03_A)=(null)
+setenv new r=0 errno=0 count=+1
+getenv(LC03_A)=[one]
+LC03_A at end-1=1
+setenv keep r=0
+getenv(LC03_A)=[one]
+setenv over r=0 count=+1
+getenv(LC03_A)=[two]
+LC03_A at end-1=1
+setenv eq r=0
+getenv(LC03_B)=[x=y=]
+setenv empty value r=0
+getenv(LC03_C)=[]
+getenv(LC03)=(null)
+getenv(LC03_)=(null)
+getenv()=(null)
+bad [] setenv=-1/22 unsetenv=-1/22
+bad [A=B] setenv=-1/22 unsetenv=-1/22
+bad [=] setenv=-1/22 unsetenv=-1/22
+bad [LC03_A=] setenv=-1/22 unsetenv=-1/22
+setenv(NULL) r=-1 errno=22
+unsetenv(NULL) r=-1 errno=22
+unsetenv r=0 errno=0 count=+2
+getenv(LC03_A)=(null)
+unsetenv absent r=0 count=+2
+getenv(LC03_B)=[x=y=]
+many count=+202
+many ok=1 order=1 count=+135
+duplicates=0
+getenv(MINE)=[1]
+getenv(OTHER)=[two]
+getenv(PATH)=(null)
+getenv(LC03_V1)=[7]
+PATH again=1

@@ -1,0 +1,121 @@
+aligned_alloc(1,1) null=0 ok=1 errno=0
+aligned_alloc(1,16) null=0 ok=1 errno=0
+aligned_alloc(1,100) null=0 ok=1 errno=0
+aligned_alloc(1,4096) null=0 ok=1 errno=0
+aligned_alloc(1,70000) null=0 ok=1 errno=0
+aligned_alloc(2,1) null=0 ok=1 errno=0
+aligned_alloc(2,16) null=0 ok=1 errno=0
+aligned_alloc(2,100) null=0 ok=1 errno=0
+aligned_alloc(2,4096) null=0 ok=1 errno=0
+aligned_alloc(2,70000) null=0 ok=1 errno=0
+aligned_alloc(4,1) null=0 ok=1 errno=0
+aligned_alloc(4,16) null=0 ok=1 errno=0
+aligned_alloc(4,100) null=0 ok=1 errno=0
+aligned_alloc(4,4096) null=0 ok=1 errno=0
+aligned_alloc(4,70000) null=0 ok=1 errno=0
+aligned_alloc(8,1) null=0 ok=1 errno=0
+aligned_alloc(8,16) null=0 ok=1 errno=0
+aligned_alloc(8,100) null=0 ok=1 errno=0
+aligned_alloc(8,4096) null=0 ok=1 errno=0
+aligned_alloc(8,70000) null=0 ok=1 errno=0
+aligned_alloc(16,1) null=0 ok=1 errno=0
+aligned_alloc(16,16) null=0 ok=1 errno=0
+aligned_alloc(16,100) null=0 ok=1 errno=0
+aligned_alloc(16,4096) null=0 ok=1 errno=0
+aligned_alloc(16,70000) null=0 ok=1 errno=0
+aligned_alloc(32,1) null=0 ok=1 errno=0
+aligned_alloc(32,16) null=0 ok=1 errno=0
+aligned_alloc(32,100) null=0 ok=1 errno=0
+aligned_alloc(32,4096) null=0 ok=1 errno=0
+aligned_alloc(32,70000) null=0 ok=1 errno=0
+aligned_alloc(64,1) null=0 ok=1 errno=0
+aligned_alloc(64,16) null=0 ok=1 errno=0
+aligned_alloc(64,100) null=0 ok=1 errno=0
+aligned_alloc(64,4096) null=0 ok=1 errno=0
+aligned_alloc(64,70000) null=0 ok=1 errno=0
+aligned_alloc(128,1) null=0 ok=1 errno=0
+aligned_alloc(128,16) null=0 ok=1 errno=0
+aligned_alloc(128,100) null=0 ok=1 errno=0
+aligned_alloc(128,4096) null=0 ok=1 errno=0
+aligned_alloc(128,70000) null=0 ok=1 errno=0
+aligned_alloc(256,1) null=0 ok=1 errno=0
+aligned_alloc(256,16) null=0 ok=1 errno=0
+aligned_alloc(256,100) null=0 ok=1 errno=0
+aligned_alloc(256,4096) null=0 ok=1 errno=0
+aligned_alloc(256,70000) null=0 ok=1 errno=0
+aligned_alloc(1024,1) null=0 ok=1 errno=0
+aligned_alloc(1024,16) null=0 ok=1 errno=0
+aligned_alloc(1024,100) null=0 ok=1 errno=0
+aligned_alloc(1024,4096) null=0 ok=1 errno=0
+aligned_alloc(1024,70000) null=0 ok=1 errno=0
+aligned_alloc(4096,1) null=0 ok=1 errno=0
+aligned_alloc(4096,16) null=0 ok=1 errno=0
+aligned_alloc(4096,100) null=0 ok=1 errno=0
+aligned_alloc(4096,4096) null=0 ok=1 errno=0
+aligned_alloc(4096,70000) null=0 ok=1 errno=0
+aligned_alloc(65536,1) null=0 ok=1 errno=0
+aligned_alloc(65536,16) null=0 ok=1 errno=0
+aligned_alloc(65536,100) null=0 ok=1 errno=0
+aligned_alloc(65536,4096) null=0 ok=1 errno=0
+aligned_alloc(65536,70000) null=0 ok=1 errno=0
+aligned_alloc(1048576,1) null=0 ok=1 errno=0
+aligned_alloc(1048576,16) null=0 ok=1 errno=0
+aligned_alloc(1048576,100) null=0 ok=1 errno=0
+aligned_alloc(1048576,4096) null=0 ok=1 errno=0
+aligned_alloc(1048576,70000) null=0 ok=1 errno=0
+aligned_alloc(0,64) null=1 errno=22
+aligned_alloc(3,64) null=1 errno=22
+aligned_alloc(24,64) null=1 errno=22
+aligned_alloc(100,64) null=1 errno=22
+aligned_alloc(huge) null=1 errno=12
+posix_memalign(8,200) r=0 ok=1 untouched=0 errno=0
+posix_memalign(16,200) r=0 ok=1 untouched=0 errno=0
+posix_memalign(32,200) r=0 ok=1 untouched=0 errno=0
+posix_memalign(4096,200) r=0 ok=1 untouched=0 errno=0
+posix_memalign(65536,200) r=0 ok=1 untouched=0 errno=0
+posix_memalign(0,200) r=22 ok=0 untouched=1 errno=0
+posix_memalign(4,200) r=22 ok=0 untouched=1 errno=0
+posix_memalign(12,200) r=22 ok=0 untouched=1 errno=0
+posix_memalign(24,200) r=22 ok=0 untouched=1 errno=0
+posix_memalign(64,0) r=0
+posix_memalign(64,huge) r=12 errno=12
+realloc 1->7 kept=1
+realloc 7->16 kept=1
+realloc 16->17 kept=1
+realloc 17->31 kept=1
+realloc 31->100 kept=1
+realloc 100->1000 kept=1
+realloc 1000->4096 kept=1
+realloc 4096->4097 kept=1
+realloc 4097->65536 kept=1
+realloc 65536->65537 kept=1
+realloc 65537->200000 kept=1
+realloc 200000->1048576 kept=1
+realloc 1048576->3145728 kept=1
+realloc 3145728->1048576 kept=1
+realloc 1048576->200000 kept=1
+realloc 200000->65537 kept=1
+realloc 65537->65536 kept=1
+realloc 65536->4097 kept=1
+realloc 4097->4096 kept=1
+realloc 4096->1000 kept=1
+realloc 1000->100 kept=1
+realloc 100->31 kept=1
+realloc 31->17 kept=1
+realloc 17->16 kept=1
+realloc 16->7 kept=1
+realloc 7->1 kept=1
+realloc huge null=1 errno=12 still=1
+realloc aligned(32) 32->1600 kept=1
+realloc aligned(32) shrink kept=1
+realloc aligned(128) 128->6400 kept=1
+realloc aligned(128) shrink kept=1
+realloc aligned(512) 512->25600 kept=1
+realloc aligned(512) shrink kept=1
+realloc aligned(2048) 2048->102400 kept=1
+realloc aligned(2048) shrink kept=1
+realloc aligned(8192) 8192->409600 kept=1
+realloc aligned(8192) shrink kept=1
+mixed aligned=1 intact=1
+calloc overflow null=1 errno=12
+calloc zeroed=1

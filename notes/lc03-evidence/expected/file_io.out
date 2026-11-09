@@ -1,0 +1,82 @@
+open create fd=3
+write r=13 errno=0
+write zero r=0 errno=0
+lseek cur r=13 errno=0
+read wronly r=-1 errno=9
+close r=0 errno=0
+close again r=-1 errno=9
+close -1 r=-1 errno=9
+open rdonly fd=3
+read 5 r=5 errno=0
+  [hello]
+lseek set 7 r=7 errno=0
+read rest r=6 errno=0
+  [world
+]
+read eof r=0 errno=0
+lseek end -6 r=7 errno=0
+lseek cur +2 r=9 errno=0
+lseek negative r=-1 errno=22
+lseek whence 9 r=-1 errno=22
+lseek past end r=100 errno=0
+write rdonly r=-1 errno=9
+dup fd=4
+lseek via dup r=3 errno=0
+offset seen by original r=3 errno=0
+dup2 same r=3 errno=0
+dup2 to 50 r=50 errno=0
+offset via 50 r=3 errno=0
+dup2 onto open r=50 errno=0
+dup2 bad old r=-1 errno=9
+dup2 bad new r=-1 errno=9
+dup bad r=-1 errno=9
+close 50 r=0 errno=0
+close dup r=0 errno=0
+close fd r=0 errno=0
+lowest a=3 b=4 c=3
+append write r=5 errno=0
+append offset r=18 errno=0
+open excl existing r=-1 errno=17
+open missing r=-1 errno=2
+open empty name r=-1 errno=2
+open under file r=-1 errno=20
+mkdir d r=0 errno=0
+open dir wronly r=-1 errno=21
+open dir rdonly r=3 errno=0
+open file as dir r=-1 errno=20
+cloexec write r=6 errno=0
+pread-like lseek r=2 errno=0
+read 2 r=2 errno=0
+  [cd]
+truncated size r=0 errno=0
+dir fd=3
+openat fd=4
+write inner r=7 errno=0
+read inner by path r=7 errno=0
+  [inside
+]
+openat cwd r=4 errno=0
+openat absolute ignores dir r=4 errno=0
+openat bad dirfd r=-1 errno=9
+openat file as dirfd r=-1 errno=20
+pipe r=0 errno=0
+pipe fds=3,4
+pipe write r=7 errno=0
+pipe read r=3 errno=0
+  [thr]
+pipe lseek r=-1 errno=29
+isatty pipe r=0 errno=25
+pipe read rest r=4 errno=0
+  [ough]
+pipe eof r=0 errno=0
+isatty file r=0 errno=25
+isatty closed r=0 errno=9
+access F_OK r=0 errno=0
+access R_OK r=0 errno=0
+access R_OK|W_OK r=0 errno=0
+access X_OK file r=-1 errno=13
+access X_OK dir r=0 errno=0
+access missing r=-1 errno=2
+access under file r=-1 errno=20
+access bad mode r=-1 errno=22
+F_OK=0 R_OK=4 W_OK=2 X_OK=1

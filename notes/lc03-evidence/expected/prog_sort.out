@@ -1,0 +1,1148 @@
+== bytewise (302)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  0	zebra
+  110	cherry
+  144	plum
+  146	fig
+  146	plum
+  152	pear
+  181	apple
+  184	apple
+  186	kiwi
+  189	plum
+  280	elder
+  282	grape
+  289	cherry
+  298	plum
+  298	plum
+  372	cherry
+  385	date
+  389	elder
+  40	fig
+  425	pear
+  464	grape
+  476	apple
+  476	plum
+  478	fig
+  492	grape
+  504	date
+  527	cherry
+  529	pear
+  550	fig
+  579	date
+  58	date
+  638	cherry
+  64	cherry
+  665	fig
+  68	grape
+  688	banana
+  698	grape
+  708	apple
+  711	date
+  722	plum
+  739	kiwi
+  755	kiwi
+  758	Zebra
+  788	grape
+  794	plum
+  836	cherry
+  839	apple
+  840	elder
+  856	pear
+  864	fig
+  876	kiwi
+  880	Zebra
+  911	date
+  932	cherry
+  936	pear
+  944	fig
+  946	zebra
+  960	pear
+  961	elder
+  967	Zebra
+  979	zebra
+  981	zebra
+  984	banana
+  987	pear
+-10 elder 225
+-11 zebra 25
+-13 cherry 132
+-15 fig 280
+-18 cherry 181
+-18 pear 30
+-19 plum 167
+-2 apple 142
+-20 grape 56
+-24 banana 14
+-25 grape 292
+-26 fig 275
+-27 banana 267
+-29 kiwi 65
+-3 kiwi 277
+-31 kiwi 249
+-35 apple 211
+-35 elder 160
+-38 pear 266
+-39 apple 242
+-4 kiwi 20
+-8 Zebra 22
+0 same-key line 111
+0 same-key line 116
+0 same-key line 173
+0 same-key line 183
+0 same-key line 220
+0 same-key line 251
+0 same-key line 285
+0 same-key line 294
+0 same-key line 3
+0 same-key line 84
+1 grape 209
+1 same-key line 192
+1 same-key line 250
+1 same-key line 264
+1 same-key line 276
+1 same-key line 29
+1 same-key line 290
+1 same-key line 291
+1 same-key line 36
+1 same-key line 50
+11 cherry 164
+11 pear 282
+13 zebra 61
+19 grape 247
+2 same-key line 110
+2 same-key line 169
+2 same-key line 176
+2 same-key line 260
+2 same-key line 270
+2 same-key line 296
+2 same-key line 31
+2 same-key line 48
+2 same-key line 51
+2 same-key line 72
+2 same-key line 86
+2 same-key line 89
+2 same-key line 93
+2 same-key line 96
+20 kiwi 33
+21 apple 218
+23 banana 293
+23 banana 7
+23 elder 241
+25 grape 41
+26 cherry 54
+29 banana 217
+3 same-key line 100
+3 same-key line 106
+3 same-key line 151
+3 same-key line 188
+3 same-key line 195
+3 same-key line 219
+3 same-key line 261
+3 same-key line 286
+3 same-key line 299
+3 same-key line 59
+33 zebra 240
+34 pear 207
+35 plum 252
+38 cherry 129
+4 plum 271
+4 same-key line 1
+4 same-key line 145
+4 same-key line 184
+4 same-key line 200
+4 same-key line 231
+41 fig 213
+43 banana 205
+43 banana 8
+47 fig 174
+5 apple 43
+7 pear 35
+9 banana 2
+9 zebra 178
+Zebra Zebra
+Zebra zebra
+Zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+a line longer than every buffer it meets ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+apple elder
+apple fig
+apple kiwi
+apple zebra
+apple zebra
+applexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+applexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+applexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+banana grape
+banana zebra
+bananaxxxxxxxxxxxxxxx
+cherry Zebra
+cherryxxxxxx
+date
+date apple
+date date
+date date
+date elder
+date elder
+date kiwi
+datexxxxxxxxxxxxxxxxxxxxxxxxxxx
+datexxxxxxxxxxxxxxxxxxxxxxxxxxxx
+datexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+datexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+datexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+datexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+elder fig
+elderxxxxxxxxxxxxxxxxxxxxxxx
+elderxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+elderxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+elderxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+elderxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+elderxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+fig Zebra
+fig Zebra
+fig date
+fig date
+fig grape
+fig grape
+fig grape
+fig grape
+fig pear
+fig pear
+figx
+figxxxx
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+grape Zebra
+grape pear
+grape zebra
+grapexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+kiwi Zebra
+kiwi cherry
+kiwi fig
+kiwi kiwi
+kiwi plum
+kiwixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+kiwixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+last, no newline
+pear elder
+pear kiwi
+pear plum
+pearxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+pearxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+plum Zebra
+plum banana
+plum zebra
+plum zebra
+plumxxxxxxxxxxxxxxxxxxxxxxxxx
+plumxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+plumxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+zebra cherry
+zebraxxxxxxxx
+zebraxxxxxxxxxxxxxxxxxx
+zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+== numeric, stable (302)
+Zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+apple zebra
+
+kiwi cherry
+
+apple fig
+datexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+fig pear
+fig Zebra
+elderxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+fig grape
+kiwi Zebra
+fig Zebra
+date
+elderxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+bananaxxxxxxxxxxxxxxx
+plum zebra
+zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+zebra cherry
+zebraxxxxxxxxxxxxxxxxxx
+applexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+grape pear
+
+zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+pear elder
+fig grape
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+
+
+apple kiwi
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+zebraxxxxxxxx
+
+pearxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+banana zebra
+
+date date
+elderxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+fig date
+
+elderxxxxxxxxxxxxxxxxxxxxxxx
+elder fig
+
+fig pear
+apple zebra
+plum banana
+pearxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+applexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+banana grape
+
+datexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+kiwi kiwi
+elderxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+date kiwi
+plumxxxxxxxxxxxxxxxxxxxxxxxxx
+date apple
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+
+plum Zebra
+
+
+date date
+
+
+plumxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+Zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+elderxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+figxxxx
+
+pear kiwi
+
+datexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+
+Zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+
+
+cherryxxxxxx
+
+date elder
+fig date
+kiwi fig
+applexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+figx
+
+plumxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+grape Zebra
+date elder
+datexxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Zebra Zebra
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+fig grape
+datexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+kiwi plum
+
+
+fig grape
+kiwixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Zebra zebra
+grapexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+grape zebra
+datexxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+pear plum
+
+
+
+cherry Zebra
+
+apple elder
+kiwixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+plum zebra
+a line longer than every buffer it meets ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+last, no newline
+-39 apple 242
+-38 pear 266
+-35 elder 160
+-35 apple 211
+-31 kiwi 249
+-29 kiwi 65
+-27 banana 267
+-26 fig 275
+-25 grape 292
+-24 banana 14
+-20 grape 56
+-19 plum 167
+-18 pear 30
+-18 cherry 181
+-15 fig 280
+-13 cherry 132
+-11 zebra 25
+-10 elder 225
+-8 Zebra 22
+-4 kiwi 20
+-3 kiwi 277
+-2 apple 142
+0 same-key line 3
+0 same-key line 84
+0 same-key line 111
+0 same-key line 116
+  0	zebra
+0 same-key line 173
+0 same-key line 183
+0 same-key line 220
+0 same-key line 251
+0 same-key line 285
+0 same-key line 294
+1 same-key line 29
+1 same-key line 36
+1 same-key line 50
+1 same-key line 192
+1 grape 209
+1 same-key line 250
+1 same-key line 264
+1 same-key line 276
+1 same-key line 290
+1 same-key line 291
+2 same-key line 31
+2 same-key line 48
+2 same-key line 51
+2 same-key line 72
+2 same-key line 86
+2 same-key line 89
+2 same-key line 93
+2 same-key line 96
+2 same-key line 110
+2 same-key line 169
+2 same-key line 176
+2 same-key line 260
+2 same-key line 270
+2 same-key line 296
+3 same-key line 59
+3 same-key line 100
+3 same-key line 106
+3 same-key line 151
+3 same-key line 188
+3 same-key line 195
+3 same-key line 219
+3 same-key line 261
+3 same-key line 286
+3 same-key line 299
+4 same-key line 1
+4 same-key line 145
+4 same-key line 184
+4 same-key line 200
+4 same-key line 231
+4 plum 271
+5 apple 43
+7 pear 35
+9 banana 2
+9 zebra 178
+11 cherry 164
+11 pear 282
+13 zebra 61
+19 grape 247
+20 kiwi 33
+21 apple 218
+23 banana 7
+23 elder 241
+23 banana 293
+25 grape 41
+26 cherry 54
+29 banana 217
+33 zebra 240
+34 pear 207
+35 plum 252
+38 cherry 129
+  40	fig
+41 fig 213
+43 banana 8
+43 banana 205
+47 fig 174
+  58	date
+  64	cherry
+  68	grape
+  110	cherry
+  144	plum
+  146	plum
+  146	fig
+  152	pear
+  181	apple
+  184	apple
+  186	kiwi
+  189	plum
+  280	elder
+  282	grape
+  289	cherry
+  298	plum
+  298	plum
+  372	cherry
+  385	date
+  389	elder
+  425	pear
+  464	grape
+  476	apple
+  476	plum
+  478	fig
+  492	grape
+  504	date
+  527	cherry
+  529	pear
+  550	fig
+  579	date
+  638	cherry
+  665	fig
+  688	banana
+  698	grape
+  708	apple
+  711	date
+  722	plum
+  739	kiwi
+  755	kiwi
+  758	Zebra
+  788	grape
+  794	plum
+  836	cherry
+  839	apple
+  840	elder
+  856	pear
+  864	fig
+  876	kiwi
+  880	Zebra
+  911	date
+  932	cherry
+  936	pear
+  944	fig
+  946	zebra
+  960	pear
+  961	elder
+  967	Zebra
+  979	zebra
+  981	zebra
+  984	banana
+  987	pear
+== reverse, unique (238)
+zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+zebraxxxxxxxxxxxxxxxxxx
+zebraxxxxxxxx
+zebra cherry
+plumxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+plumxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+plumxxxxxxxxxxxxxxxxxxxxxxxxx
+plum zebra
+plum banana
+plum Zebra
+pearxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+pearxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+pear plum
+pear kiwi
+pear elder
+last, no newline
+kiwixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+kiwixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+kiwi plum
+kiwi kiwi
+kiwi fig
+kiwi cherry
+kiwi Zebra
+grapexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+grape zebra
+grape pear
+grape Zebra
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+figxxxx
+figx
+fig pear
+fig grape
+fig date
+fig Zebra
+elderxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+elderxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+elderxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+elderxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+elderxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+elderxxxxxxxxxxxxxxxxxxxxxxx
+elder fig
+datexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+datexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+datexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+datexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+datexxxxxxxxxxxxxxxxxxxxxxxxxxxx
+datexxxxxxxxxxxxxxxxxxxxxxxxxxx
+date kiwi
+date elder
+date date
+date apple
+date
+cherryxxxxxx
+cherry Zebra
+bananaxxxxxxxxxxxxxxx
+banana zebra
+banana grape
+applexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+applexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+applexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+apple zebra
+apple kiwi
+apple fig
+apple elder
+a line longer than every buffer it meets ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Zebra zebra
+Zebra Zebra
+9 zebra 178
+9 banana 2
+7 pear 35
+5 apple 43
+47 fig 174
+43 banana 8
+43 banana 205
+41 fig 213
+4 same-key line 231
+4 same-key line 200
+4 same-key line 184
+4 same-key line 145
+4 same-key line 1
+4 plum 271
+38 cherry 129
+35 plum 252
+34 pear 207
+33 zebra 240
+3 same-key line 59
+3 same-key line 299
+3 same-key line 286
+3 same-key line 261
+3 same-key line 219
+3 same-key line 195
+3 same-key line 188
+3 same-key line 151
+3 same-key line 106
+3 same-key line 100
+29 banana 217
+26 cherry 54
+25 grape 41
+23 elder 241
+23 banana 7
+23 banana 293
+21 apple 218
+20 kiwi 33
+2 same-key line 96
+2 same-key line 93
+2 same-key line 89
+2 same-key line 86
+2 same-key line 72
+2 same-key line 51
+2 same-key line 48
+2 same-key line 31
+2 same-key line 296
+2 same-key line 270
+2 same-key line 260
+2 same-key line 176
+2 same-key line 169
+2 same-key line 110
+19 grape 247
+13 zebra 61
+11 pear 282
+11 cherry 164
+1 same-key line 50
+1 same-key line 36
+1 same-key line 291
+1 same-key line 290
+1 same-key line 29
+1 same-key line 276
+1 same-key line 264
+1 same-key line 250
+1 same-key line 192
+1 grape 209
+0 same-key line 84
+0 same-key line 3
+0 same-key line 294
+0 same-key line 285
+0 same-key line 251
+0 same-key line 220
+0 same-key line 183
+0 same-key line 173
+0 same-key line 116
+0 same-key line 111
+-8 Zebra 22
+-4 kiwi 20
+-39 apple 242
+-38 pear 266
+-35 elder 160
+-35 apple 211
+-31 kiwi 249
+-3 kiwi 277
+-29 kiwi 65
+-27 banana 267
+-26 fig 275
+-25 grape 292
+-24 banana 14
+-20 grape 56
+-2 apple 142
+-19 plum 167
+-18 pear 30
+-18 cherry 181
+-15 fig 280
+-13 cherry 132
+-11 zebra 25
+-10 elder 225
+  987	pear
+  984	banana
+  981	zebra
+  979	zebra
+  967	Zebra
+  961	elder
+  960	pear
+  946	zebra
+  944	fig
+  936	pear
+  932	cherry
+  911	date
+  880	Zebra
+  876	kiwi
+  864	fig
+  856	pear
+  840	elder
+  839	apple
+  836	cherry
+  794	plum
+  788	grape
+  758	Zebra
+  755	kiwi
+  739	kiwi
+  722	plum
+  711	date
+  708	apple
+  698	grape
+  688	banana
+  68	grape
+  665	fig
+  64	cherry
+  638	cherry
+  58	date
+  579	date
+  550	fig
+  529	pear
+  527	cherry
+  504	date
+  492	grape
+  478	fig
+  476	plum
+  476	apple
+  464	grape
+  425	pear
+  40	fig
+  389	elder
+  385	date
+  372	cherry
+  298	plum
+  289	cherry
+  282	grape
+  280	elder
+  189	plum
+  186	kiwi
+  184	apple
+  181	apple
+  152	pear
+  146	plum
+  146	fig
+  144	plum
+  110	cherry
+  0	zebra
+
+== by field 2 (302)
+Zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+datexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+elderxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+date
+elderxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+bananaxxxxxxxxxxxxxxx
+zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+zebraxxxxxxxxxxxxxxxxxx
+applexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+
+
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+zebraxxxxxxxx
+
+pearxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+elderxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+elderxxxxxxxxxxxxxxxxxxxxxxx
+
+pearxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+applexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+datexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+elderxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+plumxxxxxxxxxxxxxxxxxxxxxxxxx
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+
+
+
+
+
+plumxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+Zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+elderxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+figxxxx
+
+
+datexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+
+Zebraxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+
+
+cherryxxxxxx
+
+applexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+figx
+
+plumxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+datexxxxxxxxxxxxxxxxxxxxxxxxxxxx
+figxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+datexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+kiwixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+grapexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+datexxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+
+
+
+kiwixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  880	Zebra
+  758	Zebra
+  967	Zebra
+  181	apple
+  184	apple
+  708	apple
+  476	apple
+  839	apple
+  984	banana
+  688	banana
+  527	cherry
+  372	cherry
+  836	cherry
+  638	cherry
+  289	cherry
+  932	cherry
+  64	cherry
+  110	cherry
+  385	date
+  711	date
+  579	date
+  504	date
+  58	date
+  911	date
+  280	elder
+  389	elder
+  840	elder
+  961	elder
+  665	fig
+  944	fig
+  478	fig
+  40	fig
+  864	fig
+  146	fig
+  550	fig
+  492	grape
+  282	grape
+  788	grape
+  698	grape
+  464	grape
+  68	grape
+  186	kiwi
+  755	kiwi
+  876	kiwi
+  739	kiwi
+  152	pear
+  987	pear
+  425	pear
+  856	pear
+  936	pear
+  529	pear
+  960	pear
+  189	plum
+  794	plum
+  144	plum
+  298	plum
+  146	plum
+  722	plum
+  476	plum
+  298	plum
+  979	zebra
+  0	zebra
+  981	zebra
+  946	zebra
+fig Zebra
+kiwi Zebra
+fig Zebra
+plum Zebra
+grape Zebra
+Zebra Zebra
+cherry Zebra
+-8 Zebra 22
+date apple
+-2 apple 142
+-35 apple 211
+21 apple 218
+-39 apple 242
+5 apple 43
+plum banana
+-24 banana 14
+9 banana 2
+43 banana 205
+29 banana 217
+-27 banana 267
+23 banana 293
+23 banana 7
+43 banana 8
+kiwi cherry
+zebra cherry
+38 cherry 129
+-13 cherry 132
+11 cherry 164
+-18 cherry 181
+26 cherry 54
+date date
+fig date
+date date
+fig date
+pear elder
+date elder
+date elder
+apple elder
+-35 elder 160
+-10 elder 225
+23 elder 241
+apple fig
+elder fig
+kiwi fig
+47 fig 174
+41 fig 213
+-26 fig 275
+-15 fig 280
+fig grape
+fig grape
+banana grape
+fig grape
+fig grape
+1 grape 209
+19 grape 247
+-25 grape 292
+25 grape 41
+-20 grape 56
+apple kiwi
+kiwi kiwi
+date kiwi
+pear kiwi
+-4 kiwi 20
+-31 kiwi 249
+-3 kiwi 277
+20 kiwi 33
+-29 kiwi 65
+a line longer than every buffer it meets ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+last, no newline
+fig pear
+grape pear
+fig pear
+34 pear 207
+-38 pear 266
+11 pear 282
+-18 pear 30
+7 pear 35
+kiwi plum
+pear plum
+-19 plum 167
+35 plum 252
+4 plum 271
+4 same-key line 1
+3 same-key line 100
+3 same-key line 106
+2 same-key line 110
+0 same-key line 111
+0 same-key line 116
+4 same-key line 145
+3 same-key line 151
+2 same-key line 169
+0 same-key line 173
+2 same-key line 176
+0 same-key line 183
+4 same-key line 184
+3 same-key line 188
+1 same-key line 192
+3 same-key line 195
+4 same-key line 200
+3 same-key line 219
+0 same-key line 220
+4 same-key line 231
+1 same-key line 250
+0 same-key line 251
+2 same-key line 260
+3 same-key line 261
+1 same-key line 264
+2 same-key line 270
+1 same-key line 276
+0 same-key line 285
+3 same-key line 286
+1 same-key line 29
+1 same-key line 290
+1 same-key line 291
+0 same-key line 294
+2 same-key line 296
+3 same-key line 299
+0 same-key line 3
+2 same-key line 31
+1 same-key line 36
+2 same-key line 48
+1 same-key line 50
+2 same-key line 51
+3 same-key line 59
+2 same-key line 72
+0 same-key line 84
+2 same-key line 86
+2 same-key line 89
+2 same-key line 93
+2 same-key line 96
+apple zebra
+plum zebra
+banana zebra
+apple zebra
+Zebra zebra
+grape zebra
+plum zebra
+9 zebra 178
+33 zebra 240
+-11 zebra 25
+13 zebra 61

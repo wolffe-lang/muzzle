@@ -1,0 +1,18 @@
+CLOCKS_PER_SEC=1000000
+time sane=1 stored=1
+realtime r=0 between=1 nsec=1
+clock 0 r=0 errno=0 nsec=1
+clock 1 r=0 errno=0 nsec=1
+clock 2 r=0 errno=0 nsec=1
+clock 3 r=0 errno=0 nsec=1
+clock bad r=-1 errno=22
+monotonic never back=1
+nanosleep 0 r=0 errno=0 long_enough=1
+nanosleep 1 r=0 errno=0 long_enough=1
+nanosleep 1000 r=0 errno=0 long_enough=1
+nanosleep 30000000 r=0 errno=0 long_enough=1
+nanosleep 1s r=0 long_enough=1
+nanosleep bad 0 r=-1 errno=22
+nanosleep bad 1 r=-1 errno=22
+nanosleep bad 2 r=-1 errno=22
+clock nonneg=1 advanced=1

@@ -1,0 +1,77 @@
+ints n=0 mod=0 sorted=1 digest=7347990519673328018
+ints n=0 mod=5 sorted=1 digest=7347990519673328018
+ints n=1 mod=0 sorted=1 digest=464769233156166695
+ints n=1 mod=5 sorted=1 digest=4046971590509646688
+ints n=2 mod=0 sorted=1 digest=3345158562237047892
+ints n=2 mod=5 sorted=1 digest=858179481392903665
+ints n=3 mod=0 sorted=1 digest=3913486581557132075
+ints n=3 mod=5 sorted=1 digest=3825424994500724264
+ints n=4 mod=0 sorted=1 digest=8456334803539378576
+ints n=4 mod=5 sorted=1 digest=8711753442496214907
+ints n=5 mod=0 sorted=1 digest=1575380279971136368
+ints n=5 mod=5 sorted=1 digest=9066663669585256125
+ints n=7 mod=0 sorted=1 digest=7195749049175052897
+ints n=7 mod=5 sorted=1 digest=2273000810171403937
+ints n=8 mod=0 sorted=1 digest=7582979226673579800
+ints n=8 mod=5 sorted=1 digest=2489714561788039610
+ints n=9 mod=0 sorted=1 digest=6192455605928945893
+ints n=9 mod=5 sorted=1 digest=2912255571908541677
+ints n=15 mod=0 sorted=1 digest=9140488281852213058
+ints n=15 mod=5 sorted=1 digest=4043219583807280794
+ints n=16 mod=0 sorted=1 digest=8712653458065337735
+ints n=16 mod=5 sorted=1 digest=8338581701247125234
+ints n=17 mod=0 sorted=1 digest=6515064865787744886
+ints n=17 mod=5 sorted=1 digest=3202497049481638664
+ints n=31 mod=0 sorted=1 digest=5286428641635903176
+ints n=31 mod=5 sorted=1 digest=8483829150545405762
+ints n=32 mod=0 sorted=1 digest=3185625243169498680
+ints n=32 mod=5 sorted=1 digest=3478251417196867471
+ints n=33 mod=0 sorted=1 digest=5204697631433539001
+ints n=33 mod=5 sorted=1 digest=1288948867722773348
+ints n=100 mod=0 sorted=1 digest=9107324779553764656
+ints n=100 mod=5 sorted=1 digest=742567519434871560
+ints n=1000 mod=0 sorted=1 digest=5785084199552479975
+ints n=1000 mod=5 sorted=1 digest=614169235270031050
+ints n=10000 mod=0 sorted=1 digest=3792650354882798409
+ints n=10000 mod=5 sorted=1 digest=1506834008770017185
+ints n=100000 mod=0 sorted=1 digest=2090951097521256572
+ints n=100000 mod=5 sorted=1 digest=473701410655478105
+presorted digest=6562590792827820778
+reversed first=999 last=0 digest=3760336739171553634
+equal digest=6519047191373242770
+size1 digest=3316663899937509274
+size3 ties digest=3385564740715421525
+ties size24 n=2 mod=1 stable=1 digest=667078724355168398
+ties size24 n=5 mod=1 stable=1 digest=6305801645162480664
+ties size24 n=33 mod=1 stable=1 digest=5398649161182043762
+ties size24 n=20000 mod=1 stable=1 digest=6563183253127092658
+ties size24 n=2 mod=2 stable=1 digest=6851444384020405006
+ties size24 n=5 mod=2 stable=1 digest=8951432627018066472
+ties size24 n=33 mod=2 stable=1 digest=5618257750785423818
+ties size24 n=20000 mod=2 stable=1 digest=113840928400571256
+ties size24 n=2 mod=3 stable=1 digest=6851444384020405006
+ties size24 n=5 mod=3 stable=1 digest=8125201535929097865
+ties size24 n=33 mod=3 stable=1 digest=3062863799742353234
+ties size24 n=20000 mod=3 stable=1 digest=6114947048295947208
+ties size24 n=2 mod=10 stable=1 digest=7040759868067494598
+ties size24 n=5 mod=10 stable=1 digest=7648774695703412753
+ties size24 n=33 mod=10 stable=1 digest=6578301360879319484
+ties size24 n=20000 mod=10 stable=1 digest=5158252894824078320
+ties size24 n=2 mod=1000 stable=1 digest=8327737228899625457
+ties size24 n=5 mod=1000 stable=1 digest=753559166075039316
+ties size24 n=33 mod=1000 stable=1 digest=3095640460711171031
+ties size24 n=20000 mod=1000 stable=1 digest=7197435176892327554
+ties size100 digest=4806173024293045627
+words: [] [Zebra] [a] [ab] [abc] [apple] [apple] [b] [banana] [fig] [fig] [pear] [zebra]
+bsearch found=1000 at=1 absent=1
+bsearch empty=1
+bsearch n=1 hit=1 below=1 above=1
+bsearch n=2 hit=1 below=1 above=1
+bsearch n=3 hit=1 below=1 above=1
+bsearch n=4 hit=1 below=1 above=1
+bsearch n=5 hit=1 below=1 above=1
+bsearch n=6 hit=1 below=1 above=1
+bsearch n=7 hit=1 below=1 above=1
+bsearch n=8 hit=1 below=1 above=1
+bsearch n=9 hit=1 below=1 above=1
+bsearch word=fig

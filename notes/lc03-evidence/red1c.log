@@ -1,0 +1,1038 @@
+QUEUED 2026-11-09T18:45:39Z job=red1c block=C pid=1272293 inner=/home/mfwolffe/lanes/lc03/hasu/job.sh 4d0389b1470b5b6ed97497675c50231ed66f48b3 red1c
+job: sha=4d0389b1470b5b6ed97497675c50231ed66f48b3 block=C cpus=12-17 out=/home/mfwolffe/lanes/lc03/out-red1c ctr=ctr-red.sh
+BEGIN env
+4d0389b1470b5b6ed97497675c50231ed66f48b3
+Ubuntu clang version 18.1.3 (1ubuntu1)
+glibc 2.39
+Linux 7.2.4 x86_64
+END env exit=0
+BEGIN fetch
+fetch-toolchain: wolf-0.2.36-x86_64-unknown-linux-gnu.tar.gz d383c74c8cd123b9… -> /work/.wolf-bin/wolf-0.2.36-x86_64-unknown-linux-gnu/wolf
+END fetch exit=0
+BEGIN build.native
+build: native: 8 objects, 57 exports defined, 43 internal references, 0 imports -> /work/build/native/libmuzzle.a
+END build.native exit=0
+BEGIN difftest.native
+difftest: tier=native glibc=glibc 2.39 Ubuntu clang version 18.1.3 (1ubuntu1)
+FAIL atexit_Exit: muzzle column does not build
+tests/cases/atexit_Exit.c:11:5: error: call to undeclared function 'atexit'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   11 |     atexit(h);
+      |     ^
+1 error generated.
+FAIL atexit_order: muzzle column does not build
+tests/cases/atexit_order.c:14:27: error: call to undeclared function 'atexit'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   14 |     printf("atexit=%d\n", atexit(h3));
+      |                           ^
+tests/cases/atexit_order.c:14:27: note: did you mean 'exit'?
+/work/include/stdlib.h:18:16: note: 'exit' declared here
+   18 | _Noreturn void exit(int status);
+      |                ^
+1 error generated.
+FAIL atexit_return: muzzle column does not build
+tests/cases/atexit_return.c:14:14: error: call to undeclared function 'atexit'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   14 |     int ok = atexit(a) == 0;
+      |              ^
+tests/cases/atexit_return.c:14:14: note: did you mean 'exit'?
+/work/include/stdlib.h:18:16: note: 'exit' declared here
+   18 | _Noreturn void exit(int status);
+      |                ^
+1 error generated.
+PASS errno exit=0 lines=10 stderr=0 files=0
+FAIL errno_strerror: muzzle column does not build
+tests/cases/errno_strerror.c:49:7: error: use of undeclared identifier 'EDEADLK'
+   49 |     E(EDEADLK),
+      |       ^
+tests/cases/errno_strerror.c:50:7: error: use of undeclared identifier 'ENAMETOOLONG'
+   50 |     E(ENAMETOOLONG),
+      |       ^
+tests/cases/errno_strerror.c:51:7: error: use of undeclared identifier 'ENOLCK'
+   51 |     E(ENOLCK),
+      |       ^
+tests/cases/errno_strerror.c:52:7: error: use of undeclared identifier 'ENOSYS'
+   52 |     E(ENOSYS),
+      |       ^
+tests/cases/errno_strerror.c:53:7: error: use of undeclared identifier 'ENOTEMPTY'
+   53 |     E(ENOTEMPTY),
+      |       ^
+tests/cases/errno_strerror.c:54:7: error: use of undeclared identifier 'ELOOP'
+   54 |     E(ELOOP),
+      |       ^
+tests/cases/errno_strerror.c:55:7: error: use of undeclared identifier 'EWOULDBLOCK'
+   55 |     E(EWOULDBLOCK),
+      |       ^
+tests/cases/errno_strerror.c:56:7: error: use of undeclared identifier 'ENOMSG'
+   56 |     E(ENOMSG),
+      |       ^
+tests/cases/errno_strerror.c:57:7: error: use of undeclared identifier 'EIDRM'
+   57 |     E(EIDRM),
+      |       ^
+tests/cases/errno_strerror.c:58:7: error: use of undeclared identifier 'ECHRNG'
+   58 |     E(ECHRNG),
+      |       ^
+tests/cases/errno_strerror.c:59:7: error: use of undeclared identifier 'EL2NSYNC'
+   59 |     E(EL2NSYNC),
+      |       ^
+tests/cases/errno_strerror.c:60:7: error: use of undeclared identifier 'EL3HLT'
+   60 |     E(EL3HLT),
+      |       ^
+tests/cases/errno_strerror.c:61:7: error: use of undeclared identifier 'EL3RST'
+   61 |     E(EL3RST),
+      |       ^
+tests/cases/errno_strerror.c:62:7: error: use of undeclared identifier 'ELNRNG'
+   62 |     E(ELNRNG),
+      |       ^
+tests/cases/errno_strerror.c:63:7: error: use of undeclared identifier 'EUNATCH'
+   63 |     E(EUNATCH),
+      |       ^
+tests/cases/errno_strerror.c:64:7: error: use of undeclared identifier 'ENOCSI'
+   64 |     E(ENOCSI),
+      |       ^
+tests/cases/errno_strerror.c:65:7: error: use of undeclared identifier 'EL2HLT'
+   65 |     E(EL2HLT),
+      |       ^
+tests/cases/errno_strerror.c:66:7: error: use of undeclared identifier 'EBADE'
+   66 |     E(EBADE),
+      |       ^
+tests/cases/errno_strerror.c:67:7: error: use of undeclared identifier 'EBADR'
+   67 |     E(EBADR),
+      |       ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
+PASS exit exit=42 lines=1 stderr=0 files=0
+PASS exit_c17 exit=250 lines=1 stderr=0 files=0
+PASS exit_posix exit=3 lines=1 stderr=0 files=0
+PASS main_return exit=7 lines=1 stderr=0 files=0
+PASS malloc exit=0 lines=20 stderr=0 files=0
+PASS mem exit=0 lines=38 stderr=0 files=0
+PASS printf exit=0 lines=193 stderr=0 files=0
+PASS printf_grammar exit=0 lines=629765 stderr=0 files=0
+PASS snprintf exit=0 lines=255 stderr=0 files=0
+PASS stdio_buf exit=0 lines=50 stderr=0 files=9
+PASS stdio_char exit=0 lines=57 stderr=0 files=2
+PASS stdio_err exit=0 lines=1 stderr=51 files=0
+PASS stdio_exit exit=5 lines=1 stderr=0 files=3
+PASS stdio_exit_ exit=4 lines=1 stderr=0 files=2
+PASS stdio_open exit=0 lines=70 stderr=0 files=6
+PASS stdio_rw exit=0 lines=25 stderr=0 files=2
+PASS stdio_tty exit=0 lines=5 stderr=2 files=0 tty
+PASS stdio_ungetc exit=0 lines=29 stderr=0 files=1
+FAIL stdlib_abort: muzzle column does not build
+tests/cases/stdlib_abort.c:12:5: error: call to undeclared function 'atexit'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   12 |     atexit(h);
+      |     ^
+tests/cases/stdlib_abort.c:16:5: error: call to undeclared function 'abort'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   16 |     abort();
+      |     ^
+2 errors generated.
+FAIL stdlib_alloc: muzzle column does not build
+tests/cases/stdlib_alloc.c:35:32: error: call to undeclared function 'aligned_alloc'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   35 |             unsigned char *p = aligned_alloc(a, n);
+      |                                ^
+tests/cases/stdlib_alloc.c:35:28: error: incompatible integer to pointer conversion initializing 'unsigned char *' with an expression of type 'int' [-Wint-conversion]
+   35 |             unsigned char *p = aligned_alloc(a, n);
+      |                            ^   ~~~~~~~~~~~~~~~~~~~
+tests/cases/stdlib_alloc.c:50:19: error: call to undeclared function 'aligned_alloc'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   50 |         void *p = aligned_alloc(bad[i], 64);
+      |                   ^
+tests/cases/stdlib_alloc.c:50:15: error: incompatible integer to pointer conversion initializing 'void *' with an expression of type 'int' [-Wint-conversion]
+   50 |         void *p = aligned_alloc(bad[i], 64);
+      |               ^   ~~~~~~~~~~~~~~~~~~~~~~~~~
+tests/cases/stdlib_alloc.c:55:18: error: call to undeclared function 'aligned_alloc'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   55 |     void *huge = aligned_alloc(64, SIZE_MAX - 4096);
+      |                  ^
+tests/cases/stdlib_alloc.c:55:11: error: incompatible integer to pointer conversion initializing 'void *' with an expression of type 'int' [-Wint-conversion]
+   55 |     void *huge = aligned_alloc(64, SIZE_MAX - 4096);
+      |           ^      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests/cases/stdlib_alloc.c:63:17: error: call to undeclared function 'posix_memalign'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   63 |         int r = posix_memalign(&p, pm[i], 200);
+      |                 ^
+tests/cases/stdlib_alloc.c:73:17: error: call to undeclared function 'posix_memalign'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   73 |         int r = posix_memalign(&p, 64, 0);
+      |                 ^
+tests/cases/stdlib_alloc.c:112:24: error: incompatible integer to pointer conversion initializing 'unsigned char *' with an expression of type 'int' [-Wint-conversion]
+  112 |         unsigned char *b = aligned_alloc(a, a);
+      |                        ^   ~~~~~~~~~~~~~~~~~~~
+tests/cases/stdlib_alloc.c:130:29: error: pointer/integer type mismatch in conditional expression ('void *' and 'int') [-Werror,-Wconditional-type-mismatch]
+  130 |         blk[i] = i % 3 == 0 ? malloc(len[i]) : aligned_alloc(a, len[i]);
+      |                             ^ ~~~~~~~~~~~~~~   ~~~~~~~~~~~~~~~~~~~~~~~~
+10 errors generated.
+FAIL stdlib_env: muzzle column does not build
+tests/cases/stdlib_env.c:29:21: error: call to undeclared function 'getenv'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   29 |     const char *v = getenv(name);
+      |                     ^
+tests/cases/stdlib_env.c:29:17: error: incompatible integer to pointer conversion initializing 'const char *' with an expression of type 'int' [-Wint-conversion]
+   29 |     const char *v = getenv(name);
+      |                 ^   ~~~~~~~~~~~~
+tests/cases/stdlib_env.c:35:24: error: call to undeclared function 'getenv'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   35 |     const char *path = getenv("PATH");
+      |                        ^
+tests/cases/stdlib_env.c:35:17: error: incompatible integer to pointer conversion initializing 'const char *' with an expression of type 'int' [-Wint-conversion]
+   35 |     const char *path = getenv("PATH");
+      |                 ^      ~~~~~~~~~~~~~~
+tests/cases/stdlib_env.c:39:52: error: call to undeclared function 'setenv'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   39 |     printf("setenv new r=%d errno=%d count=+%d\n", setenv("LC03_A", "one", 0), errno, count() - base);
+      |                                                    ^
+tests/cases/stdlib_env.c:61:17: error: call to undeclared function 'unsetenv'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   61 |         int u = unsetenv(bad[i]);
+      |                 ^
+tests/cases/stdlib_env.c:69:10: error: call to undeclared function 'unsetenv'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   69 |     rn = unsetenv(nul);
+      |          ^
+tests/cases/stdlib_env.c:93:21: error: incompatible integer to pointer conversion initializing 'const char *' with an expression of type 'int' [-Wint-conversion]
+   93 |         const char *v = getenv(name);
+      |                     ^   ~~~~~~~~~~~~
+tests/cases/stdlib_env.c:122:46: error: comparison between pointer and integer ('int' and 'const char *') [-Werror,-Wpointer-integer-compare]
+  122 |     printf("PATH again=%d\n", getenv("PATH") == path || (getenv("PATH") && path && strcmp(getenv("PATH"), path) == 0));
+      |                               ~~~~~~~~~~~~~~ ^  ~~~~
+tests/cases/stdlib_env.c:122:91: error: incompatible integer to pointer conversion passing 'int' to parameter of type 'const char *' [-Wint-conversion]
+  122 |     printf("PATH again=%d\n", getenv("PATH") == path || (getenv("PATH") && path && strcmp(getenv("PATH"), path) == 0));
+      |                                                                                           ^~~~~~~~~~~~~~
+/work/include/string.h:14:24: note: passing argument to parameter 's1' here
+   14 | int strcmp(const char *s1, const char *s2);
+      |                        ^
+10 errors generated.
+FAIL stdlib_misc: muzzle column does not build
+tests/cases/stdlib_misc.c:15:59: error: call to undeclared function 'abs'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   15 |         printf("abs(%d)=%d labs=%ld llabs=%lld\n", iv[i], abs(iv[i]), labs((long)iv[i] * 3), llabs((long long)iv[i] * 5));
+      |                                                           ^
+tests/cases/stdlib_misc.c:15:71: error: call to undeclared function 'labs'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   15 |         printf("abs(%d)=%d labs=%ld llabs=%lld\n", iv[i], abs(iv[i]), labs((long)iv[i] * 3), llabs((long long)iv[i] * 5));
+      |                                                                       ^
+tests/cases/stdlib_misc.c:15:94: error: call to undeclared function 'llabs'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   15 |         printf("abs(%d)=%d labs=%ld llabs=%lld\n", iv[i], abs(iv[i]), labs((long)iv[i] * 3), llabs((long long)iv[i] * 5));
+      |                                                                                              ^
+tests/cases/stdlib_misc.c:21:9: error: use of undeclared identifier 'div_t'
+   21 |         div_t d = div(num[i], den[i]);
+      |         ^
+tests/cases/stdlib_misc.c:22:9: error: use of undeclared identifier 'ldiv_t'
+   22 |         ldiv_t l = ldiv((long)num[i] * 1000000007L, (long)den[i]);
+      |         ^
+tests/cases/stdlib_misc.c:23:9: error: use of undeclared identifier 'lldiv_t'
+   23 |         lldiv_t q = lldiv((long long)num[i] * 1048576, (long long)den[i] * 3);
+      |         ^
+tests/cases/stdlib_misc.c:24:83: error: use of undeclared identifier 'd'
+   24 |         printf("div(%d,%d)=%d,%d ldiv=%ld,%ld lldiv=%lld,%lld\n", num[i], den[i], d.quot, d.rem, l.quot, l.rem, q.quot, q.rem);
+      |                                                                                   ^
+tests/cases/stdlib_misc.c:24:91: error: use of undeclared identifier 'd'
+   24 |         printf("div(%d,%d)=%d,%d ldiv=%ld,%ld lldiv=%lld,%lld\n", num[i], den[i], d.quot, d.rem, l.quot, l.rem, q.quot, q.rem);
+      |                                                                                           ^
+tests/cases/stdlib_misc.c:24:98: error: use of undeclared identifier 'l'
+   24 |         printf("div(%d,%d)=%d,%d ldiv=%ld,%ld lldiv=%lld,%lld\n", num[i], den[i], d.quot, d.rem, l.quot, l.rem, q.quot, q.rem);
+      |                                                                                                  ^
+tests/cases/stdlib_misc.c:24:106: error: use of undeclared identifier 'l'
+   24 |         printf("div(%d,%d)=%d,%d ldiv=%ld,%ld lldiv=%lld,%lld\n", num[i], den[i], d.quot, d.rem, l.quot, l.rem, q.quot, q.rem);
+      |                                                                                                          ^
+tests/cases/stdlib_misc.c:24:113: error: use of undeclared identifier 'q'
+   24 |         printf("div(%d,%d)=%d,%d ldiv=%ld,%ld lldiv=%lld,%lld\n", num[i], den[i], d.quot, d.rem, l.quot, l.rem, q.quot, q.rem);
+      |                                                                                                                 ^
+tests/cases/stdlib_misc.c:24:121: error: use of undeclared identifier 'q'
+   24 |         printf("div(%d,%d)=%d,%d ldiv=%ld,%ld lldiv=%lld,%lld\n", num[i], den[i], d.quot, d.rem, l.quot, l.rem, q.quot, q.rem);
+      |                                                                                                                         ^
+tests/cases/stdlib_misc.c:26:42: error: call to undeclared function 'ldiv'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   26 |     printf("ldiv(LONG_MIN,7)=%ld,%ld\n", ldiv(LONG_MIN, 7).quot, ldiv(LONG_MIN, 7).rem);
+      |                                          ^
+tests/cases/stdlib_misc.c:26:59: error: member reference base type 'int' is not a structure or union
+   26 |     printf("ldiv(LONG_MIN,7)=%ld,%ld\n", ldiv(LONG_MIN, 7).quot, ldiv(LONG_MIN, 7).rem);
+      |                                          ~~~~~~~~~~~~~~~~~^~~~~
+tests/cases/stdlib_misc.c:26:83: error: member reference base type 'int' is not a structure or union
+   26 |     printf("ldiv(LONG_MIN,7)=%ld,%ld\n", ldiv(LONG_MIN, 7).quot, ldiv(LONG_MIN, 7).rem);
+      |                                                                  ~~~~~~~~~~~~~~~~~^~~~
+tests/cases/stdlib_misc.c:28:29: error: use of undeclared identifier 'RAND_MAX'
+   28 |     printf("RAND_MAX=%d\n", RAND_MAX);
+      |                             ^
+tests/cases/stdlib_misc.c:32:20: error: call to undeclared function 'rand'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   32 |         first[i] = rand();
+      |                    ^
+tests/cases/stdlib_misc.c:33:5: error: call to undeclared function 'srand'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   33 |     srand(1);
+      |     ^
+tests/cases/stdlib_misc.c:47:49: error: use of undeclared identifier 'RAND_MAX'
+   47 |             inrange &= seq[i] >= 0 && seq[i] <= RAND_MAX;
+      |                                                 ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
+FAIL stdlib_sort: muzzle column does not build
+tests/cases/stdlib_sort.c:73:5: error: call to undeclared function 'qsort'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   73 |     qsort(v, n, sizeof *v, cmp_int);
+      |     ^
+tests/cases/stdlib_sort.c:86:5: error: call to undeclared function 'qsort'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   86 |     qsort(v, 1000, sizeof *v, cmp_int);
+      |     ^
+tests/cases/stdlib_sort.c:159:18: error: call to undeclared function 'bsearch'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  159 |         int *p = bsearch(&k, v, 1000, sizeof *v, cmp_int);
+      |                  ^
+tests/cases/stdlib_sort.c:159:14: error: incompatible integer to pointer conversion initializing 'int *' with an expression of type 'int' [-Wint-conversion]
+  159 |         int *p = bsearch(&k, v, 1000, sizeof *v, cmp_int);
+      |              ^   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests/cases/stdlib_sort.c:169:34: error: call to undeclared function 'bsearch'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  169 |     printf("bsearch empty=%d\n", bsearch(&key, v, 0, sizeof *v, cmp_int) == NULL);
+      |                                  ^
+tests/cases/stdlib_sort.c:169:74: error: comparison between pointer and integer ('int' and 'void *') [-Werror,-Wpointer-integer-compare]
+  169 |     printf("bsearch empty=%d\n", bsearch(&key, v, 0, sizeof *v, cmp_int) == NULL);
+      |                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^  ~~~~
+tests/cases/stdlib_sort.c:174:18: error: incompatible integer to pointer conversion initializing 'int *' with an expression of type 'int' [-Wint-conversion]
+  174 |             int *p = bsearch(&k, v, n, sizeof *v, cmp_int);
+      |                  ^   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests/cases/stdlib_sort.c:179:55: error: comparison between pointer and integer ('int' and 'void *') [-Werror,-Wpointer-integer-compare]
+  179 |                bsearch(&lo, v, n, sizeof *v, cmp_int) == NULL, bsearch(&hi, v, n, sizeof *v, cmp_int) == NULL);
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^  ~~~~
+tests/cases/stdlib_sort.c:179:103: error: comparison between pointer and integer ('int' and 'void *') [-Werror,-Wpointer-integer-compare]
+  179 |                bsearch(&lo, v, n, sizeof *v, cmp_int) == NULL, bsearch(&hi, v, n, sizeof *v, cmp_int) == NULL);
+      |                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^  ~~~~
+tests/cases/stdlib_sort.c:182:18: error: incompatible integer to pointer conversion initializing 'const char **' with an expression of type 'int' [-Wint-conversion]
+  182 |     const char **fw = bsearch(&needle, w, sizeof w / sizeof *w, sizeof *w, cmp_str);
+      |                  ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+10 errors generated.
+FAIL stdlib_strtod: muzzle column does not build
+tests/cases/stdlib_strtod.c:28:16: error: call to undeclared function 'strtod'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   28 |     double d = strtod(s, &e);
+      |                ^
+tests/cases/stdlib_strtod.c:46:16: error: call to undeclared function 'strtod'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   46 |     double d = strtod(s, &e);
+      |                ^
+tests/cases/stdlib_strtod.c:235:51: error: call to undeclared function 'strtod'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  235 |     printf("null-end %016llx errno=%d\n", bits_of(strtod("2.5", NULL)), errno);
+      |                                                   ^
+3 errors generated.
+FAIL stdlib_strtol: muzzle column does not build
+tests/cases/stdlib_strtol.c:35:22: error: call to undeclared function 'strtol'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   35 |             long l = strtol(s, &e, b);
+      |                      ^
+tests/cases/stdlib_strtol.c:38:28: error: call to undeclared function 'strtoll'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   38 |             long long ll = strtoll(s, &e, b);
+      |                            ^
+tests/cases/stdlib_strtol.c:41:32: error: call to undeclared function 'strtoul'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   41 |             unsigned long ul = strtoul(s, &e, b);
+      |                                ^
+tests/cases/stdlib_strtol.c:44:38: error: call to undeclared function 'strtoull'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   44 |             unsigned long long ull = strtoull(s, &e, b);
+      |                                      ^
+tests/cases/stdlib_strtol.c:49:18: error: call to undeclared function 'strtol'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   49 |         long n = strtol(s, NULL, 10);
+      |                  ^
+tests/cases/stdlib_strtol.c:56:32: error: call to undeclared function 'atoi'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   56 |             printf(" atoi=%d", atoi(s));
+      |                                ^
+tests/cases/stdlib_strtol.c:57:42: error: call to undeclared function 'atol'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   57 |         printf(" atol=%ld atoll=%lld\n", atol(s), atoll(s));
+      |                                          ^
+tests/cases/stdlib_strtol.c:57:51: error: call to undeclared function 'atoll'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   57 |         printf(" atol=%ld atoll=%lld\n", atol(s), atoll(s));
+      |                                                   ^
+8 errors generated.
+PASS str exit=0 lines=29 stderr=0 files=0
+PASS unistd exit=0 lines=44 stderr=0 files=2
+PASS vprintf exit=0 lines=15 stderr=0 files=1
+PASS write exit=0 lines=9 stderr=0 files=0
+FAIL file_dir: muzzle column does not build
+tests/next/file_dir.c:7:10: fatal error: 'dirent.h' file not found
+    7 | #include <dirent.h>
+      |          ^~~~~~~~~~
+1 error generated.
+FAIL file_io: muzzle column does not build
+tests/next/file_io.c:10:10: fatal error: 'sys/stat.h' file not found
+   10 | #include <sys/stat.h>
+      |          ^~~~~~~~~~~~
+1 error generated.
+FAIL file_meta: muzzle column does not build
+tests/next/file_meta.c:12:10: fatal error: 'sys/stat.h' file not found
+   12 | #include <sys/stat.h>
+      |          ^~~~~~~~~~~~
+1 error generated.
+FAIL prog_sort: muzzle column does not build
+tests/next/prog_sort.c:76:20: error: call to undeclared function 'strtol'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   76 |         v[n].key = strtol(s, &end, 10);
+      |                    ^
+tests/next/prog_sort.c:83:5: error: call to undeclared function 'qsort'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   83 |     qsort(w, n, sizeof *w, bytewise);
+      |     ^
+2 errors generated.
+FAIL prog_tree: muzzle column does not build
+tests/next/prog_tree.c:8:10: fatal error: 'dirent.h' file not found
+    8 | #include <dirent.h>
+      |          ^~~~~~~~~~
+1 error generated.
+FAIL prog_wc: muzzle column does not build
+tests/next/prog_wc.c:52:9: error: call to undeclared function 'perror'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   52 |         perror(path);
+      |         ^
+tests/next/prog_wc.c:52:9: note: did you mean 'ferror'?
+/work/include/stdio.h:99:5: note: 'ferror' declared here
+   99 | int ferror(FILE *stream);
+      |     ^
+1 error generated.
+FAIL time_clock: muzzle column does not build
+tests/next/time_clock.c:9:10: fatal error: 'time.h' file not found
+    9 | #include <time.h>
+      |          ^~~~~~~~
+1 error generated.
+FAIL time_conv: muzzle column does not build
+tests/next/time_conv.c:12:10: fatal error: 'time.h' file not found
+   12 | #include <time.h>
+      |          ^~~~~~~~
+1 error generated.
+FAIL time_strftime: muzzle column does not build
+tests/next/time_strftime.c:11:10: fatal error: 'time.h' file not found
+   11 | #include <time.h>
+      |          ^~~~~~~~
+1 error generated.
+difftest: tier=native pass=23 fail=20
+END difftest.native exit=1
+BEGIN keep.native
+kept 47 files in /out/expected-native
+END keep.native exit=0
+BEGIN build.release
+build: release: 9 objects, 57 exports defined, 48 internal references, 0 imports -> /work/build/release/libmuzzle.a
+END build.release exit=0
+BEGIN difftest.release
+difftest: tier=release glibc=glibc 2.39 Ubuntu clang version 18.1.3 (1ubuntu1)
+FAIL atexit_Exit: muzzle column does not build
+tests/cases/atexit_Exit.c:11:5: error: call to undeclared function 'atexit'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   11 |     atexit(h);
+      |     ^
+1 error generated.
+FAIL atexit_order: muzzle column does not build
+tests/cases/atexit_order.c:14:27: error: call to undeclared function 'atexit'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   14 |     printf("atexit=%d\n", atexit(h3));
+      |                           ^
+tests/cases/atexit_order.c:14:27: note: did you mean 'exit'?
+/work/include/stdlib.h:18:16: note: 'exit' declared here
+   18 | _Noreturn void exit(int status);
+      |                ^
+1 error generated.
+FAIL atexit_return: muzzle column does not build
+tests/cases/atexit_return.c:14:14: error: call to undeclared function 'atexit'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   14 |     int ok = atexit(a) == 0;
+      |              ^
+tests/cases/atexit_return.c:14:14: note: did you mean 'exit'?
+/work/include/stdlib.h:18:16: note: 'exit' declared here
+   18 | _Noreturn void exit(int status);
+      |                ^
+1 error generated.
+PASS errno exit=0 lines=10 stderr=0 files=0
+FAIL errno_strerror: muzzle column does not build
+tests/cases/errno_strerror.c:49:7: error: use of undeclared identifier 'EDEADLK'
+   49 |     E(EDEADLK),
+      |       ^
+tests/cases/errno_strerror.c:50:7: error: use of undeclared identifier 'ENAMETOOLONG'
+   50 |     E(ENAMETOOLONG),
+      |       ^
+tests/cases/errno_strerror.c:51:7: error: use of undeclared identifier 'ENOLCK'
+   51 |     E(ENOLCK),
+      |       ^
+tests/cases/errno_strerror.c:52:7: error: use of undeclared identifier 'ENOSYS'
+   52 |     E(ENOSYS),
+      |       ^
+tests/cases/errno_strerror.c:53:7: error: use of undeclared identifier 'ENOTEMPTY'
+   53 |     E(ENOTEMPTY),
+      |       ^
+tests/cases/errno_strerror.c:54:7: error: use of undeclared identifier 'ELOOP'
+   54 |     E(ELOOP),
+      |       ^
+tests/cases/errno_strerror.c:55:7: error: use of undeclared identifier 'EWOULDBLOCK'
+   55 |     E(EWOULDBLOCK),
+      |       ^
+tests/cases/errno_strerror.c:56:7: error: use of undeclared identifier 'ENOMSG'
+   56 |     E(ENOMSG),
+      |       ^
+tests/cases/errno_strerror.c:57:7: error: use of undeclared identifier 'EIDRM'
+   57 |     E(EIDRM),
+      |       ^
+tests/cases/errno_strerror.c:58:7: error: use of undeclared identifier 'ECHRNG'
+   58 |     E(ECHRNG),
+      |       ^
+tests/cases/errno_strerror.c:59:7: error: use of undeclared identifier 'EL2NSYNC'
+   59 |     E(EL2NSYNC),
+      |       ^
+tests/cases/errno_strerror.c:60:7: error: use of undeclared identifier 'EL3HLT'
+   60 |     E(EL3HLT),
+      |       ^
+tests/cases/errno_strerror.c:61:7: error: use of undeclared identifier 'EL3RST'
+   61 |     E(EL3RST),
+      |       ^
+tests/cases/errno_strerror.c:62:7: error: use of undeclared identifier 'ELNRNG'
+   62 |     E(ELNRNG),
+      |       ^
+tests/cases/errno_strerror.c:63:7: error: use of undeclared identifier 'EUNATCH'
+   63 |     E(EUNATCH),
+      |       ^
+tests/cases/errno_strerror.c:64:7: error: use of undeclared identifier 'ENOCSI'
+   64 |     E(ENOCSI),
+      |       ^
+tests/cases/errno_strerror.c:65:7: error: use of undeclared identifier 'EL2HLT'
+   65 |     E(EL2HLT),
+      |       ^
+tests/cases/errno_strerror.c:66:7: error: use of undeclared identifier 'EBADE'
+   66 |     E(EBADE),
+      |       ^
+tests/cases/errno_strerror.c:67:7: error: use of undeclared identifier 'EBADR'
+   67 |     E(EBADR),
+      |       ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
+PASS exit exit=42 lines=1 stderr=0 files=0
+PASS exit_c17 exit=250 lines=1 stderr=0 files=0
+PASS exit_posix exit=3 lines=1 stderr=0 files=0
+PASS main_return exit=7 lines=1 stderr=0 files=0
+PASS malloc exit=0 lines=20 stderr=0 files=0
+PASS mem exit=0 lines=38 stderr=0 files=0
+PASS printf exit=0 lines=193 stderr=0 files=0
+PASS printf_grammar exit=0 lines=629765 stderr=0 files=0
+PASS snprintf exit=0 lines=255 stderr=0 files=0
+PASS stdio_buf exit=0 lines=50 stderr=0 files=9
+PASS stdio_char exit=0 lines=57 stderr=0 files=2
+PASS stdio_err exit=0 lines=1 stderr=51 files=0
+PASS stdio_exit exit=5 lines=1 stderr=0 files=3
+PASS stdio_exit_ exit=4 lines=1 stderr=0 files=2
+PASS stdio_open exit=0 lines=70 stderr=0 files=6
+PASS stdio_rw exit=0 lines=25 stderr=0 files=2
+PASS stdio_tty exit=0 lines=5 stderr=2 files=0 tty
+PASS stdio_ungetc exit=0 lines=29 stderr=0 files=1
+FAIL stdlib_abort: muzzle column does not build
+tests/cases/stdlib_abort.c:12:5: error: call to undeclared function 'atexit'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   12 |     atexit(h);
+      |     ^
+tests/cases/stdlib_abort.c:16:5: error: call to undeclared function 'abort'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   16 |     abort();
+      |     ^
+2 errors generated.
+FAIL stdlib_alloc: muzzle column does not build
+tests/cases/stdlib_alloc.c:35:32: error: call to undeclared function 'aligned_alloc'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   35 |             unsigned char *p = aligned_alloc(a, n);
+      |                                ^
+tests/cases/stdlib_alloc.c:35:28: error: incompatible integer to pointer conversion initializing 'unsigned char *' with an expression of type 'int' [-Wint-conversion]
+   35 |             unsigned char *p = aligned_alloc(a, n);
+      |                            ^   ~~~~~~~~~~~~~~~~~~~
+tests/cases/stdlib_alloc.c:50:19: error: call to undeclared function 'aligned_alloc'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   50 |         void *p = aligned_alloc(bad[i], 64);
+      |                   ^
+tests/cases/stdlib_alloc.c:50:15: error: incompatible integer to pointer conversion initializing 'void *' with an expression of type 'int' [-Wint-conversion]
+   50 |         void *p = aligned_alloc(bad[i], 64);
+      |               ^   ~~~~~~~~~~~~~~~~~~~~~~~~~
+tests/cases/stdlib_alloc.c:55:18: error: call to undeclared function 'aligned_alloc'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   55 |     void *huge = aligned_alloc(64, SIZE_MAX - 4096);
+      |                  ^
+tests/cases/stdlib_alloc.c:55:11: error: incompatible integer to pointer conversion initializing 'void *' with an expression of type 'int' [-Wint-conversion]
+   55 |     void *huge = aligned_alloc(64, SIZE_MAX - 4096);
+      |           ^      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests/cases/stdlib_alloc.c:63:17: error: call to undeclared function 'posix_memalign'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   63 |         int r = posix_memalign(&p, pm[i], 200);
+      |                 ^
+tests/cases/stdlib_alloc.c:73:17: error: call to undeclared function 'posix_memalign'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   73 |         int r = posix_memalign(&p, 64, 0);
+      |                 ^
+tests/cases/stdlib_alloc.c:112:24: error: incompatible integer to pointer conversion initializing 'unsigned char *' with an expression of type 'int' [-Wint-conversion]
+  112 |         unsigned char *b = aligned_alloc(a, a);
+      |                        ^   ~~~~~~~~~~~~~~~~~~~
+tests/cases/stdlib_alloc.c:130:29: error: pointer/integer type mismatch in conditional expression ('void *' and 'int') [-Werror,-Wconditional-type-mismatch]
+  130 |         blk[i] = i % 3 == 0 ? malloc(len[i]) : aligned_alloc(a, len[i]);
+      |                             ^ ~~~~~~~~~~~~~~   ~~~~~~~~~~~~~~~~~~~~~~~~
+10 errors generated.
+FAIL stdlib_env: muzzle column does not build
+tests/cases/stdlib_env.c:29:21: error: call to undeclared function 'getenv'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   29 |     const char *v = getenv(name);
+      |                     ^
+tests/cases/stdlib_env.c:29:17: error: incompatible integer to pointer conversion initializing 'const char *' with an expression of type 'int' [-Wint-conversion]
+   29 |     const char *v = getenv(name);
+      |                 ^   ~~~~~~~~~~~~
+tests/cases/stdlib_env.c:35:24: error: call to undeclared function 'getenv'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   35 |     const char *path = getenv("PATH");
+      |                        ^
+tests/cases/stdlib_env.c:35:17: error: incompatible integer to pointer conversion initializing 'const char *' with an expression of type 'int' [-Wint-conversion]
+   35 |     const char *path = getenv("PATH");
+      |                 ^      ~~~~~~~~~~~~~~
+tests/cases/stdlib_env.c:39:52: error: call to undeclared function 'setenv'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   39 |     printf("setenv new r=%d errno=%d count=+%d\n", setenv("LC03_A", "one", 0), errno, count() - base);
+      |                                                    ^
+tests/cases/stdlib_env.c:61:17: error: call to undeclared function 'unsetenv'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   61 |         int u = unsetenv(bad[i]);
+      |                 ^
+tests/cases/stdlib_env.c:69:10: error: call to undeclared function 'unsetenv'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   69 |     rn = unsetenv(nul);
+      |          ^
+tests/cases/stdlib_env.c:93:21: error: incompatible integer to pointer conversion initializing 'const char *' with an expression of type 'int' [-Wint-conversion]
+   93 |         const char *v = getenv(name);
+      |                     ^   ~~~~~~~~~~~~
+tests/cases/stdlib_env.c:122:46: error: comparison between pointer and integer ('int' and 'const char *') [-Werror,-Wpointer-integer-compare]
+  122 |     printf("PATH again=%d\n", getenv("PATH") == path || (getenv("PATH") && path && strcmp(getenv("PATH"), path) == 0));
+      |                               ~~~~~~~~~~~~~~ ^  ~~~~
+tests/cases/stdlib_env.c:122:91: error: incompatible integer to pointer conversion passing 'int' to parameter of type 'const char *' [-Wint-conversion]
+  122 |     printf("PATH again=%d\n", getenv("PATH") == path || (getenv("PATH") && path && strcmp(getenv("PATH"), path) == 0));
+      |                                                                                           ^~~~~~~~~~~~~~
+/work/include/string.h:14:24: note: passing argument to parameter 's1' here
+   14 | int strcmp(const char *s1, const char *s2);
+      |                        ^
+10 errors generated.
+FAIL stdlib_misc: muzzle column does not build
+tests/cases/stdlib_misc.c:15:59: error: call to undeclared function 'abs'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   15 |         printf("abs(%d)=%d labs=%ld llabs=%lld\n", iv[i], abs(iv[i]), labs((long)iv[i] * 3), llabs((long long)iv[i] * 5));
+      |                                                           ^
+tests/cases/stdlib_misc.c:15:71: error: call to undeclared function 'labs'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   15 |         printf("abs(%d)=%d labs=%ld llabs=%lld\n", iv[i], abs(iv[i]), labs((long)iv[i] * 3), llabs((long long)iv[i] * 5));
+      |                                                                       ^
+tests/cases/stdlib_misc.c:15:94: error: call to undeclared function 'llabs'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   15 |         printf("abs(%d)=%d labs=%ld llabs=%lld\n", iv[i], abs(iv[i]), labs((long)iv[i] * 3), llabs((long long)iv[i] * 5));
+      |                                                                                              ^
+tests/cases/stdlib_misc.c:21:9: error: use of undeclared identifier 'div_t'
+   21 |         div_t d = div(num[i], den[i]);
+      |         ^
+tests/cases/stdlib_misc.c:22:9: error: use of undeclared identifier 'ldiv_t'
+   22 |         ldiv_t l = ldiv((long)num[i] * 1000000007L, (long)den[i]);
+      |         ^
+tests/cases/stdlib_misc.c:23:9: error: use of undeclared identifier 'lldiv_t'
+   23 |         lldiv_t q = lldiv((long long)num[i] * 1048576, (long long)den[i] * 3);
+      |         ^
+tests/cases/stdlib_misc.c:24:83: error: use of undeclared identifier 'd'
+   24 |         printf("div(%d,%d)=%d,%d ldiv=%ld,%ld lldiv=%lld,%lld\n", num[i], den[i], d.quot, d.rem, l.quot, l.rem, q.quot, q.rem);
+      |                                                                                   ^
+tests/cases/stdlib_misc.c:24:91: error: use of undeclared identifier 'd'
+   24 |         printf("div(%d,%d)=%d,%d ldiv=%ld,%ld lldiv=%lld,%lld\n", num[i], den[i], d.quot, d.rem, l.quot, l.rem, q.quot, q.rem);
+      |                                                                                           ^
+tests/cases/stdlib_misc.c:24:98: error: use of undeclared identifier 'l'
+   24 |         printf("div(%d,%d)=%d,%d ldiv=%ld,%ld lldiv=%lld,%lld\n", num[i], den[i], d.quot, d.rem, l.quot, l.rem, q.quot, q.rem);
+      |                                                                                                  ^
+tests/cases/stdlib_misc.c:24:106: error: use of undeclared identifier 'l'
+   24 |         printf("div(%d,%d)=%d,%d ldiv=%ld,%ld lldiv=%lld,%lld\n", num[i], den[i], d.quot, d.rem, l.quot, l.rem, q.quot, q.rem);
+      |                                                                                                          ^
+tests/cases/stdlib_misc.c:24:113: error: use of undeclared identifier 'q'
+   24 |         printf("div(%d,%d)=%d,%d ldiv=%ld,%ld lldiv=%lld,%lld\n", num[i], den[i], d.quot, d.rem, l.quot, l.rem, q.quot, q.rem);
+      |                                                                                                                 ^
+tests/cases/stdlib_misc.c:24:121: error: use of undeclared identifier 'q'
+   24 |         printf("div(%d,%d)=%d,%d ldiv=%ld,%ld lldiv=%lld,%lld\n", num[i], den[i], d.quot, d.rem, l.quot, l.rem, q.quot, q.rem);
+      |                                                                                                                         ^
+tests/cases/stdlib_misc.c:26:42: error: call to undeclared function 'ldiv'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   26 |     printf("ldiv(LONG_MIN,7)=%ld,%ld\n", ldiv(LONG_MIN, 7).quot, ldiv(LONG_MIN, 7).rem);
+      |                                          ^
+tests/cases/stdlib_misc.c:26:59: error: member reference base type 'int' is not a structure or union
+   26 |     printf("ldiv(LONG_MIN,7)=%ld,%ld\n", ldiv(LONG_MIN, 7).quot, ldiv(LONG_MIN, 7).rem);
+      |                                          ~~~~~~~~~~~~~~~~~^~~~~
+tests/cases/stdlib_misc.c:26:83: error: member reference base type 'int' is not a structure or union
+   26 |     printf("ldiv(LONG_MIN,7)=%ld,%ld\n", ldiv(LONG_MIN, 7).quot, ldiv(LONG_MIN, 7).rem);
+      |                                                                  ~~~~~~~~~~~~~~~~~^~~~
+tests/cases/stdlib_misc.c:28:29: error: use of undeclared identifier 'RAND_MAX'
+   28 |     printf("RAND_MAX=%d\n", RAND_MAX);
+      |                             ^
+tests/cases/stdlib_misc.c:32:20: error: call to undeclared function 'rand'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   32 |         first[i] = rand();
+      |                    ^
+tests/cases/stdlib_misc.c:33:5: error: call to undeclared function 'srand'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   33 |     srand(1);
+      |     ^
+tests/cases/stdlib_misc.c:47:49: error: use of undeclared identifier 'RAND_MAX'
+   47 |             inrange &= seq[i] >= 0 && seq[i] <= RAND_MAX;
+      |                                                 ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
+FAIL stdlib_sort: muzzle column does not build
+tests/cases/stdlib_sort.c:73:5: error: call to undeclared function 'qsort'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   73 |     qsort(v, n, sizeof *v, cmp_int);
+      |     ^
+tests/cases/stdlib_sort.c:86:5: error: call to undeclared function 'qsort'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   86 |     qsort(v, 1000, sizeof *v, cmp_int);
+      |     ^
+tests/cases/stdlib_sort.c:159:18: error: call to undeclared function 'bsearch'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  159 |         int *p = bsearch(&k, v, 1000, sizeof *v, cmp_int);
+      |                  ^
+tests/cases/stdlib_sort.c:159:14: error: incompatible integer to pointer conversion initializing 'int *' with an expression of type 'int' [-Wint-conversion]
+  159 |         int *p = bsearch(&k, v, 1000, sizeof *v, cmp_int);
+      |              ^   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests/cases/stdlib_sort.c:169:34: error: call to undeclared function 'bsearch'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  169 |     printf("bsearch empty=%d\n", bsearch(&key, v, 0, sizeof *v, cmp_int) == NULL);
+      |                                  ^
+tests/cases/stdlib_sort.c:169:74: error: comparison between pointer and integer ('int' and 'void *') [-Werror,-Wpointer-integer-compare]
+  169 |     printf("bsearch empty=%d\n", bsearch(&key, v, 0, sizeof *v, cmp_int) == NULL);
+      |                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^  ~~~~
+tests/cases/stdlib_sort.c:174:18: error: incompatible integer to pointer conversion initializing 'int *' with an expression of type 'int' [-Wint-conversion]
+  174 |             int *p = bsearch(&k, v, n, sizeof *v, cmp_int);
+      |                  ^   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests/cases/stdlib_sort.c:179:55: error: comparison between pointer and integer ('int' and 'void *') [-Werror,-Wpointer-integer-compare]
+  179 |                bsearch(&lo, v, n, sizeof *v, cmp_int) == NULL, bsearch(&hi, v, n, sizeof *v, cmp_int) == NULL);
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^  ~~~~
+tests/cases/stdlib_sort.c:179:103: error: comparison between pointer and integer ('int' and 'void *') [-Werror,-Wpointer-integer-compare]
+  179 |                bsearch(&lo, v, n, sizeof *v, cmp_int) == NULL, bsearch(&hi, v, n, sizeof *v, cmp_int) == NULL);
+      |                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^  ~~~~
+tests/cases/stdlib_sort.c:182:18: error: incompatible integer to pointer conversion initializing 'const char **' with an expression of type 'int' [-Wint-conversion]
+  182 |     const char **fw = bsearch(&needle, w, sizeof w / sizeof *w, sizeof *w, cmp_str);
+      |                  ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+10 errors generated.
+FAIL stdlib_strtod: muzzle column does not build
+tests/cases/stdlib_strtod.c:28:16: error: call to undeclared function 'strtod'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   28 |     double d = strtod(s, &e);
+      |                ^
+tests/cases/stdlib_strtod.c:46:16: error: call to undeclared function 'strtod'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   46 |     double d = strtod(s, &e);
+      |                ^
+tests/cases/stdlib_strtod.c:235:51: error: call to undeclared function 'strtod'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  235 |     printf("null-end %016llx errno=%d\n", bits_of(strtod("2.5", NULL)), errno);
+      |                                                   ^
+3 errors generated.
+FAIL stdlib_strtol: muzzle column does not build
+tests/cases/stdlib_strtol.c:35:22: error: call to undeclared function 'strtol'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   35 |             long l = strtol(s, &e, b);
+      |                      ^
+tests/cases/stdlib_strtol.c:38:28: error: call to undeclared function 'strtoll'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   38 |             long long ll = strtoll(s, &e, b);
+      |                            ^
+tests/cases/stdlib_strtol.c:41:32: error: call to undeclared function 'strtoul'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   41 |             unsigned long ul = strtoul(s, &e, b);
+      |                                ^
+tests/cases/stdlib_strtol.c:44:38: error: call to undeclared function 'strtoull'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   44 |             unsigned long long ull = strtoull(s, &e, b);
+      |                                      ^
+tests/cases/stdlib_strtol.c:49:18: error: call to undeclared function 'strtol'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   49 |         long n = strtol(s, NULL, 10);
+      |                  ^
+tests/cases/stdlib_strtol.c:56:32: error: call to undeclared function 'atoi'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   56 |             printf(" atoi=%d", atoi(s));
+      |                                ^
+tests/cases/stdlib_strtol.c:57:42: error: call to undeclared function 'atol'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   57 |         printf(" atol=%ld atoll=%lld\n", atol(s), atoll(s));
+      |                                          ^
+tests/cases/stdlib_strtol.c:57:51: error: call to undeclared function 'atoll'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   57 |         printf(" atol=%ld atoll=%lld\n", atol(s), atoll(s));
+      |                                                   ^
+8 errors generated.
+PASS str exit=0 lines=29 stderr=0 files=0
+PASS unistd exit=0 lines=44 stderr=0 files=2
+PASS vprintf exit=0 lines=15 stderr=0 files=1
+PASS write exit=0 lines=9 stderr=0 files=0
+FAIL file_dir: muzzle column does not build
+tests/next/file_dir.c:7:10: fatal error: 'dirent.h' file not found
+    7 | #include <dirent.h>
+      |          ^~~~~~~~~~
+1 error generated.
+FAIL file_io: muzzle column does not build
+tests/next/file_io.c:10:10: fatal error: 'sys/stat.h' file not found
+   10 | #include <sys/stat.h>
+      |          ^~~~~~~~~~~~
+1 error generated.
+FAIL file_meta: muzzle column does not build
+tests/next/file_meta.c:12:10: fatal error: 'sys/stat.h' file not found
+   12 | #include <sys/stat.h>
+      |          ^~~~~~~~~~~~
+1 error generated.
+FAIL prog_sort: muzzle column does not build
+tests/next/prog_sort.c:76:20: error: call to undeclared function 'strtol'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   76 |         v[n].key = strtol(s, &end, 10);
+      |                    ^
+tests/next/prog_sort.c:83:5: error: call to undeclared function 'qsort'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   83 |     qsort(w, n, sizeof *w, bytewise);
+      |     ^
+2 errors generated.
+FAIL prog_tree: muzzle column does not build
+tests/next/prog_tree.c:8:10: fatal error: 'dirent.h' file not found
+    8 | #include <dirent.h>
+      |          ^~~~~~~~~~
+1 error generated.
+FAIL prog_wc: muzzle column does not build
+tests/next/prog_wc.c:52:9: error: call to undeclared function 'perror'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   52 |         perror(path);
+      |         ^
+tests/next/prog_wc.c:52:9: note: did you mean 'ferror'?
+/work/include/stdio.h:99:5: note: 'ferror' declared here
+   99 | int ferror(FILE *stream);
+      |     ^
+1 error generated.
+FAIL time_clock: muzzle column does not build
+tests/next/time_clock.c:9:10: fatal error: 'time.h' file not found
+    9 | #include <time.h>
+      |          ^~~~~~~~
+1 error generated.
+FAIL time_conv: muzzle column does not build
+tests/next/time_conv.c:12:10: fatal error: 'time.h' file not found
+   12 | #include <time.h>
+      |          ^~~~~~~~
+1 error generated.
+FAIL time_strftime: muzzle column does not build
+tests/next/time_strftime.c:11:10: fatal error: 'time.h' file not found
+   11 | #include <time.h>
+      |          ^~~~~~~~
+1 error generated.
+difftest: tier=release pass=23 fail=20
+END difftest.release exit=1
+BEGIN keep.release
+kept 47 files in /out/expected-release
+END keep.release exit=0
+BEGIN uapi
+FILE /usr/include/asm-generic/errno-base.h owner=linux-libc-dev
+  EPERM 1
+  ENOENT 2
+  ESRCH 3
+  EINTR 4
+  EIO 5
+  ENXIO 6
+  E2BIG 7
+  ENOEXEC 8
+  EBADF 9
+  ECHILD 10
+  EAGAIN 11
+  ENOMEM 12
+  EACCES 13
+  EFAULT 14
+  ENOTBLK 15
+  EBUSY 16
+  EEXIST 17
+  EXDEV 18
+  ENODEV 19
+  ENOTDIR 20
+  EISDIR 21
+  EINVAL 22
+  ENFILE 23
+  EMFILE 24
+  ENOTTY 25
+  ETXTBSY 26
+  EFBIG 27
+  ENOSPC 28
+  ESPIPE 29
+  EROFS 30
+  EMLINK 31
+  EPIPE 32
+  EDOM 33
+  ERANGE 34
+FILE /usr/include/asm-generic/errno.h owner=linux-libc-dev
+  EDEADLK 35
+  ENAMETOOLONG 36
+  ENOLCK 37
+  ENOSYS 38
+  ENOTEMPTY 39
+  ELOOP 40
+  EWOULDBLOCK EAGAIN
+  ENOMSG 42
+  EIDRM 43
+  ECHRNG 44
+  EL2NSYNC 45
+  EL3HLT 46
+  EL3RST 47
+  ELNRNG 48
+  EUNATCH 49
+  ENOCSI 50
+  EL2HLT 51
+  EBADE 52
+  EBADR 53
+  EXFULL 54
+  ENOANO 55
+  EBADRQC 56
+  EBADSLT 57
+  EDEADLOCK EDEADLK
+  EBFONT 59
+  ENOSTR 60
+  ENODATA 61
+  ETIME 62
+  ENOSR 63
+  ENONET 64
+  ENOPKG 65
+  EREMOTE 66
+  ENOLINK 67
+  EADV 68
+  ESRMNT 69
+  ECOMM 70
+  EPROTO 71
+  EMULTIHOP 72
+  EDOTDOT 73
+  EBADMSG 74
+  EOVERFLOW 75
+  ENOTUNIQ 76
+  EBADFD 77
+  EREMCHG 78
+  ELIBACC 79
+  ELIBBAD 80
+  ELIBSCN 81
+  ELIBMAX 82
+  ELIBEXEC 83
+  EILSEQ 84
+  ERESTART 85
+  ESTRPIPE 86
+  EUSERS 87
+  ENOTSOCK 88
+  EDESTADDRREQ 89
+  EMSGSIZE 90
+  EPROTOTYPE 91
+  ENOPROTOOPT 92
+  EPROTONOSUPPORT 93
+  ESOCKTNOSUPPORT 94
+  EOPNOTSUPP 95
+  EPFNOSUPPORT 96
+  EAFNOSUPPORT 97
+  EADDRINUSE 98
+  EADDRNOTAVAIL 99
+  ENETDOWN 100
+  ENETUNREACH 101
+  ENETRESET 102
+  ECONNABORTED 103
+  ECONNRESET 104
+  ENOBUFS 105
+  EISCONN 106
+  ENOTCONN 107
+  ESHUTDOWN 108
+  ETOOMANYREFS 109
+  ETIMEDOUT 110
+  ECONNREFUSED 111
+  EHOSTDOWN 112
+  EHOSTUNREACH 113
+  EALREADY 114
+  EINPROGRESS 115
+  ESTALE 116
+  EUCLEAN 117
+  ENOTNAM 118
+  ENAVAIL 119
+  EISNAM 120
+  EREMOTEIO 121
+  EDQUOT 122
+  ENOMEDIUM 123
+  EMEDIUMTYPE 124
+  ECANCELED 125
+  ENOKEY 126
+  EKEYEXPIRED 127
+  EKEYREVOKED 128
+  EKEYREJECTED 129
+  EOWNERDEAD 130
+  ENOTRECOVERABLE 131
+  ERFKILL 132
+  EHWPOISON 133
+FILE /usr/include/x86_64-linux-gnu/asm/unistd_64.h owner=linux-libc-dev
+  __NR_stat 4
+  __NR_fstat 5
+  __NR_lstat 6
+  __NR_rt_sigaction 13
+  __NR_rt_sigprocmask 14
+  __NR_access 21
+  __NR_pipe 22
+  __NR_dup 32
+  __NR_dup2 33
+  __NR_nanosleep 35
+  __NR_getpid 39
+  __NR_kill 62
+  __NR_getcwd 79
+  __NR_chdir 80
+  __NR_rename 82
+  __NR_mkdir 83
+  __NR_rmdir 84
+  __NR_unlink 87
+  __NR_symlink 88
+  __NR_readlink 89
+  __NR_gettid 186
+  __NR_time 201
+  __NR_getdents64 217
+  __NR_clock_gettime 228
+  __NR_tgkill 234
+  __NR_openat 257
+  __NR_newfstatat 262
+  __NR_faccessat 269
+  __NR_dup3 292
+  __NR_pipe2 293
+FILE /usr/include/linux/time.h owner=linux-libc-dev
+  CLOCK_REALTIME 0
+  CLOCK_MONOTONIC 1
+  CLOCK_PROCESS_CPUTIME_ID 2
+  CLOCK_THREAD_CPUTIME_ID 3
+FILE /usr/include/linux/fcntl.h owner=linux-libc-dev
+  AT_FDCWD -100
+  AT_SYMLINK_NOFOLLOW 0x100
+  AT_REMOVEDIR 0x200
+  AT_EACCESS 0x200
+  AT_SYMLINK_FOLLOW 0x400
+  AT_EMPTY_PATH 0x1000
+FILE /usr/include/linux/stat.h owner=linux-libc-dev
+  S_IFMT 00170000
+  S_IFSOCK 0140000
+  S_IFLNK 0120000
+  S_IFREG 0100000
+  S_IFBLK 0060000
+  S_IFDIR 0040000
+  S_IFCHR 0020000
+  S_IFIFO 0010000
+  S_ISUID 0004000
+  S_ISGID 0002000
+  S_ISVTX 0001000
+  S_IRWXU 00700
+  S_IRUSR 00400
+  S_IWUSR 00200
+  S_IXUSR 00100
+  S_IRWXG 00070
+  S_IRGRP 00040
+  S_IWGRP 00020
+  S_IXGRP 00010
+  S_IRWXO 00007
+  S_IROTH 00004
+  S_IWOTH 00002
+  S_IXOTH 00001
+FILE /usr/include/x86_64-linux-gnu/asm/signal.h owner=linux-libc-dev
+  SIGABRT 6
+FILE /usr/include/asm-generic/signal-defs.h owner=linux-libc-dev
+  SIG_BLOCK 0
+  SIG_UNBLOCK 1
+  SIG_SETMASK 2
+  SIG_DFL ((__sighandler_t)0)
+  SIG_IGN ((__sighandler_t)1)
+FILE /usr/include/x86_64-linux-gnu/asm/stat.h owner=linux-libc-dev (x86-64 struct stat, from its line to the closing brace)
+  #ifndef _ASM_X86_STAT_H
+  #ifdef __i386__
+  [1]
+  struct stat {
+  	unsigned long  st_dev;
+  	unsigned long  st_ino;
+  	unsigned short st_mode;
+  	unsigned short st_nlink;
+  	unsigned short st_uid;
+  	unsigned short st_gid;
+  	unsigned long  st_rdev;
+  	unsigned long  st_size;
+  	unsigned long  st_blksize;
+  	unsigned long  st_blocks;
+  	unsigned long  st_atime;
+  	unsigned long  st_atime_nsec;
+  	unsigned long  st_mtime;
+  	unsigned long  st_mtime_nsec;
+  	unsigned long  st_ctime;
+  	unsigned long  st_ctime_nsec;
+  	unsigned long  __unused4;
+  	unsigned long  __unused5;
+  };
+  #else /* __i386__ */
+  [2]
+  struct stat {
+  	__kernel_ulong_t	st_dev;
+  	__kernel_ulong_t	st_ino;
+  	__kernel_ulong_t	st_nlink;
+  
+  	unsigned int		st_mode;
+  	unsigned int		st_uid;
+  	unsigned int		st_gid;
+  	unsigned int		__pad0;
+  	__kernel_ulong_t	st_rdev;
+  	__kernel_long_t		st_size;
+  	__kernel_long_t		st_blksize;
+  	__kernel_long_t		st_blocks;	/* Number 512-byte blocks allocated. */
+  
+  	__kernel_ulong_t	st_atime;
+  	__kernel_ulong_t	st_atime_nsec;
+  	__kernel_ulong_t	st_mtime;
+  	__kernel_ulong_t	st_mtime_nsec;
+  	__kernel_ulong_t	st_ctime;
+  	__kernel_ulong_t	st_ctime_nsec;
+  	__kernel_long_t		__unused[3];
+  };
+  #endif
+  #ifdef __i386__
+  #else
+  #endif
+  #endif /* _ASM_X86_STAT_H */
+FILE /usr/include/x86_64-linux-gnu/asm/signal.h owner=linux-libc-dev (struct sigaction)
+  struct sigaction {
+  	union {
+  	  __sighandler_t _sa_handler;
+  	  void (*_sa_sigaction)(int, struct siginfo *, void *);
+  	} _u;
+  	sigset_t sa_mask;
+  	unsigned long sa_flags;
+  	void (*sa_restorer)(void);
+  };
+  struct sigaction {
+  	__sighandler_t sa_handler;
+  	unsigned long sa_flags;
+  	__sigrestore_t sa_restorer;
+  	sigset_t sa_mask;		/* mask last for extensibility */
+  };
+END uapi exit=0
+job: container exit=0
+DONE 2026-11-09T18:45:53Z job=red1c exit=0

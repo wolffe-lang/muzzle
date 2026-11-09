@@ -1,0 +1,27 @@
+QUEUED 2026-11-09T18:46:34Z job=glibc1 block=C pid=1297642 inner=/home/mfwolffe/lanes/lc03/hasu/job.sh 4d0389b1470b5b6ed97497675c50231ed66f48b3 glibc1
+job: sha=4d0389b1470b5b6ed97497675c50231ed66f48b3 block=C cpus=12-17 out=/home/mfwolffe/lanes/lc03/out-glibc1 ctr=ctr-glibc.sh
+BEGIN glibc
+/scripts/ctr-glibc.sh: line 13:    10 Aborted                 ( cd "$out/$n.d" && ulimit -c 0 && TZ=UTC exec timeout 120 "$out/$n.bin" ) < "$in" > "$out/$n.out" 2> "$out/$n.err"
+  stdlib_abort exit=134 lines=1 stderr=55 left=0 secs=0
+  stdlib_alloc exit=0 lines=121 stderr=0 left=0 secs=0
+  stdlib_env exit=0 lines=35 stderr=0 left=0 secs=0
+  stdlib_misc exit=0 lines=24 stderr=0 left=0 secs=0
+  stdlib_sort exit=0 lines=77 stderr=0 left=0 secs=0
+  stdlib_strtod exit=0 lines=138 stderr=0 left=0 secs=1
+  stdlib_strtol exit=0 lines=924 stderr=0 left=0 secs=0
+  atexit_Exit exit=5 lines=1 stderr=0 left=0 secs=0
+  atexit_order exit=3 lines=9 stderr=0 left=0 secs=0
+  atexit_return exit=7 lines=44 stderr=0 left=0 secs=0
+  errno_strerror exit=0 lines=296 stderr=341 left=0 secs=0
+  file_dir exit=0 lines=36 stderr=0 left=0 secs=0
+  file_io exit=0 lines=82 stderr=0 left=4 secs=0
+  file_meta exit=0 lines=58 stderr=0 left=0 secs=0
+  prog_sort exit=0 lines=1148 stderr=0 left=1 secs=0
+  prog_tree exit=0 lines=72 stderr=0 left=0 secs=0
+  prog_wc exit=0 lines=5 stderr=39 left=3 secs=0
+  time_clock exit=0 lines=18 stderr=0 left=0 secs=1
+  time_conv exit=0 lines=221 stderr=0 left=0 secs=0
+  time_strftime exit=0 lines=2242 stderr=0 left=0 secs=0
+END glibc exit=0
+job: container exit=0
+DONE 2026-11-09T18:46:38Z job=glibc1 exit=0

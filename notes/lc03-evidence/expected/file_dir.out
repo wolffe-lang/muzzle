@@ -1,0 +1,36 @@
+getcwd ok=1 absolute=1
+mkdir sub r=0 errno=0
+chdir sub r=0 errno=0
+cwd is start/sub=1
+chdir .. r=0 errno=0
+cwd is start=1
+chdir missing r=-1 errno=2
+chdir file r=-1 errno=20
+chdir empty r=-1 errno=2
+getcwd size 1 null=1 errno=34
+getcwd size 0 null=1 errno=22
+getcwd exact ok=1
+getcwd one short null=1 errno=34
+long name fd ok=1
+  04 .
+  04 ..
+  08 inside
+opendir(sub) entries=3 end errno=0 closedir=0
+  04 .
+  04 ..
+  04 big
+  04 sub
+opendir(.) entries=4 end errno=0 closedir=0
+  04 .
+  04 ..
+  04 subdir
+  08 entry-0999-x
+  08 nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+  10 link
+opendir(big) entries=1005 end errno=0 closedir=0
+opendir(missing) null errno=2
+opendir(sub/inside) null errno=20
+opendir() null errno=2
+removed=1003 rmdir big=0
+unlink inside=0 rmdir sub=0
+DT_REG=8 DT_DIR=4 DT_LNK=10 DT_UNKNOWN=0

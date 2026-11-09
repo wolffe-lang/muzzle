@@ -1,0 +1,72 @@
+root/
+  dangling -> nowhere (dangling)
+  dir0/
+    readme 0
+    suba/
+      file0.dat 0
+      file1.dat 7
+      file2.dat 14
+      [root/dir0/suba: 3 files, 0 dirs, 0 links, 21 bytes]
+    [root/dir0: 4 files, 1 dirs, 0 links, 21 bytes]
+  dir1/
+    readme 12345
+    suba/
+      file0.dat 1000
+      file1.dat 1007
+      file2.dat 1014
+      [root/dir1/suba: 3 files, 0 dirs, 0 links, 3021 bytes]
+    subb/
+      file0.dat 1100
+      file1.dat 1107
+      file2.dat 1114
+      [root/dir1/subb: 3 files, 0 dirs, 0 links, 3321 bytes]
+    [root/dir1: 7 files, 2 dirs, 0 links, 18687 bytes]
+  dir2/
+    readme 24690
+    suba/
+      file0.dat 2000
+      file1.dat 2007
+      file2.dat 2014
+      [root/dir2/suba: 3 files, 0 dirs, 0 links, 6021 bytes]
+    subb/
+      file0.dat 2100
+      file1.dat 2107
+      file2.dat 2114
+      [root/dir2/subb: 3 files, 0 dirs, 0 links, 6321 bytes]
+    subc/
+      file0.dat 2200
+      file1.dat 2207
+      file2.dat 2214
+      [root/dir2/subc: 3 files, 0 dirs, 0 links, 6621 bytes]
+    [root/dir2: 10 files, 3 dirs, 0 links, 43653 bytes]
+  dir3/
+    readme 37035
+    suba/
+      file0.dat 3000
+      file1.dat 3007
+      file2.dat 3014
+      [root/dir3/suba: 3 files, 0 dirs, 0 links, 9021 bytes]
+    subb/
+      file0.dat 3100
+      file1.dat 3107
+      file2.dat 3114
+      [root/dir3/subb: 3 files, 0 dirs, 0 links, 9321 bytes]
+    subc/
+      file0.dat 3200
+      file1.dat 3207
+      file2.dat 3214
+      [root/dir3/subc: 3 files, 0 dirs, 0 links, 9621 bytes]
+    subd/
+      file0.dat 3300
+      file1.dat 3307
+      file2.dat 3314
+      [root/dir3/subd: 3 files, 0 dirs, 0 links, 9921 bytes]
+    [root/dir3: 13 files, 4 dirs, 0 links, 74919 bytes]
+  empty/
+    [root/empty: 0 files, 0 dirs, 0 links, 0 bytes]
+  link-to-dir -> dir2
+  link-to-file -> dir1/suba/file0.dat
+  top.txt 1
+  [root: 35 files, 15 dirs, 3 links, 137281 bytes]
+total: 35 files, 15 dirs, 3 links, 137281 bytes
+removed=54 gone=1 errno=2
