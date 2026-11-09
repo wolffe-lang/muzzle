@@ -33,6 +33,9 @@ fi
 # No core files: abort's case dies by SIGABRT in both columns, and a
 # host whose core pattern is a program gets the limit with the dump.
 ulimit -c 0
+# Both columns in one zone: muzzle's local time is UTC, and glibc's is
+# UTC under TZ=UTC whatever the host's /etc/localtime says.
+export TZ=UTC
 CFLAGS=(-std=c17 -O1 -Wall -Werror -fno-builtin -fno-stack-protector -I "$root/tests/lib")
 MUZZLE=(-nostdinc -isystem "$root/include" -nostdlib -static)
 echo "difftest: tier=$tier glibc=$(getconf GNU_LIBC_VERSION 2>/dev/null) $(clang --version | head -1)"
