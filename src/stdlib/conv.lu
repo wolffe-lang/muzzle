@@ -1,0 +1,210 @@
+//! <stdlib.h> integer conversions: C17 7.22.1.4 strtol, strtoll, strtoul,
+//! strtoull, and 7.22.1.2 atoi, atol, atoll.
+//!
+//! One scanner reads the subject sequence (C17 7.22.1.4p2-p5): white
+//! space as isspace finds it in the C locale, an optional sign, then
+//! digits of the base, `0x`/`0X` taken for base 16 or 0 only when a hex
+//! digit follows, a leading `0` meaning octal for base 0. Its magnitude
+//! saturates, and each function clamps it to its type (p8: the extreme
+//! value and ERANGE). A base other than 0 or 2..36 is no conversion and
+//! EINVAL, the end pointer left alone (glibc's answer; C17 leaves it
+//! undefined). The unsigned forms negate in their own type, so "-1" is
+//! ULONG_MAX (p5), but a magnitude past ULONG_MAX is ERANGE whatever its
+//! sign. `0b` is not a prefix: C17's strtol does not know it.
+//!
+//! Sources: C17 7.22.1.2, 7.22.1.4, 7.4.1.10 (isspace in the C locale);
+//! strtol(3), strtoul(3).
+
+use sys
+
+const EINVAL: i32 = 22
+
+const ERANGE: i32 = 34
+
+const U64_MAX: u64 = 18446744073709551615
+
+/// The subject sequence as the scanner read it.
+struct Scan {
+    // The digits' value, saturated at U64_MAX when over is set.
+    mag: u64,
+    neg: bool,
+    over: bool,
+    // Where the conversion stopped: the string's start when it found no
+    // digits.
+    end: uint,
+    bad_base: bool,
+}
+
+/// True for the C locale's white space: space, \t \n \v \f \r.
+pub fn is_space(c: u8) -> bool {
+    c == 32 || (c >= 9 && c <= 13)
+}
+
+/// A digit's value in bases up to 36, or 99.
+pub fn digit(c: u8) -> u64 {
+    if c >= 48 && c <= 57 {
+        return (c - 48) as u64
+    }
+    if c >= 97 && c <= 122 {
+        return (c - 87) as u64
+    }
+    if c >= 65 && c <= 90 {
+        return (c - 55) as u64
+    }
+    99
+}
+
+fn scan(s: *u8, base0: i32) -> Scan {
+    var r = Scan { mag: 0, neg: false, over: false, end: s.addr(), bad_base: false }
+    if base0 < 0 || base0 == 1 || base0 > 36 {
+        r.bad_base = true
+        return r
+    }
+    var i: int = 0
+    var base = base0 as u64
+    var acc: u64 = 0
+    var start: int = 0
+    // # Safety: C's precondition: s is a string; the scan stops at its
+    // null, which no test below accepts.
+    unsafe {
+        while is_space(s[i]) {
+            i += 1
+        }
+        if s[i] == 45 {
+            r.neg = true
+            i += 1
+        } else if s[i] == 43 {
+            i += 1
+        }
+        if (base == 0 || base == 16) && s[i] == 48 && (s[i + 1] == 120 || s[i + 1] == 88) && digit(s[i + 2]) < 16 {
+            i += 2
+            base = 16
+        } else if base == 0 && s[i] == 48 {
+            base = 8
+        } else if base == 0 {
+            base = 10
+        }
+        start = i
+        while digit(s[i]) < base {
+            let d = digit(s[i])
+            if !r.over {
+                if acc > (U64_MAX - d) / base {
+                    r.over = true
+                    acc = U64_MAX
+                } else {
+                    acc = acc * base + d
+                }
+            }
+            i += 1
+        }
+    }
+    if i == start {
+        r.neg = false
+        return r
+    }
+    r.mag = acc
+    r.end = s.addr() + i as uint
+    r
+}
+
+fn store_end(endptr: *u64, end: uint, bad_base: bool) {
+    if !endptr.is_null() && !bad_base {
+        // # Safety: C's precondition: a non-null endptr addresses a char *.
+        unsafe {
+            endptr[0] = end as u64
+        }
+    }
+}
+
+/// The scan clamped to a signed 64-bit result (C17 7.22.1.4p8).
+fn signed(r: Scan) -> i64 {
+    if r.bad_base {
+        sys.set_errno(EINVAL)
+        return 0
+    }
+    if r.neg {
+        if r.over || r.mag > 9223372036854775808 {
+            sys.set_errno(ERANGE)
+            return -9223372036854775807 - 1
+        }
+        if r.mag == 0 {
+            return 0
+        }
+        return 0 - (r.mag - 1) as i64 - 1
+    }
+    if r.over || r.mag > 9223372036854775807 {
+        sys.set_errno(ERANGE)
+        return 9223372036854775807
+    }
+    r.mag as i64
+}
+
+/// The scan clamped to an unsigned 64-bit result: negation in the type.
+fn unsigned(r: Scan) -> u64 {
+    if r.bad_base {
+        sys.set_errno(EINVAL)
+        return 0
+    }
+    if r.over {
+        sys.set_errno(ERANGE)
+        return U64_MAX
+    }
+    if r.neg && r.mag != 0 {
+        return U64_MAX - r.mag + 1
+    }
+    r.mag
+}
+
+/// C17 7.22.1.4.
+export fn strtol(nptr: *u8, endptr: *u64, base: i32) -> i64 {
+    let r = scan(nptr, base)
+    store_end(endptr, r.end, r.bad_base)
+    signed(r)
+}
+
+/// C17 7.22.1.4.
+export fn strtoll(nptr: *u8, endptr: *u64, base: i32) -> i64 {
+    let r = scan(nptr, base)
+    store_end(endptr, r.end, r.bad_base)
+    signed(r)
+}
+
+/// C17 7.22.1.4.
+export fn strtoul(nptr: *u8, endptr: *u64, base: i32) -> u64 {
+    let r = scan(nptr, base)
+    store_end(endptr, r.end, r.bad_base)
+    unsigned(r)
+}
+
+/// C17 7.22.1.4.
+export fn strtoull(nptr: *u8, endptr: *u64, base: i32) -> u64 {
+    let r = scan(nptr, base)
+    store_end(endptr, r.end, r.bad_base)
+    unsigned(r)
+}
+
+/// C17 7.22.1.2: strtol(nptr, NULL, 10) as an int. A value outside int
+/// is undefined; this keeps its low 32 bits.
+export fn atoi(nptr: *u8) -> i32 {
+    signed(scan(nptr, 10)) as wrapping[i32] as i32
+}
+
+/// C17 7.22.1.2.
+export fn atol(nptr: *u8) -> i64 {
+    signed(scan(nptr, 10))
+}
+
+/// C17 7.22.1.2.
+export fn atoll(nptr: *u8) -> i64 {
+    signed(scan(nptr, 10))
+}
+
+/// The unsigned value of a NaN's n-char-sequence, read as strtoull reads
+/// base 0, when it is all digits of that base and ends at `stop`; else 0.
+pub fn payload(s: *u8, stop: uint) -> u64 {
+    let r = scan(s, 0)
+    if r.end != stop || r.over || r.neg {
+        return 0
+    }
+    r.mag
+}
