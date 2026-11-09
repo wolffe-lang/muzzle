@@ -175,7 +175,7 @@ fn utc() -> u64 {
     z
 }
 
-fn shared() -> *Tm {
+fn static_tm() -> *Tm {
     // # Safety: sys.S's 64 bytes hold one struct tm (56 bytes).
     unsafe {
         __muzzle_tm.addr() as *Tm
@@ -207,7 +207,7 @@ export fn gmtime_r(timer: *i64, result: *Tm) -> *Tm {
 
 /// C17 7.27.3.3.
 export fn gmtime(timer: *i64) -> *Tm {
-    convert(timer, shared(), gmt())
+    convert(timer, static_tm(), gmt())
 }
 
 /// XSH localtime_r: UTC, named "UTC".
@@ -217,7 +217,7 @@ export fn localtime_r(timer: *i64, result: *Tm) -> *Tm {
 
 /// C17 7.27.3.4.
 export fn localtime(timer: *i64) -> *Tm {
-    convert(timer, shared(), utc())
+    convert(timer, static_tm(), utc())
 }
 
 /// The seconds since the epoch tm's fields name, every field normalized
