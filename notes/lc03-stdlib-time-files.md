@@ -346,3 +346,38 @@ and the hand-back.
 - [x] The ledger, the sources and the README.
 - [ ] The gauntlet green at the head and the plant red by name: the PR
   body and the hand-back.
+
+---
+
+# PR 3 (2026-11-09): the earlier notes in plain words
+
+muzzle is public, so its tracked prose names no host, no lane or home
+path, no planning path, no private repository and no ruling or STATUS
+number. This PR rewrites what lc01, lc02 and the mz lanes wrote before
+that rule, and the comments elsewhere that carried ruling numbers:
+
+- the prose notes (`notes/lc01-the-first-layer.md`, `notes/lc02-stdio.md`,
+  `notes/mz-ffi.md`, `notes/mz2-…` to `notes/mz6-…`, the lc01 probes'
+  README): the Linux test host, the Mac, the lane's contract, the lane's
+  own directory, and each ruling said in words;
+- the evidence and probe files no note cites by digest: a mechanical
+  substitution (`<lanes>/`, `<home>/`, `<user>`, `test-host`);
+- `README.md`, `docs/SOURCES.md`, `docs/LEDGER.md`, the headers'
+  comments, `src/sys.S`, `src/sys/sys.lu`, `src/wolf.pkg`,
+  `tools/difftest` and `tests/own/printf_refusals.c`: comments only.
+
+**Left byte for byte:** every evidence file a note or a digest list cites
+by digest (17 of them carry a host name or a path), so each cited digest
+still matches its file; and the CI files (`.github/workflows/ci.yml`,
+`ci/`) and the pin (`wolf-toolchain.toml`), whose comments are a
+cross-cutting change of their own.
+
+This prediction was written after the edits were drafted in the working
+tree and before any of them was committed or built.
+
+| # | predicted | falsified if |
+|---|---|---|
+| Q1 | no compiled byte moves: the gauntlet is green with 45 of 45 cases on both tiers, as at `de3eeb5` | any step is nonzero, or a count differs |
+| Q2 | the cited files are unchanged: each digest a note cites still matches | a cited file differs from trunk |
+| Q3 | after this PR, the tracked tree's hits for host names, lane and home paths, planning paths and private repository names are only in the cited files, the CI files and the pin | a hit elsewhere |
+| Q4 | a plant (`<stddef.h>`'s rewritten comment left unterminated) is red by name: every case's muzzle column fails to build, on both tiers | a case still builds |
