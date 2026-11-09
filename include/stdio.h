@@ -1,6 +1,6 @@
 /* muzzle: <stdio.h> (C17 7.21, POSIX.1-2024 XBD stdio.h for fdopen and
  * fileno), the functions muzzle implements. Hand-written from the
- * standards' synopses (ruling R3).
+ * standards' synopses.
  *
  * FILE is opaque: C holds only pointers to it. The three standard
  * streams are objects muzzle reserves; stdin, stdout and stderr are

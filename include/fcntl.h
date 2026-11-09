@@ -1,5 +1,5 @@
 /* muzzle: <fcntl.h> (POSIX.1-2024 XBD fcntl.h), open and its flags.
- * Hand-written from the standard's synopsis (ruling R3). The values are
+ * Hand-written from the standard's synopsis. The values are
  * Linux's, from the uapi headers asm-generic/fcntl.h and linux/fcntl.h
  * (numbers only). */
 #ifndef _MUZZLE_FCNTL_H

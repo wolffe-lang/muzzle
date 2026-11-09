@@ -1,5 +1,5 @@
 /* muzzle: <limits.h> (C17 5.2.4.2.1, POSIX.1-2024 XBD limits.h for
- * SSIZE_MAX). Hand-written (ruling R3). The values come from the
+ * SSIZE_MAX). Hand-written. The values come from the
  * compiler's predefined macros: the target's (x86-64 LP64, signed char). */
 #ifndef _MUZZLE_LIMITS_H
 #define _MUZZLE_LIMITS_H

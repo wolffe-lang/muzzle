@@ -1,5 +1,5 @@
 /* muzzle: <stdarg.h> (C17 7.16). Hand-written from the standard's
- * synopsis (ruling R3). A variable argument list is the compiler's own
+ * synopsis. A variable argument list is the compiler's own
  * object, so the header names the compiler's builtins and nothing else;
  * on x86-64 the type is the psABI's (3.5.7), the record wolf calls
  * VaList ([abi.c.variadic.list]). */

@@ -1,5 +1,5 @@
 /* muzzle: <stddef.h> (C17 7.19). Hand-written from the standard's
- * synopsis (ruling R3: the headers are muzzle's one permanent C).
+ * synopsis (the headers are muzzle's one permanent C).
  * The types come from the compiler's predefined macros. */
 #ifndef _MUZZLE_STDDEF_H
 #define _MUZZLE_STDDEF_H

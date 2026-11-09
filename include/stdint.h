@@ -1,5 +1,5 @@
 /* muzzle: <stdint.h> (C17 7.20). Hand-written from the standard's
- * synopsis (ruling R3). The types and limits come from the compiler's
+ * synopsis. The types and limits come from the compiler's
  * predefined macros, so they are the target's (x86-64 LP64). */
 #ifndef _MUZZLE_STDINT_H
 #define _MUZZLE_STDINT_H

@@ -1,5 +1,5 @@
 /* muzzle: <unistd.h> (POSIX.1-2024 XBD unistd.h), the functions muzzle
- * implements. Hand-written from the standard's synopsis (ruling R3). */
+ * implements. Hand-written from the standard's synopsis. */
 #ifndef _MUZZLE_UNISTD_H
 #define _MUZZLE_UNISTD_H
 
