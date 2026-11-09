@@ -26,4 +26,18 @@ typedef unsigned int mode_t;
 typedef int pid_t;
 #endif
 
+#ifndef _MUZZLE_TIME_T
+#define _MUZZLE_TIME_T
+typedef long time_t;
+typedef long clock_t;
+typedef int clockid_t;
+#endif
+typedef unsigned long dev_t;
+typedef unsigned long ino_t;
+typedef unsigned long nlink_t;
+typedef unsigned int uid_t;
+typedef unsigned int gid_t;
+typedef long blksize_t;
+typedef long blkcnt_t;
+
 #endif
