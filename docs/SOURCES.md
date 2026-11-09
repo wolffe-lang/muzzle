@@ -74,3 +74,39 @@ flush points chosen to match glibc's observed ones) and the formatter
 (one pass, digits most significant first without a buffer, two sinks) are
 muzzle's own. The compilers' `__builtin_va_*` names in `<stdarg.h>` are
 named, not read from any header.
+
+## lc03 (2026-11-09): stdlib, errno and strerror
+
+**Standards and manuals**
+
+| source | where | used for |
+|---|---|---|
+| ISO C17, draft N2176 | 7.22.1 (the numeric conversions: the subject sequence, the bases, `ERANGE`, strtod's rounding and its INF/NAN forms), 7.22.2 (rand, srand), 7.22.3.1 (aligned_alloc), 7.22.4 (abort, atexit, exit, _Exit, getenv), 7.22.5 (bsearch, qsort), 7.22.6 (abs, div), 7.24.6.2 (strerror), 7.21.10.4 (perror), 7.5 (errno), 6.5.5 (division truncates toward zero), Annex F.5 (conversions round as the current rounding mode does) | `src/stdlib/`, `src/process/`, `src/errtext/`, `src/stdio/perror.lu`, `include/stdlib.h`, `include/errno.h` |
+| POSIX.1-2024 (XSH, XBD) | XSH posix_memalign, setenv, unsetenv, getenv, abort, atexit, perror, strerror; XBD 8.1 (environ); XBD errno.h (`ENOTSUP`); XSH 2.3 (errno after a successful call) | the same, and `src/sys.S`'s `environ` |
+| IEEE 754-2019 | binary64's fields, round to nearest with ties to even, subnormals | `src/stdlib/float.lu` |
+| the Linux man-pages project | strtol(3), strtoul(3), strtod(3), qsort(3), bsearch(3), rand(3), setenv(3), getenv(3), environ(7), abort(3), atexit(3), strerror(3), perror(3), errno(3), posix_memalign(3), rt_sigaction(2), sigprocmask(2), tgkill(2), getpid(2), gettid(2) | the same |
+| System V AMD64 psABI | 3.2.3 (a double result in `%xmm0`; a struct of two integers returned in `%rax`/`%rdx`; the argument registers a trampoline shifts) | `src/sys.S`'s `strtod`, `__muzzle_call2`, `__muzzle_call0`; `div_t` and `ldiv_t` by value |
+| Linux uapi headers, linux-libc-dev in the build container (numbers and constants only; each file's package checked with `dpkg -S` first, `notes/lc03-evidence/red1c.log`) | `asm-generic/errno-base.h` and `asm-generic/errno.h` (every E* number), `asm/unistd_64.h` (rt_sigaction 13, rt_sigprocmask 14, getpid 39, gettid 186, tgkill 234), `asm/signal.h` (SIGABRT 6, x86-64's struct sigaction), `asm-generic/signal-defs.h` (SIG_UNBLOCK 1, SIG_DFL 0) | `include/errno.h`, `src/process/process.lu` |
+| D. E. Knuth, The Art of Computer Programming, vol. 2, 3.3.4 | the MMIX linear congruential multiplier and increment | `src/stdlib/arith.lu` (rand) |
+
+**glibc as a black box.** glibc 2.39's answers where the standards leave a
+choice open (`notes/lc03-probes/g1.c`, `g2.c`, `g3.c`, and the cases'
+reference column) are the reference, observed by running programs, never
+by reading its source or headers. strerror's texts are glibc's own output:
+`notes/lc03-probes/gen-errtext.py` writes `src/errtext.S` from what
+`errno_strerror.c` printed against glibc, since the texts must equal glibc's.
+
+**wolf**
+
+| source | used for |
+|---|---|
+| wolf-lang `spec/04-abi.md` at `v0.2.36`: `[abi.c.export]` (a struct result by value, one symbol per export), `[abi.asm]`, `[abi.asm.link]` (several listed assembly files), `[abi.asm.roster]` | the trampolines, `strtod`'s entry, `errtext.S` |
+| wolf-lang `spec/01-grammar.md` and `spec/10-types.md` at `v0.2.36`: the operator table, `INT` (hex literals with `_`), `[type.int.shift]`, `[type.wrap.div]`, `wrapping[T]` | the big-integer arithmetic and rand's wrapping product |
+| `crates/wolf_rt/LICENSE-EXCEPTION` at wolf-lang `v0.2.36` | the shape of muzzle's exception, compared (no change) |
+
+**Not consulted:** any C library's source or headers (glibc, musl, the
+BSD libcs, or others); musl's and the BSD libcs' documentation, which is
+allowed as a design reference, was not needed. qsort's stable bottom-up
+merge sort, strtod's exact big-integer scaling with one rounding, the
+aligned block inside a carrier, and the environment's copy-on-append are
+textbook methods written here from the standards' contracts.
