@@ -1,0 +1,99 @@
+//! <time.h> clocks: C17 7.27.2.4 time, 7.27.2.1 clock; POSIX.1-2024 XSH
+//! clock_gettime and nanosleep.
+//!
+//! Each is the kernel's call: clock_gettime(2) (228) for time, for
+//! clock_gettime itself and for clock (the process's CPU-time clock, in
+//! microseconds: CLOCKS_PER_SEC is 1000000, as XSI requires), and
+//! nanosleep(2) (35). muzzle never requires the vDSO (its boundary with
+//! the kernel is the system call ABI alone), so these are system calls.
+//! A clock the kernel does not know, or a nanosecond count outside
+//! 0..999999999, is the kernel's EINVAL.
+//!
+//! Sources: C17 7.27.2.1, 7.27.2.4; POSIX.1-2024 XSH time, clock,
+//! clock_gettime, nanosleep; clock_gettime(2), nanosleep(2); the uapi
+//! asm/unistd_64.h (35, 228) and linux/time.h (CLOCK_REALTIME 0,
+//! CLOCK_PROCESS_CPUTIME_ID 2).
+
+use sys
+
+/// A struct timespec time() and clock() ask the kernel to fill (sys.S).
+extern "c" let __muzzle_ts: *i64
+
+const SYS_NANOSLEEP: i64 = 35
+
+const SYS_CLOCK_GETTIME: i64 = 228
+
+const CLOCK_REALTIME: i64 = 0
+
+const CLOCK_PROCESS_CPUTIME_ID: i64 = 2
+
+fn at(p: *u8) -> i64 {
+    var a: i64 = 0
+    // # Safety: reads p's address only.
+    unsafe {
+        a = p.addr() as wrapping[i64] as i64
+    }
+    a
+}
+
+fn scratch() -> i64 {
+    var a: i64 = 0
+    // # Safety: reads the scratch's address only.
+    unsafe {
+        a = __muzzle_ts.addr() as wrapping[i64] as i64
+    }
+    a
+}
+
+/// C17 7.27.2.4: the seconds since the epoch, also stored in *tloc when
+/// tloc is not null; -1 with errno set if the clock cannot be read.
+export fn time(tloc: *i64) -> i64 {
+    let r = sys.raw(SYS_CLOCK_GETTIME, CLOCK_REALTIME, scratch(), 0, 0, 0, 0)
+    if sys.failed(r) {
+        return sys.ret(r)
+    }
+    var t: i64 = 0
+    // # Safety: the kernel filled sys.S's timespec; a non-null tloc is
+    // C's time_t.
+    unsafe {
+        t = __muzzle_ts[0]
+        if !tloc.is_null() {
+            tloc[0] = t
+        }
+    }
+    t
+}
+
+/// XSH clock_gettime: 0, or -1 with errno set.
+export fn clock_gettime(clock_id: i32, tp: *u8) -> i32 {
+    sys.ret(sys.raw(SYS_CLOCK_GETTIME, clock_id as i64, at(tp), 0, 0, 0, 0)) as i32
+}
+
+/// XSH nanosleep: 0, or -1 with errno set (EINTR with the time left in
+/// *rmtp, EINVAL for a bad request).
+export fn nanosleep(rqtp: *u8, rmtp: *u8) -> i32 {
+    sys.ret(sys.raw(SYS_NANOSLEEP, at(rqtp), at(rmtp), 0, 0, 0, 0)) as i32
+}
+
+/// C17 7.27.2.1: the process's CPU time in microseconds, or -1.
+export fn clock() -> i64 {
+    let r = sys.raw(SYS_CLOCK_GETTIME, CLOCK_PROCESS_CPUTIME_ID, scratch(), 0, 0, 0, 0)
+    if sys.failed(r) {
+        return -1
+    }
+    var sec: i64 = 0
+    var nsec: i64 = 0
+    // # Safety: the kernel filled sys.S's timespec.
+    unsafe {
+        sec = __muzzle_ts[0]
+        nsec = __muzzle_ts[1]
+    }
+    sec * 1000000 + nsec / 1000
+}
+
+/// True. The package root calls it so the build reaches this module:
+/// a module only C calls into is otherwise never compiled, and an
+/// import nothing uses is E0305 (wolf-lang#599).
+pub fn linked() -> bool {
+    true
+}
