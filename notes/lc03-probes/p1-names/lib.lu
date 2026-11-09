@@ -1,0 +1,291 @@
+//! p1: which C names lc03 exports can wolf define (a reserved word is E0008)?
+
+/// p1.
+export fn abs() -> i32 {
+    0
+}
+
+/// p1.
+export fn labs() -> i32 {
+    0
+}
+
+/// p1.
+export fn llabs() -> i32 {
+    0
+}
+
+/// p1.
+export fn div() -> i32 {
+    0
+}
+
+/// p1.
+export fn ldiv() -> i32 {
+    0
+}
+
+/// p1.
+export fn lldiv() -> i32 {
+    0
+}
+
+/// p1.
+export fn qsort() -> i32 {
+    0
+}
+
+/// p1.
+export fn bsearch() -> i32 {
+    0
+}
+
+/// p1.
+export fn strtol() -> i32 {
+    0
+}
+
+/// p1.
+export fn strtoul() -> i32 {
+    0
+}
+
+/// p1.
+export fn strtoll() -> i32 {
+    0
+}
+
+/// p1.
+export fn strtoull() -> i32 {
+    0
+}
+
+/// p1.
+export fn strtod() -> i32 {
+    0
+}
+
+/// p1.
+export fn atoi() -> i32 {
+    0
+}
+
+/// p1.
+export fn atol() -> i32 {
+    0
+}
+
+/// p1.
+export fn atoll() -> i32 {
+    0
+}
+
+/// p1.
+export fn getenv() -> i32 {
+    0
+}
+
+/// p1.
+export fn setenv() -> i32 {
+    0
+}
+
+/// p1.
+export fn unsetenv() -> i32 {
+    0
+}
+
+/// p1.
+export fn atexit() -> i32 {
+    0
+}
+
+/// p1.
+export fn abort() -> i32 {
+    0
+}
+
+/// p1.
+export fn rand() -> i32 {
+    0
+}
+
+/// p1.
+export fn srand() -> i32 {
+    0
+}
+
+/// p1.
+export fn aligned_alloc() -> i32 {
+    0
+}
+
+/// p1.
+export fn posix_memalign() -> i32 {
+    0
+}
+
+/// p1.
+export fn time() -> i32 {
+    0
+}
+
+/// p1.
+export fn clock_gettime() -> i32 {
+    0
+}
+
+/// p1.
+export fn nanosleep() -> i32 {
+    0
+}
+
+/// p1.
+export fn clock() -> i32 {
+    0
+}
+
+/// p1.
+export fn gmtime_r() -> i32 {
+    0
+}
+
+/// p1.
+export fn gmtime() -> i32 {
+    0
+}
+
+/// p1.
+export fn localtime_r() -> i32 {
+    0
+}
+
+/// p1.
+export fn localtime() -> i32 {
+    0
+}
+
+/// p1.
+export fn mktime() -> i32 {
+    0
+}
+
+/// p1.
+export fn timegm() -> i32 {
+    0
+}
+
+/// p1.
+export fn strftime() -> i32 {
+    0
+}
+
+/// p1.
+export fn strerror() -> i32 {
+    0
+}
+
+/// p1.
+export fn perror() -> i32 {
+    0
+}
+
+/// p1.
+export fn openat() -> i32 {
+    0
+}
+
+/// p1.
+export fn stat() -> i32 {
+    0
+}
+
+/// p1.
+export fn fstat() -> i32 {
+    0
+}
+
+/// p1.
+export fn lstat() -> i32 {
+    0
+}
+
+/// p1.
+export fn unlink() -> i32 {
+    0
+}
+
+/// p1.
+export fn rename() -> i32 {
+    0
+}
+
+/// p1.
+export fn mkdir() -> i32 {
+    0
+}
+
+/// p1.
+export fn rmdir() -> i32 {
+    0
+}
+
+/// p1.
+export fn getcwd() -> i32 {
+    0
+}
+
+/// p1.
+export fn chdir() -> i32 {
+    0
+}
+
+/// p1.
+export fn opendir() -> i32 {
+    0
+}
+
+/// p1.
+export fn readdir() -> i32 {
+    0
+}
+
+/// p1.
+export fn closedir() -> i32 {
+    0
+}
+
+/// p1.
+export fn dup() -> i32 {
+    0
+}
+
+/// p1.
+export fn dup2() -> i32 {
+    0
+}
+
+/// p1.
+export fn pipe() -> i32 {
+    0
+}
+
+/// p1.
+export fn access() -> i32 {
+    0
+}
+
+/// p1.
+export fn symlink() -> i32 {
+    0
+}
+
+/// p1.
+export fn readlink() -> i32 {
+    0
+}
+
+/// p1.
+export fn environ() -> i32 {
+    0
+}

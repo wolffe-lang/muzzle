@@ -1,0 +1,7 @@
+// p2: two listed assembly files, a trampoline into a C function pointer.
+pkg {
+    name: "p2"
+    version: "0.0.1"
+    capabilities: [ffi]
+    asm: ["t1.S", "t2.S"]
+}

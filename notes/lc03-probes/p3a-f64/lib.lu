@@ -1,0 +1,6 @@
+//! p3a: a double result on x86_64-unknown-none (lc02's q3b saw K10 for va_arg[f64]).
+
+/// p3a.
+export fn p3a_half() -> f64 {
+    0.5
+}

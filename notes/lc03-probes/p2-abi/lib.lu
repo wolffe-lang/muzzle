@@ -1,0 +1,72 @@
+//! p2: struct results by value under the C plan (div_t, ldiv_t), two
+//! listed assembly files, and a C function pointer called through an
+//! assembly trampoline (no C function-pointer type: wolf-lang#520).
+
+extern "c" fn __p2_call2(f: u64, a: *u8, b: *u8) -> i32
+
+extern "c" fn __p2_call0(f: u64)
+
+extern "c" let __p2_env: *u64
+
+/// div_t.
+#[repr(c)]
+struct DivT {
+    quot: i32,
+    rem: i32,
+}
+
+/// ldiv_t.
+#[repr(c)]
+struct LDivT {
+    quot: i64,
+    rem: i64,
+}
+
+/// div.
+export fn p2_div(n: i32, d: i32) -> DivT {
+    DivT { quot: n / d, rem: n % d }
+}
+
+/// ldiv.
+export fn p2_ldiv(n: i64, d: i64) -> LDivT {
+    LDivT { quot: n / d, rem: n % d }
+}
+
+/// Calls the comparator f on a and b.
+export fn p2_apply(f: u64, a: *u8, b: *u8) -> i32 {
+    var r: i32 = 0
+    // # Safety: probe; f is a C function int (*)(const void *, const void *).
+    unsafe {
+        r = __p2_call2(f, a, b)
+    }
+    r
+}
+
+/// Calls f, n times.
+export fn p2_run(f: u64, n: i32) {
+    var i = 0
+    while i < n {
+        // # Safety: probe; f is a C function void (*)(void).
+        unsafe {
+            __p2_call0(f)
+        }
+        i += 1
+    }
+}
+
+/// The word C stored in __p2_env, read through a pointer to a pointer.
+export fn p2_env_first() -> i32 {
+    var c: i32 = 0
+    // # Safety: probe; __p2_env holds a char ** whose first string is "AB".
+    unsafe {
+        let pp = __p2_env[0] as uint as *u64
+        let s = pp[0] as uint as *u8
+        c = s[1] as i32
+    }
+    c
+}
+
+/// A wrapping 32x32 product in a u64, and its high half.
+export fn p2_mul(a: u64, b: u64) -> u64 {
+    (a * b) / 4294967296
+}

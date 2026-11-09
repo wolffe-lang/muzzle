@@ -1,0 +1,7 @@
+//! p3b: is there a 128-bit integer for a 64x64 product?
+
+/// p3b.
+export fn p3b_hi(a: u64, b: u64) -> u64 {
+    let w = a as u128 * b as u128
+    (w / 18446744073709551616) as u64
+}
