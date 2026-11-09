@@ -1,5 +1,5 @@
-/* muzzle's own (R-lc02-1 = B): the floating conversions f F e E g G a A
- * belong to lc03, so a printf-family call that meets one answers -1 with
+/* muzzle's own: the floating conversions f F e E g G a A belong to a
+ * later layer, so a printf-family call that meets one answers -1 with
  * errno EINVAL, as any failed call does: a stream receives none of its
  * output; in memory what came before the conversion stays, with its null.
  * Positional arguments (%n$, *m$) are refused the same way: not provided
