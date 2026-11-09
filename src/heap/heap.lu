@@ -1,18 +1,24 @@
 //! <stdlib.h> memory management, C17 7.22.3: malloc, calloc, realloc,
-//! free, over brk(2) and mmap(2). Single-threaded (R4's first cut).
+//! free and aligned_alloc, and POSIX.1-2024 posix_memalign, over brk(2)
+//! and mmap(2). Single-threaded (R4's first cut).
 //!
 //! Sources: C17 7.22.3, POSIX.1-2024 XSH malloc/calloc/realloc/free
 //! (the 3p pages: ENOMEM on failure), malloc(3), brk(2)
 //! ("the actual Linux system call returns the new program break on
 //! success; on failure, the system call returns the current break"),
-//! mmap(2), munmap(2). The design is muzzle's own; no allocator's code
-//! was read.
+//! mmap(2), munmap(2), C17 7.22.3.1 and XSH posix_memalign (lc03: an
+//! alignment that is not a power of two fails with EINVAL; a failed
+//! posix_memalign answers the error and leaves *memptr alone). The
+//! design is muzzle's own; no allocator's code was read.
 //!
 //! Every block starts 16 bytes after a header, so it is aligned for
 //! any object (max_align_t is 16 on x86-64):
-//!   word 0: the size class 0..12 (a usable size of 16 << class), or
-//!           LARGE for a block mapped on its own;
-//!   word 1: MAGIC for a small block, the mapping's length for a large.
+//!   word 0: the size class 0..12 (a usable size of 16 << class),
+//!           LARGE for a block mapped on its own, or ALIGNED for a block
+//!           placed inside another for a larger alignment (lc03);
+//!   word 1: MAGIC for a small block, the mapping's length for a large,
+//!           and for an aligned one the distance back to the start of
+//!           the block that carries it.
 //! Small blocks (up to 64 KiB) are carved from the heap and recycled
 //! through one free list per class (heads in sys.S's __muzzle_bins;
 //! the link sits in a free block's first word). The heap grows by
@@ -38,7 +44,11 @@ const SMALL_MAX: uint = 65536
 
 const LARGE: u64 = 4294967295
 
+const ALIGNED: u64 = 4294967294
+
 const MAGIC: u64 = 7809638854244528237
+
+const EINVAL: i32 = 22
 
 const PAGE: uint = 4096
 
@@ -161,12 +171,18 @@ fn fail() -> *u8 {
     }
 }
 
-/// The block's header address and its usable size.
+/// The block's usable size. An aligned block's is what its carrier has
+/// left past it.
 fn usable(p: *u8) -> uint {
-    // # Safety: p came from malloc (C's precondition for realloc), so a
-    // header sits 16 bytes below it.
+    // # Safety: p came from malloc or an aligned allocation (C's
+    // precondition for realloc), so a header sits 16 bytes below it, and
+    // an aligned block's carrier lies word 1 bytes below it.
     unsafe {
         let h = (p.addr() - HDR) as *u64
+        if h[0] == ALIGNED {
+            let back = h[1] as uint
+            return usable((p.addr() - back) as *u8) - back
+        }
         if h[0] == LARGE {
             h[1] as uint - HDR
         } else {
@@ -223,11 +239,15 @@ pub export fn free(p: *u8) {
     if p.is_null() {
         return
     }
-    // # Safety: p came from malloc (C's precondition), so its header is
-    // 16 bytes below; one thread.
+    // # Safety: p came from malloc or an aligned allocation (C's
+    // precondition), so its header is 16 bytes below; one thread.
     unsafe {
         let base = p.addr() - HDR
         let h = base as *u64
+        if h[0] == ALIGNED {
+            free((p.addr() - h[1] as uint) as *u8)
+            return
+        }
         if h[0] == LARGE {
             let r = sys.raw(SYS_MUNMAP, base as i64, h[1] as i64, 0, 0, 0, 0)
         } else {
@@ -278,6 +298,78 @@ export fn realloc(p: *u8, n: uint) -> *u8 {
     let c = string.memcpy(q, p, have)
     free(p)
     q
+}
+
+/// A block of n bytes at a multiple of align (a power of two), or null
+/// with errno ENOMEM. Up to 16 every block is aligned already. Beyond,
+/// the block is placed inside a carrier of n + align bytes: the first
+/// multiple of align at least 16 bytes into it, so its own header fits
+/// in front of it (ALIGNED, and the distance back to the carrier). The
+/// carrier is 16-aligned, so that point is at most align bytes in, and
+/// n bytes still fit behind it. A carrier that happens to be aligned is
+/// answered as it is.
+fn aligned_block(align: uint, n: uint) -> *u8 {
+    if align <= HDR {
+        return malloc(n)
+    }
+    if n > MAX_REQ || align > MAX_REQ {
+        return fail()
+    }
+    let carrier = malloc(n + align)
+    if carrier.is_null() {
+        return carrier
+    }
+    let c = carrier.addr()
+    if c % align == 0 {
+        return carrier
+    }
+    let p = round_up(c + HDR, align)
+    // # Safety: p - 16 >= c and p + n <= c + n + align, both inside the
+    // carrier, which malloc answered for n + align bytes.
+    unsafe {
+        let h = (p - HDR) as *u64
+        h[0] = ALIGNED
+        h[1] = (p - c) as u64
+        p as *u8
+    }
+}
+
+fn power_of_two(v: uint) -> bool {
+    v != 0 && v & (v - 1) == 0
+}
+
+/// C17 7.22.3.1: size bytes at a multiple of alignment. An alignment
+/// that is not a power of two is one muzzle does not support: a null
+/// pointer, errno EINVAL (glibc's answer). size need not be a multiple
+/// of alignment.
+export fn aligned_alloc(alignment: uint, size: uint) -> *u8 {
+    if !power_of_two(alignment) {
+        sys.set_errno(EINVAL)
+        // # Safety: the null pointer.
+        unsafe {
+            return 0 as *u8
+        }
+    }
+    aligned_block(alignment, size)
+}
+
+/// POSIX.1-2024 XSH posix_memalign: 0 and the block in *memptr; EINVAL
+/// for an alignment that is not a power of two times sizeof(void *),
+/// ENOMEM when there is no room; *memptr is left alone on failure, and
+/// errno too for EINVAL.
+export fn posix_memalign(memptr: *u64, alignment: uint, size: uint) -> i32 {
+    if alignment < 8 || !power_of_two(alignment) {
+        return EINVAL
+    }
+    let p = aligned_block(alignment, size)
+    if p.is_null() {
+        return ENOMEM
+    }
+    // # Safety: C's precondition: memptr addresses a void *.
+    unsafe {
+        memptr[0] = p.addr() as u64
+    }
+    0
 }
 
 /// True. The package root calls it so the build reaches this module:
