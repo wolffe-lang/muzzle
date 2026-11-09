@@ -1,0 +1,36 @@
+//! C17 7.21.10.4 perror: on stderr, the prefix s and ": " when s is
+//! neither null nor empty, then strerror(errno) and a newline. errno is
+//! the same afterwards (POSIX: perror does not change it; glibc keeps it).
+//!
+//! Sources: C17 7.21.10.4; POSIX.1-2024 XSH perror; perror(3).
+
+use sys
+use errtext
+
+/// The C object stderr (sys.S): the FILE * C may reassign.
+extern "c" let __muzzle_stderr: *u64
+
+/// C17 7.21.10.4.
+export fn perror(s: *u8) {
+    let saved = sys.errno()
+    var f = null_file()
+    // # Safety: stderr is sys.S's 8-byte object, a FILE *.
+    unsafe {
+        f = __muzzle_stderr[0] as uint as *File
+    }
+    var prefixed = false
+    if !s.is_null() {
+        // # Safety: s is a string.
+        unsafe {
+            prefixed = s[0] != 0
+        }
+    }
+    if prefixed {
+        let a = fputs(s, f)
+        let b = fputc(58, f)
+        let c = fputc(32, f)
+    }
+    let d = fputs(errtext.strerror(saved), f)
+    let e = fputc(10, f)
+    sys.set_errno(saved)
+}
