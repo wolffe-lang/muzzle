@@ -1,5 +1,6 @@
-/* muzzle: the kernel boundary in assembly (ruling R2: muzzle makes
- * syscalls through a linked .S until wolf has inline asm, KWC kw13).
+/* muzzle: the kernel boundary in assembly (by the track's design,
+ * muzzle makes syscalls through a linked .S until wolf has inline asm,
+ * KWC kw13).
  *
  * Written from the x86-64 psABI (3.2.3 parameter passing, A.2.1 the
  * Linux kernel convention) and syscall(2)'s register table: the number
@@ -29,7 +30,7 @@ __muzzle_syscall6:
 /* Static storage wolf names with `extern "c" let` ([abi.link.extern]).
  *
  * __muzzle_errno: errno's int. It belongs in a wolf module `var`
- *   (ruling R4's first cut), but a `var` has no address to hand C
+ *   (the single-threaded first cut), but a `var` has no address to hand C
  *   (wolf-lang#597), so it lives here until that lands.
  * __muzzle_bins: the allocator's 16 free-list heads; module state holds
  *   scalars only ([mem.static.3]), so a table is reserved here.

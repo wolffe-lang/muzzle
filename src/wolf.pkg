@@ -6,7 +6,7 @@
 // calls _start; the C program's link takes crt0.o first.
 // `capabilities: [ffi]` (mz): muzzle declares C (sys.S's routine and
 // storage, through bodyless `extern "c"`), which wolf 0.2.27 charges to
-// `ffi` at each declaration (ruling #55; E1504 without it).
+// `ffi` at each declaration (a rule of wolf's capabilities; E1504 without it).
 pkg {
     name: "muzzle"
     version: "0.0.1"
