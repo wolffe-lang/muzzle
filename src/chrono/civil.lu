@@ -111,8 +111,14 @@ fn days_before(m: i64, leap: bool) -> i64 {
 
 /// The broken-down UTC time of t seconds since the epoch.
 fn parts(t: i64) -> Parts {
-    let days = floor_div(t, DAY)
-    let secs = t - days * DAY
+    // Truncate, then step down for a negative remainder: floor_div's
+    // product would leave i64 near LLONG_MIN.
+    var days = t / DAY
+    var secs = t % DAY
+    if secs < 0 {
+        secs = secs + DAY
+        days = days - 1
+    }
     let z = days + 719468
     let era = floor_div(z, 146097)
     let doe = z - era * 146097
