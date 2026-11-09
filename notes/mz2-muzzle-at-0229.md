@@ -1,8 +1,7 @@
 # mz2: muzzle at wolf 0.2.29, and the stale-compiler build (muzzle#4)
 
-Lane mz2 (wave 53, Opus). Contract: wolffe-lang/wolf
-`sprints/muzzle/mz2-muzzle-at-0229.md` (planning commit `42ae4fb`,
-authored 2026-10-13). Two things, each in its own commits: the pin
+Lane mz2 (Opus). Contract: the lane's contract (authored
+2026-10-13). Two things, each in its own commits: the pin
 (wolf 0.2.29, lupin 0.1.52), and muzzle#4 (`tools/build` uses the pin's
 compiler or fails loudly), with a test seen red first. This file holds
 the inputs as re-derived and the prediction, committed before the first
@@ -13,8 +12,8 @@ change; the evidence and the score follow.
 Nothing changes beyond the pin, what the pin forces, `tools/build`, its
 test and the CI step that runs it. The licence exception text is not
 touched. No C library's source is read. Toolchains come from the release
-archives by digest, each digest read twice. No build on nomad-1; kasumi
-only, under `~/lanes/mz2/`. No merge, no tag, no issue filed or closed.
+archives by digest, each digest read twice. No build on the Mac; the Linux test host
+only, under the lane's own directory. No merge, no tag, no issue filed or closed.
 No attribution trailers.
 
 ## 2. Inputs, verified (2026-10-13)
@@ -22,7 +21,7 @@ No attribution trailers.
 | input | at origin |
 |---|---|
 | muzzle trunk | `47e9285` (pin wolf 0.2.28, `f71ece8e`, linux x86-64 `3215f321…`); no drift from the contract |
-| wolf 0.2.29 | tag `v0.2.29` → `6ffe7c6056ee…` (wolf-lang); release published 2026-10-12T23:22:55Z, not a draft; asset `wolf-0.2.29-x86_64-unknown-linux-gnu.tar.gz`, 78,902,948 bytes, sha256 `ae466e85418a48758460a981c9fab690462f779dae967cface86c555e649d7c1` (read once from the release API's `digest`, once by `sha256sum` of the download on kasumi). `wolf --version`: `wolf 0.2.29 (wolfgang, pin 6ffe7c6)` |
+| wolf 0.2.29 | tag `v0.2.29` → `6ffe7c6056ee…` (wolf-lang); release published 2026-10-12T23:22:55Z, not a draft; asset `wolf-0.2.29-x86_64-unknown-linux-gnu.tar.gz`, 78,902,948 bytes, sha256 `ae466e85418a48758460a981c9fab690462f779dae967cface86c555e649d7c1` (read once from the release API's `digest`, once by `sha256sum` of the download on the Linux test host). `wolf --version`: `wolf 0.2.29 (wolfgang, pin 6ffe7c6)` |
 | lupin 0.1.52 | tag `v0.1.52` → `025428b725a3…` (wolf-interp); release published 2026-10-12T17:20:49Z; asset `lupin-0.1.52-x86_64-unknown-linux-gnu.tar.gz`, 2,943,200 bytes, sha256 `f5194b74879c45ad96484566950b4ae59fe1faa7ccd86461c6656f9e662b698f` (read the same two ways). `lupin --version`: `lupin 0.1.52 (wolf-interp, reference interpreter at pin 294d626)` |
 | muzzle#4 | open; text as filed by mz. Its "why" is re-derived in §3 (P5), not taken |
 | mz (PR #3) | merged `47e9285`; its §6 is where #4 comes from |
@@ -68,7 +67,7 @@ absorbed:
 | P8 | muzzle's tests run on **native and release only**. The checked machine (`wolf conform-run --json --checked src/muzzle.lu`) and lupin 0.1.52 each **refuse muzzle by name** (the C membrane or the listed assembly), neither runs it, neither crashes | either runs it, or dies without naming a reason |
 | P9 | no muzzle gate reads `wolf build`'s exit 2 as a skip: with a compile error planted in `src/`, `tools/build` exits 2 on both tiers, `tools/difftest` after it exits 1 with 9 FAIL and 0 PASS, and no line says skip | a zero exit anywhere, or a skip |
 
-## 4. Evidence (kasumi, linux x86-64, clang 23.1.1, glibc 2.44)
+## 4. Evidence (the Linux test host, linux x86-64, clang 23.1.1, glibc 2.44)
 
 Each log is the raw output of a script at the named commit, every exit
 status echoed bare (no pipe on a command under test), each run from a
@@ -147,7 +146,7 @@ directories in `.wolf-bin/` are named and not used.
 | P2 | **exact.** 9/9 on both tiers; the two logs differ only in their version lines |
 | P3 | **exact. The pin moves no output**: 12 of 12 stripped objects byte-identical; every case's stdout, exit status and line count unchanged |
 | P4 | **exact.** `wolf-toolchain.toml` and README's build line; no source, header or case edit |
-| P5 | **exact.** 4 red of 5 at trunk's `tools/build`, on both tiers, on kasumi and in CI, each for the stale compiler having run |
+| P5 | **exact.** 4 red of 5 at trunk's `tools/build`, on both tiers, on the Linux test host and in CI, each for the stale compiler having run |
 | P6 | **exact.** 5 of 5; each refusal names both version lines; the stale compiler never compiled |
 | P7 | **exact** for the red half (runs 38478997938 and 38479030166); the green half is the PR's head |
 | P8 | **exact.** Both refuse by name, for the C membrane's link-time storage; neither runs muzzle, neither crashes |
@@ -178,6 +177,6 @@ directories in `.wolf-bin/` are named and not used.
 Inferred, not verified: that a release-tier object was written by the
 compiler the log says (release objects carry no DWARF producer; the
 test's invocation log is the evidence for that tier). Not run: any host
-but x86-64 Linux (kasumi, and ubuntu in CI); the release archives for
+but x86-64 Linux (the Linux test host, and ubuntu in CI); the release archives for
 other hosts were not downloaded, and only the linux x86-64 digests were
 read twice.

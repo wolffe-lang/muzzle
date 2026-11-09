@@ -1,8 +1,7 @@
 # mz4: muzzle at wolf 0.2.32
 
-Lane mz4 (crawl 54, Opus). Contract: wolffe-lang/wolf
-`sprints/muzzle/mz4-muzzle-at-0232.md` (planning commit `85886ff`,
-authored 2026-10-18). One deliverable: the pin (wolf 0.2.32, lupin
+Lane mz4 (Opus). Contract: the lane's contract (authored
+2026-10-18). One deliverable: the pin (wolf 0.2.32, lupin
 0.1.54) in its own commit, `tools/build`'s pin check passing, build and
 tests green on both tiers, every compiled object compared with 0.2.30's
 (naming each moved object and why, if s237's shift rule or anything else
@@ -17,7 +16,7 @@ Nothing changes beyond the pin, what the pin forces, #7's fix and its
 test, and the lane's note, logs and scripts. The licence exception text
 is not touched. No C library's source is read. Toolchains come from the
 release archives by digest, each digest read twice. No build on
-nomad-1; kasumi only, under `~/lanes/mz4/`. No merge, no tag, no issue
+the Mac; the Linux test host only, under the lane's own directory. No merge, no tag, no issue
 filed or closed. No attribution trailers.
 
 ## 2. Inputs, verified (2026-10-18)
@@ -25,16 +24,16 @@ filed or closed. No attribution trailers.
 | input | at origin |
 |---|---|
 | muzzle trunk | `da22e9e` (pin wolf 0.2.30, `1b37f36`, linux x86-64 `4e55b39e…`); no drift from the contract |
-| wolf 0.2.32 | tag `v0.2.32` (tag object `d21c4b28`) → `72de141f624662fdff522e8beba459fab7c5cf66` (wolf-lang); release published 2026-10-18T08:38:14Z, not a draft, not a prerelease; asset `wolf-0.2.32-x86_64-unknown-linux-gnu.tar.gz`, 80,092,071 bytes, release API digest sha256 `4c37f9c5dc3d8830c06810948027d38bdbc375dc5524ab23127b0ada0907d851` (read 1; read 2 is `sha256sum` of the download on kasumi, §4) |
-| lupin 0.1.54 | tag `v0.1.54` (tag object `9c98d445`) → `0e536e8fb4518eaa798ac426901ab81275db5c9f` (wolf-interp); release published 2026-10-17T16:48:34Z; asset `lupin-0.1.54-x86_64-unknown-linux-gnu.tar.gz`, 2,971,403 bytes, release API digest sha256 `175df23880cd5bb993b778e5c8fdd7d0d96c176696802e640f6fc87d3dab40dd` (read 1; read 2 on kasumi). 0.2.32's `crates/wolf_driver/PAIRING` names `lupin-version = 0.1.54` |
-| wolf 0.2.30 (the comparison) | `4e55b39e…89` as pinned at trunk, read again on kasumi |
+| wolf 0.2.32 | tag `v0.2.32` (tag object `d21c4b28`) → `72de141f624662fdff522e8beba459fab7c5cf66` (wolf-lang); release published 2026-10-18T08:38:14Z, not a draft, not a prerelease; asset `wolf-0.2.32-x86_64-unknown-linux-gnu.tar.gz`, 80,092,071 bytes, release API digest sha256 `4c37f9c5dc3d8830c06810948027d38bdbc375dc5524ab23127b0ada0907d851` (read 1; read 2 is `sha256sum` of the download on the Linux test host, §4) |
+| lupin 0.1.54 | tag `v0.1.54` (tag object `9c98d445`) → `0e536e8fb4518eaa798ac426901ab81275db5c9f` (wolf-interp); release published 2026-10-17T16:48:34Z; asset `lupin-0.1.54-x86_64-unknown-linux-gnu.tar.gz`, 2,971,403 bytes, release API digest sha256 `175df23880cd5bb993b778e5c8fdd7d0d96c176696802e640f6fc87d3dab40dd` (read 1; read 2 on the Linux test host). 0.2.32's `crates/wolf_driver/PAIRING` names `lupin-version = 0.1.54` |
+| wolf 0.2.30 (the comparison) | `4e55b39e…89` as pinned at trunk, read again on the Linux test host |
 | std | muzzle imports no std and links no runtime, so wolf-std (`d37c911`, bundled in 0.2.32) is not an input; nothing to re-derive |
 | bump notes read | 0.2.31's and 0.2.32's "read this before you bump" at `v0.2.32:CHANGELOG.md`; muzzle#7 |
 
 What 0.2.31 and 0.2.32 say that can reach muzzle (freestanding, no
 std, no runtime linked, no `main`, no host builtin):
 
-- **The shift rule (s237, ruling #77 A)**: a plain-integer shift now
+- **The shift rule (s237)**: a plain-integer shift now
   checks its count and round trip, so "the shift rule changes every
   plain shift's code" and the release tier's inlining can move. muzzle's
   691 lines of wolf hold **no shift operator**: `<<` and `>>` occur once,
@@ -79,7 +78,7 @@ an earlier build's `build/<tier>/`, and a refusal must leave none.
 | P9 | CI: the plant (the head with `tools/build`'s fix reverted, a branch of its own) is red on both jobs at `the stale compiler` step with pass=2 fail=3; the head is green on both jobs | otherwise |
 | P10 | no muzzle gate reads `wolf build`'s exit 2 as a skip at 0.2.32: with a compile error planted in `src/` (never committed), `tools/build` exits 2 on both tiers and leaves no object | a zero exit, or a skip |
 
-## 4. Evidence (kasumi, linux x86-64, clang 23.1.1, glibc 2.44)
+## 4. Evidence (the Linux test host, linux x86-64, clang 23.1.1, glibc 2.44)
 
 Each log is the raw output of the script beside it in
 `notes/mz4-evidence/scripts/`, every exit status echoed bare (no pipe on
@@ -98,10 +97,10 @@ a command under test). `run.sh` starts each tree with `git clean -xfd`
 | `plant-run-39174923262.log` | `333dd3e` | the CI plant's failing lines, from `gh run view --log-failed` |
 
 The digests, each read twice: wolf 0.2.32 linux x86-64 `4c37f9c5…51`,
-80,092,071 bytes, from the release API and from `sha256sum` on kasumi
+80,092,071 bytes, from the release API and from `sha256sum` on the Linux test host
 (a third time by `tools/fetch-toolchain` in CI); lupin 0.1.54
 `175df238…dd`, 2,971,403 bytes, the same two ways; wolf 0.2.30
-`4e55b39e…89` again on kasumi for the baseline.
+`4e55b39e…89` again on the Linux test host for the baseline.
 
 The plant (P9), a branch of its own: `mz4-plant` is the fix commit
 `6f37f01` plus `333dd3e`, which puts `tools/build` back to trunk's order

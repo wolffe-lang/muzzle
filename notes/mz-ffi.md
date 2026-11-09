@@ -1,7 +1,6 @@
 # mz: muzzle's capabilities line
 
-Lane mz (wave 53, Opus). Contract: wolffe-lang/wolf
-`sprints/muzzle/mz-ffi.md` (authored 2026-10-12). One deliverable:
+Lane mz (Opus). Contract: the lane's contract (authored 2026-10-12). One deliverable:
 muzzle on wolf 0.2.28 with `capabilities: [ffi]` in `src/wolf.pkg`, its
 build and tests green, nothing else changed unless the pin move forces
 it. This file holds the inputs as re-derived and the prediction,
@@ -9,7 +8,7 @@ committed before the first change; the evidence and the score follow.
 
 ## 1. Why
 
-wolf 0.2.27 (s221, wolf-lang#619, ruling #55) charges the `ffi`
+wolf 0.2.27 (s221, wolf-lang#619) charges the `ffi`
 capability at every bodyless `extern "c" fn` and every `extern "c" let`,
 called or not. muzzle declares four (`src/sys/sys.lu`: `fn
 __muzzle_syscall6`, `let __muzzle_errno`, `let __muzzle_scratch`;
@@ -23,7 +22,7 @@ name this one line.
 | input | at origin |
 |---|---|
 | muzzle trunk | `7c95300` (pin wolf 0.2.24, `294d626d`, linux x86-64 `501d6d3f…`) |
-| wolf 0.2.28 | tag `v0.2.28` → `f71ece8e1ad2…`; asset `wolf-0.2.28-x86_64-unknown-linux-gnu.tar.gz` sha256 `3215f3219c5c6c3b84f0f9abf421cdaecec5b81cf42d92b6c64475f95ad199aa` (GitHub's digest; re-hashed by `tools/fetch-toolchain` on kasumi and in CI) |
+| wolf 0.2.28 | tag `v0.2.28` → `f71ece8e1ad2…`; asset `wolf-0.2.28-x86_64-unknown-linux-gnu.tar.gz` sha256 `3215f3219c5c6c3b84f0f9abf421cdaecec5b81cf42d92b6c64475f95ad199aa` (GitHub's digest; re-hashed by `tools/fetch-toolchain` on the Linux test host and in CI) |
 | bump notes read | 0.2.25, 0.2.26, 0.2.27, 0.2.28 ("read this before you bump", at `v0.2.28:CHANGELOG.md`) |
 
 What the four bumps say that can reach muzzle (freestanding, no std, no
@@ -56,7 +55,7 @@ region, no `str`, no host builtin):
 | P6 | the 0.2.28 objects with the line equal 0.2.26's without it, after stripping debug info (0.2.27's note) | they differ |
 | P7 | CI: the pin-only commit is red on both jobs at the build step (E1504); the head with the line is green on both | otherwise |
 
-## 4. Evidence (kasumi, linux x86-64, clang 23.1.1, glibc 2.44)
+## 4. Evidence (the Linux test host, linux x86-64, clang 23.1.1, glibc 2.44)
 
 Each log is the raw output of the commands at the named commit, every
 exit status echoed bare (no pipes). `notes/mz-evidence/`:
@@ -90,7 +89,7 @@ CI (`.github/workflows/ci.yml`, ubuntu x86-64): the pin-only head
   `ls .wolf-bin/wolf-*/wolf | head -1`, and `tools/fetch-toolchain`
   removes only the new version's directory. On a checkout that staged
   0.2.24 before, `wolf-0.2.24-…` sorts first, so the pin-only commit
-  built **green** on kasumi with 0.2.24 until `.wolf-bin/` was cleared.
+  built **green** on the Linux test host with 0.2.24 until `.wolf-bin/` was cleared.
   CI checks out fresh and is not exposed. A fix (the build reading the
   pin's `version`, or the fetch clearing other versions) is outside this
   lane's one line.

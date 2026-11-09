@@ -1,8 +1,7 @@
 # mz3: muzzle at wolf 0.2.30
 
-Lane mz3 (crawl 54, Opus). Contract: wolffe-lang/wolf
-`sprints/muzzle/mz3-muzzle-at-0230.md` (planning commit `be08902`,
-authored 2026-10-16). One deliverable: the pin (wolf 0.2.30, lupin
+Lane mz3 (Opus). Contract: the lane's contract (authored
+2026-10-16). One deliverable: the pin (wolf 0.2.30, lupin
 0.1.53) in its own commit, build and tests green on both tiers, every
 compiled object compared with 0.2.29's; and the finding mz2 left,
 `src/.lu-cache/` into `.gitignore`. This file holds the inputs as
@@ -14,8 +13,8 @@ evidence and the score follow.
 Nothing changes beyond the pin, what the pin forces, and the one
 `.gitignore` line. The licence exception text is not touched. No C
 library's source is read. Toolchains come from the release archives by
-digest, each digest read twice. No build on nomad-1; kasumi only, under
-`~/lanes/mz3/`. No merge, no tag, no issue filed or closed. No
+digest, each digest read twice. No build on the Mac; the Linux test host only, under
+the lane's own directory. No merge, no tag, no issue filed or closed. No
 attribution trailers.
 
 ## 2. Inputs, verified (2026-10-16)
@@ -23,8 +22,8 @@ attribution trailers.
 | input | at origin |
 |---|---|
 | muzzle trunk | `44387d0` (pin wolf 0.2.29, `6ffe7c6`, linux x86-64 `ae466e85…`); no drift from the contract |
-| wolf 0.2.30 | tag `v0.2.30` (tag object `ffb7c5b3`) → `1b37f368228d…` (wolf-lang); release published 2026-10-15T08:53:05Z, not a draft; asset `wolf-0.2.30-x86_64-unknown-linux-gnu.tar.gz`, 79,910,152 bytes, release API digest sha256 `4e55b39ed243d3e8ed3be24f716186529e1942935464476d47c4bc983329fe89` (read 1; read 2 is `sha256sum` of the download on kasumi, §4) |
-| lupin 0.1.53 | tag `v0.1.53` (tag object `83631915`) → `7896eddc17fd…` (wolf-interp); release published 2026-10-15T03:01:38Z; asset `lupin-0.1.53-x86_64-unknown-linux-gnu.tar.gz`, 2,945,862 bytes, release API digest sha256 `5db5533236578008625885c7e3ed0a21084b8fa064219808ae668dedb0edccaa` (read 1; read 2 on kasumi). 0.2.30's `PAIRING` names the same `5db55332…` |
+| wolf 0.2.30 | tag `v0.2.30` (tag object `ffb7c5b3`) → `1b37f368228d…` (wolf-lang); release published 2026-10-15T08:53:05Z, not a draft; asset `wolf-0.2.30-x86_64-unknown-linux-gnu.tar.gz`, 79,910,152 bytes, release API digest sha256 `4e55b39ed243d3e8ed3be24f716186529e1942935464476d47c4bc983329fe89` (read 1; read 2 is `sha256sum` of the download on the Linux test host, §4) |
+| lupin 0.1.53 | tag `v0.1.53` (tag object `83631915`) → `7896eddc17fd…` (wolf-interp); release published 2026-10-15T03:01:38Z; asset `lupin-0.1.53-x86_64-unknown-linux-gnu.tar.gz`, 2,945,862 bytes, release API digest sha256 `5db5533236578008625885c7e3ed0a21084b8fa064219808ae668dedb0edccaa` (read 1; read 2 on the Linux test host). 0.2.30's `PAIRING` names the same `5db55332…` |
 | bump notes read | 0.2.30's "read this before you bump" at `v0.2.30:CHANGELOG.md` |
 
 What 0.2.30 says that can reach muzzle (freestanding, no std, no
@@ -61,7 +60,7 @@ answers (P6); no `[lupin]` table is added.
 | P8 | CI: the plant (the 0.2.30 pin with one digest character changed, a branch of its own) is red on both jobs at the fetch step; the head is green on both | otherwise |
 | P9 | no muzzle gate reads `wolf build`'s exit 2 as a skip at 0.2.30: with a compile error planted in `src/` (never committed), `tools/build` exits 2 on both tiers | a zero exit, or a skip |
 
-## 4. Evidence (kasumi, linux x86-64, clang 23.1.1, glibc 2.44)
+## 4. Evidence (the Linux test host, linux x86-64, clang 23.1.1, glibc 2.44)
 
 Each log is the raw output of the script beside it in
 `notes/mz3-evidence/scripts/`, every exit status echoed bare (no pipe on
@@ -77,7 +76,7 @@ a command under test). `run.sh` starts each tree with `git clean -xfd`
 | `machines-and-exit2.log` | `074a349` | the archives' sha256 (the second read of each digest); the checked machine and lupin 0.1.53 refuse by name; a planted E0401 makes `tools/build` exit 2 on both tiers and leave no object; `tools/difftest` after it pass=0 fail=9 exit 1, no line says skip; `tests/stale-compiler` exit 1; the plant restored |
 
 The digests, each read twice: wolf 0.2.30 linux x86-64 `4e55b39e…89`,
-79,910,152 bytes, from the release API and from `sha256sum` on kasumi
+79,910,152 bytes, from the release API and from `sha256sum` on the Linux test host
 (and a third time by `tools/fetch-toolchain` in CI); lupin 0.1.53
 `5db55332…aa`, 2,945,862 bytes, the same two ways.
 

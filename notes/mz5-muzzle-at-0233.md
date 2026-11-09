@@ -1,8 +1,7 @@
 # mz5: muzzle at wolf 0.2.33
 
-Lane mz5 (crawl 54, Opus). Contract: wolffe-lang/wolf
-`sprints/muzzle/mz5-muzzle-at-0233.md` (planning commit `73e7c1d`,
-authored 2026-10-19). One deliverable: the pin (wolf 0.2.33, lupin
+Lane mz5 (Opus). Contract: the lane's contract (authored
+2026-10-19). One deliverable: the pin (wolf 0.2.33, lupin
 0.1.54) in its own commit, `tools/build`'s pin check passing, build and
 tests green on both tiers, every compiled object compared with 0.2.32's
 (naming each moved object and why, if anything moves one). Nothing
@@ -18,8 +17,8 @@ note, logs and scripts. No source, header, test, tool or workflow
 edit. The licence exception text is not touched. No C library's source
 and no kernel's is read (man pages, POSIX, the C standard, black-box
 runs only). Toolchains come from the release archives by digest, each
-digest read twice. No build on nomad-1; kasumi only, under
-`~/lanes/mz5/`. No merge, no tag, no issue filed or closed. No
+digest read twice. No build on the Mac; the Linux test host only, under
+the lane's own directory. No merge, no tag, no issue filed or closed. No
 attribution trailers.
 
 ## 2. Inputs, verified (2026-10-19)
@@ -27,10 +26,10 @@ attribution trailers.
 | input | at origin |
 |---|---|
 | muzzle trunk | `158acbe` (mz4; pin wolf 0.2.32, `72de141`, linux x86-64 `4c37f9c5…51`); no drift from the contract. Open issues: none; open PRs: none (`gh issue list`, `gh pr list`, both `[]`) |
-| wolf 0.2.33 | tag `v0.2.33` (tag object `56110e4f`) → `85dab5d7e597680d6fd7034f1d7ed2acb9a92f97` (wolf-lang); release 417610226, published 2026-10-19T18:37:53Z, not a draft, not a prerelease; asset `wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz`, 80,128,936 bytes, release API digest sha256 `4f955e8dfe6eaafa441903eeba43c009c4ec2b45a8da09fe13431e8b12340af8` (read 1); `sha256sum` of the download on kasumi gives the same (read 2). `wolf --version`: `wolf 0.2.33 (wolfgang, pin 85dab5d)`, `paired with lupin 0.1.54 (reference interpreter), pin 294d626` |
-| lupin 0.1.54 | tag `v0.1.54` (tag object `9c98d445`) → `0e536e8fb4518eaa798ac426901ab81275db5c9f` (wolf-interp); release 415937354, published 2026-10-17T16:48:34Z; asset `lupin-0.1.54-x86_64-unknown-linux-gnu.tar.gz`, 2,971,403 bytes, release API digest `175df23880cd5bb993b778e5c8fdd7d0d96c176696802e640f6fc87d3dab40dd` (read 1); the same by `sha256sum` on kasumi (read 2). `lupin --version`: `lupin 0.1.54 (wolf-interp, reference interpreter at pin 294d626)`; `294d626` is a wolf-lang commit, the conformance pin lupin declares, as 0.2.33's `PAIRING` says (not a drift from `0e536e8`) |
-| wolf 0.2.32 (the comparison) | `4c37f9c5dc3d8830c06810948027d38bdbc375dc5524ab23127b0ada0907d851`, 80,092,071 bytes, as pinned at trunk; `sha256sum` on kasumi again |
-| std | the 0.2.33 archive's `std/STD-REV` is `cceda63151430eac07df895fdfffddfa4a0b92c1`, the contract's wolf-std `cceda63`. muzzle imports no std (`grep -rnE '^\s*use\s+std' src` exit 1) and links no runtime (`libwolf_rt.a` and `libwolf_rt_none.a` are never on its link line), so the std is not an input and there is nothing to re-derive against the new compiler (wave 47's B151 rule) |
+| wolf 0.2.33 | tag `v0.2.33` (tag object `56110e4f`) → `85dab5d7e597680d6fd7034f1d7ed2acb9a92f97` (wolf-lang); release 417610226, published 2026-10-19T18:37:53Z, not a draft, not a prerelease; asset `wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz`, 80,128,936 bytes, release API digest sha256 `4f955e8dfe6eaafa441903eeba43c009c4ec2b45a8da09fe13431e8b12340af8` (read 1); `sha256sum` of the download on the Linux test host gives the same (read 2). `wolf --version`: `wolf 0.2.33 (wolfgang, pin 85dab5d)`, `paired with lupin 0.1.54 (reference interpreter), pin 294d626` |
+| lupin 0.1.54 | tag `v0.1.54` (tag object `9c98d445`) → `0e536e8fb4518eaa798ac426901ab81275db5c9f` (wolf-interp); release 415937354, published 2026-10-17T16:48:34Z; asset `lupin-0.1.54-x86_64-unknown-linux-gnu.tar.gz`, 2,971,403 bytes, release API digest `175df23880cd5bb993b778e5c8fdd7d0d96c176696802e640f6fc87d3dab40dd` (read 1); the same by `sha256sum` on the Linux test host (read 2). `lupin --version`: `lupin 0.1.54 (wolf-interp, reference interpreter at pin 294d626)`; `294d626` is a wolf-lang commit, the conformance pin lupin declares, as 0.2.33's `PAIRING` says (not a drift from `0e536e8`) |
+| wolf 0.2.32 (the comparison) | `4c37f9c5dc3d8830c06810948027d38bdbc375dc5524ab23127b0ada0907d851`, 80,092,071 bytes, as pinned at trunk; `sha256sum` on the Linux test host again |
+| std | the 0.2.33 archive's `std/STD-REV` is `cceda63151430eac07df895fdfffddfa4a0b92c1`, the contract's wolf-std `cceda63`. muzzle imports no std (`grep -rnE '^\s*use\s+std' src` exit 1) and links no runtime (`libwolf_rt.a` and `libwolf_rt_none.a` are never on its link line), so the std is not an input and there is nothing to re-derive against the new compiler |
 | bump notes read | 0.2.33's "Read this before you bump the pin" and its downstream list at `v0.2.33:CHANGELOG.md`: "**lobo, muzzle, pax:** the pin." |
 
 What 0.2.33 says that can reach muzzle (freestanding
@@ -81,7 +80,7 @@ What 0.2.33 says that can reach muzzle (freestanding
 | P9 | no muzzle gate reads `wolf build`'s exit 2 as a skip at 0.2.33: with a compile error planted in `src/` (never committed), `tools/build` exits 2 on both tiers and leaves no object; `tools/difftest` after it pass=0 fail=9 exit 1, no skip line; `tests/stale-compiler` exit 1 | a zero exit, or a skip |
 | P10 | CI at the head: both jobs green (stale-compiler 5/5, build, difftest 9/9 per tier) | otherwise |
 
-## 4. Evidence (kasumi, linux x86-64, clang 23.1.1, glibc 2.44)
+## 4. Evidence (the Linux test host, linux x86-64, clang 23.1.1, glibc 2.44)
 
 Each log is the raw output of the script beside it in
 `notes/mz5-evidence/scripts/`, every exit status echoed bare (no pipe on
@@ -91,13 +90,13 @@ shell's `SigBlk`/`SigIgn` (both 0 in every run).
 
 | log | commit | what |
 |---|---|---|
-| `baseline-0.2.32.log` | `158acbe` (trunk), tree `~/lanes/mz5/base` | wolf 0.2.32: build 6 and 4 objects, 19 exports, 0 imports; difftest 9/9 on both tiers, and 9/9 under `taskset -c 0-3`; producers `wolfgang 0.2.32`; its 12 stripped hashes equal mz4's `pin-0.2.32.log` line for line (diff exit 0: the build reproduces across days and trees); `git status` empty after |
-| `pin-0.2.33.log` | `b580fc3` (the pin), tree `~/lanes/mz5/muzzle` | wolf 0.2.33: the same counts, 9/9 on both tiers and under `taskset -c 0-3`; the 18 `PASS` lines identical to the baseline's (diff exit 0); producers `wolfgang 0.2.33`; `git status` empty after |
+| `baseline-0.2.32.log` | `158acbe` (trunk), tree `<lane>/base` | wolf 0.2.32: build 6 and 4 objects, 19 exports, 0 imports; difftest 9/9 on both tiers, and 9/9 under `taskset -c 0-3`; producers `wolfgang 0.2.32`; its 12 stripped hashes equal mz4's `pin-0.2.32.log` line for line (diff exit 0: the build reproduces across days and trees); `git status` empty after |
+| `pin-0.2.33.log` | `b580fc3` (the pin), tree `<lane>/muzzle` | wolf 0.2.33: the same counts, 9/9 on both tiers and under `taskset -c 0-3`; the 18 `PASS` lines identical to the baseline's (diff exit 0); producers `wolfgang 0.2.33`; `git status` empty after |
 | `objects-0.2.32-0.2.33.log` | both | 12 objects stripped (`objcopy --strip-debug`): 12 same, 0 differ. Control: unstripped, the 5 native wolf objects differ |
 | `sections-0.2.32-0.2.33.log` | both | where those 5 differ, by section (`readelf -x` by index, self-check ok): `.debug_info` and `.rela.debug_info`, 29 to 2,738 bytes each, because the two trees have different paths: `DW_AT_comp_dir` is `…/mz5/base/src` against `…/mz5/muzzle/src` (2 bytes longer, so every later debug offset moves), besides `DW_AT_producer` |
-| `pin-0.2.33-samepath.log`, `objects-0.2.32-0.2.33-samepath.log`, `sections-0.2.32-0.2.33-samepath.log` | `b580fc3`, tree `~/lanes/mz5/base` (the baseline's own path) | the control that attributes the raw difference: 0.2.33 built in the 0.2.32 baseline's directory; 9/9 both tiers; 12 stripped same; unstripped, each of the 5 native wolf objects differs in **one byte**, in `.debug_info`, the producer's last digit (`cmp -l`: `062` → `063`, `2` → `3`); every other section and byte equal, section header tables equal; the release objects and both `crt0.o` identical unstripped |
-| `reuse.log` | `158acbe` → `b580fc3`, tree `~/lanes/mz5/base` | the reused checkout, 0.2.32 staged and its objects in `build/`, moved to the pin: `tools/build` exits 2 on both tiers ("the pin wants 'wolf 0.2.33 (wolfgang, pin 85dab5d)' … found 'wolf 0.2.32 (wolfgang, pin 72de141)' … not used"); no `build/native` or `build/release` left (`ls` exit 2); `tools/difftest` after it pass=0 fail=9, exit 1, on both tiers. After the fetch: producers `wolfgang 0.2.33`, 9/9 both tiers, `tests/stale-compiler` 5 of 5 both tiers |
-| `digest.log` | `b580fc3`, tree `~/lanes/mz5/digest` | the digest check: the pin's digest with its last digit 8 → 9 (working tree only, restored): `tools/fetch-toolchain` exit 1, "digest 4f955e8d…af8, pin wants 4f955e8d…af9", with the real archive offered by `WOLF_ARCHIVE` and again downloaded from the release (CI's path); no driver directory extracted (`ls` exit 2); `tools/build native` after it exit 2 ("no driver"). The real pin offered the 0.2.32 archive: exit 1 naming `4c37f9c5…51`, no driver. Control: the real pin and archive stage the driver, exit 0 |
+| `pin-0.2.33-samepath.log`, `objects-0.2.32-0.2.33-samepath.log`, `sections-0.2.32-0.2.33-samepath.log` | `b580fc3`, tree `<lane>/base` (the baseline's own path) | the control that attributes the raw difference: 0.2.33 built in the 0.2.32 baseline's directory; 9/9 both tiers; 12 stripped same; unstripped, each of the 5 native wolf objects differs in **one byte**, in `.debug_info`, the producer's last digit (`cmp -l`: `062` → `063`, `2` → `3`); every other section and byte equal, section header tables equal; the release objects and both `crt0.o` identical unstripped |
+| `reuse.log` | `158acbe` → `b580fc3`, tree `<lane>/base` | the reused checkout, 0.2.32 staged and its objects in `build/`, moved to the pin: `tools/build` exits 2 on both tiers ("the pin wants 'wolf 0.2.33 (wolfgang, pin 85dab5d)' … found 'wolf 0.2.32 (wolfgang, pin 72de141)' … not used"); no `build/native` or `build/release` left (`ls` exit 2); `tools/difftest` after it pass=0 fail=9, exit 1, on both tiers. After the fetch: producers `wolfgang 0.2.33`, 9/9 both tiers, `tests/stale-compiler` 5 of 5 both tiers |
+| `digest.log` | `b580fc3`, tree `<lane>/digest` | the digest check: the pin's digest with its last digit 8 → 9 (working tree only, restored): `tools/fetch-toolchain` exit 1, "digest 4f955e8d…af8, pin wants 4f955e8d…af9", with the real archive offered by `WOLF_ARCHIVE` and again downloaded from the release (CI's path); no driver directory extracted (`ls` exit 2); `tools/build native` after it exit 2 ("no driver"). The real pin offered the 0.2.32 archive: exit 1 naming `4c37f9c5…51`, no driver. Control: the real pin and archive stage the driver, exit 0 |
 | `machines-and-exit2.log` | `b580fc3` | the three archives' sha256 (the second read of each digest); `std/STD-REV` `cceda63…`; the checked machine and lupin 0.1.54 refuse by name; a planted E0401 (never committed) makes `tools/build` exit 2 on both tiers with `build/<tier>/` empty; `tools/difftest` after it pass=0 fail=9 exit 1, no line says skip (`grep -ci skip` 0); `tests/stale-compiler` pass=3 fail=2 exit 1; the plant restored |
 | `plant-run-39310874411.log` | `14c2a4a` | the CI plant's job and step conclusions and its failing lines, from `gh run view --log-failed` |
 
@@ -124,11 +123,11 @@ moved on either tier; the only byte 0.2.33 changes in any object is
 the version digit in the native wolf objects' `DW_AT_producer`.
 
 The digests, each read twice: wolf 0.2.33 linux x86-64 `4f955e8d…af8`,
-80,128,936 bytes, from the release API and from `sha256sum` on kasumi
+80,128,936 bytes, from the release API and from `sha256sum` on the Linux test host
 (and asserted equal to the pin's line, non-empty, before the pin
 commit; a third time by `tools/fetch-toolchain` in CI); lupin 0.1.54
 `175df238…dd`, 2,971,403 bytes, the same two ways; wolf 0.2.32
-`4c37f9c5…51` again on kasumi for the baseline.
+`4c37f9c5…51` again on the Linux test host for the baseline.
 
 The plant (P7), a branch of its own: `mz5-plant` is the pin `b580fc3`
 plus `14c2a4a`, which changes the pin's linux x86-64 digest's last
@@ -178,8 +177,8 @@ The machines:
 
 - **mz4's raw-object attribution was incomplete.** Its note says the 5
   native wolf objects differ unstripped by "their DWARF producer"; its
-  0.2.30 tree was `~/lanes/mz4/base` and its 0.2.32 tree
-  `~/lanes/mz4/muzzle`, so `DW_AT_comp_dir` differed too
+  0.2.30 tree was `<lane>/base` and its 0.2.32 tree
+  `<lane>/muzzle`, so `DW_AT_comp_dir` differed too
   (`sections-0.2.32-0.2.33.log` shows the same shape here). Its
   conclusion, stripped objects identical, stands; the same-path control
   above is what isolates the producer.
