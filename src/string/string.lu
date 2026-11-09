@@ -108,7 +108,7 @@ export fn strcmp(a: *u8, b: *u8) -> i32 {
 }
 
 /// C17 7.24.4.4: at most n bytes; nothing after a null is compared.
-export fn strncmp(a: *u8, b: *u8, n: uint) -> i32 {
+pub export fn strncmp(a: *u8, b: *u8, n: uint) -> i32 {
     var i: uint = 0
     // # Safety: C's precondition: a and b are arrays of at least n bytes
     // or strings; the loop stops at n, a difference, or a's null.
@@ -127,7 +127,7 @@ export fn strncmp(a: *u8, b: *u8, n: uint) -> i32 {
 
 /// C17 7.24.5.2: the first c (converted to char) in s, the terminating
 /// null included; a null pointer when there is none.
-export fn strchr(s: *u8, c: i32) -> *u8 {
+pub export fn strchr(s: *u8, c: i32) -> *u8 {
     let ch = c as wrapping[u8] as u8
     var i: uint = 0
     var found = false
