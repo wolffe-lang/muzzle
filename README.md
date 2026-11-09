@@ -7,25 +7,29 @@ muzzle talks to the kernel only through the Linux x86-64 syscall ABI,
 so a program linked against it statically is, unchanged, a userspace
 test for PAX.
 
-**State: stdio (lc02), over the first layer (lc01).** Raw syscalls,
-errno, the memory and string core, the allocator and process exit
-(lc01); streams with the three buffering modes, the descriptor calls
-under them, and the printf family over wolf 0.2.36's C variadics
-(lc02). A C program built with `clang -nostdlib` runs against muzzle
-alone. The floating conversions (`%f %e %g %a`) are not here yet: a
-printf call that meets one answers -1 with errno `EINVAL`, and a stream
-receives none of its output (lc03 owns them; `docs/LEDGER.md`).
+**State: stdlib, errno and strerror (lc03), over stdio (lc02) and the
+first layer (lc01).** Raw syscalls, errno, the memory and string core,
+the allocator and process exit (lc01); streams with the three buffering
+modes, the descriptor calls under them, and the printf family over wolf
+0.2.36's C variadics (lc02); aligned allocation, sorting and searching,
+the integer conversions and a correctly rounded `strtod`, the
+environment, `atexit` and `abort`, `rand`, and every errno Linux defines
+with glibc's `strerror` text and `perror` (lc03). A C program built with
+`clang -nostdlib` runs against muzzle alone. The floating conversions of
+printf (`%f %e %g %a`) are not here yet: a call that meets one answers
+-1 with errno `EINVAL`, and a stream receives none of its output (a later
+layer provides them; `docs/LEDGER.md`).
 
 ## What C gets
 
 | header | functions |
 |---|---|
-| `<stdio.h>` | `fopen` `fdopen` `fclose` `fflush` `setvbuf` `setbuf` `fileno` `fread` `fwrite` `fgetc` `getc` `getchar` `fgets` `ungetc` `fputc` `putc` `putchar` `fputs` `puts` `feof` `ferror` `clearerr`; `printf` `fprintf` `sprintf` `snprintf` `vprintf` `vfprintf` `vsprintf` `vsnprintf`; `stdin` `stdout` `stderr` |
-| `<string.h>` | `memcpy` `memmove` `memset` `memcmp` `strlen` `strcmp` `strncmp` `strchr` `strcpy` |
-| `<stdlib.h>` | `malloc` `free` `calloc` `realloc` `exit` `_Exit` |
+| `<stdio.h>` | `fopen` `fdopen` `fclose` `fflush` `setvbuf` `setbuf` `fileno` `fread` `fwrite` `fgetc` `getc` `getchar` `fgets` `ungetc` `fputc` `putc` `putchar` `fputs` `puts` `feof` `ferror` `clearerr`; `perror`; `printf` `fprintf` `sprintf` `snprintf` `vprintf` `vfprintf` `vsprintf` `vsnprintf`; `stdin` `stdout` `stderr` |
+| `<string.h>` | `memcpy` `memmove` `memset` `memcmp` `strlen` `strcmp` `strncmp` `strchr` `strcpy` `strerror` |
+| `<stdlib.h>` | `malloc` `free` `calloc` `realloc` `aligned_alloc` `posix_memalign`; `qsort` `bsearch`; `strtol` `strtoll` `strtoul` `strtoull` `strtod` `atoi` `atol` `atoll`; `abs` `labs` `llabs` `div` `ldiv` `lldiv`; `rand` `srand`; `getenv` `setenv` `unsetenv`; `atexit` `exit` `_Exit` `abort` |
 | `<unistd.h>` | `read` `write` `lseek` `close` `isatty` `_exit` |
 | `<fcntl.h>` | `open` and its flags |
-| `<errno.h>` | `errno` (`(*__errno_location())`), the 34 base E* numbers, `EOVERFLOW`, `EILSEQ` |
+| `<errno.h>` | `errno` (`(*__errno_location())`) and every number Linux defines (133 names, and `ENOTSUP`) |
 | `<stdarg.h>` `<stddef.h>` `<stdint.h>` `<limits.h>` `<sys/types.h>` `<wchar.h>` | the types and macros (`<wchar.h>`: its types only) |
 
 printf's conversions are `d i u o x X c s p n %` with every flag
@@ -38,8 +42,9 @@ clang -std=c17 -fno-builtin -fno-stack-protector \
       build/native/crt0.o prog.c build/native/libmuzzle.a -o prog
 ```
 
-`crt0.o` holds `_start`, which calls `main(argc, argv, envp)` and then
-`exit`, which flushes every open stream. `-fno-stack-protector` is
+`crt0.o` holds `_start`, which stores `envp` in `environ`, calls
+`main(argc, argv, envp)` and then `exit`, which runs the `atexit`
+handlers and flushes every open stream. `-fno-stack-protector` is
 needed until muzzle sets up TLS (`docs/LEDGER.md`).
 
 ## Two design rules
@@ -62,10 +67,13 @@ needed until muzzle sets up TLS (`docs/LEDGER.md`).
 | `src/sys/` | the kernel boundary: syscalls, the error convention, errno, the trap hook |
 | `src/string/` | `<string.h>` |
 | `src/heap/` | the allocator, over `brk` and `mmap` |
-| `src/process/` | `exit`, `_Exit`, `_exit`, `write` |
+| `src/process/` | `exit`, `_Exit`, `_exit`, `atexit`, `abort`, `write` |
+| `src/stdlib/` | sorting and searching, the integer conversions, `strtod` (in integers), arithmetic and `rand`, the environment |
+| `src/errtext/` | `strerror`, over `errtext.S`'s table |
 | `src/unistd/` | `open`, `close`, `read`, `lseek`, `isatty`, and what stdio asks a descriptor |
-| `src/stdio/` | streams (`file.lu`), character and direct I/O (`char.lu`), the printf family (`format.lu`) |
-| `src/sys.S` | the one syscall routine and the static storage wolf cannot hold yet (ruling R2): errno, the allocator's bins, the standard streams and `stdin`/`stdout`/`stderr` |
+| `src/stdio/` | streams (`file.lu`), character and direct I/O (`char.lu`), the printf family (`format.lu`), `perror` |
+| `src/sys.S` | the one syscall routine, two trampolines into C function pointers, `strtod`'s entry, and the static storage wolf cannot hold yet: errno, `environ`, the allocator's bins, the standard streams and `stdin`/`stdout`/`stderr`, the first 32 atexit handlers, strtod's big integers |
+| `src/errtext.S` | strerror's texts: glibc's, as the differential observed them (`notes/lc03-probes/gen-errtext.py`) |
 | `src/crt0.S` | `_start` |
 | `include/` | the C headers, hand-written from the standards' synopses (ruling R3: muzzle's one permanent C) |
 | `tests/cases/` | the differential's cases, one per function family (a `.in` file beside a case is its stdin) |
