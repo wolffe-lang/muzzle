@@ -52,7 +52,7 @@ the cases named.
 
 | what | the standard | muzzle |
 |---|---|---|
-| the floating conversions `f F e E g G a A` and the `L` length with them | C17 7.21.6.1 | **R-lc02-1 = B**: lc03 owns them. A call that meets one answers -1 with errno EINVAL, as any failed call does: a stream receives none of its output; in memory what came before it stays, with its null (`tests/own/printf_refusals.c`) |
+| the floating conversions `f F e E g G a A` and the `L` length with them | C17 7.21.6.1 | refused for now; a later layer of the library provides them. A call that meets one answers -1 with errno EINVAL, as any failed call does: a stream receives none of its output; in memory what came before it stays, with its null (`tests/own/printf_refusals.c`) |
 | positional arguments `%n$` and `*m$` | POSIX fprintf (XSI) | refused the same way (`tests/own/printf_refusals.c`) |
 | `%m` | a glibc extension | not one: printed back as an unknown conversion; no case uses it |
 
