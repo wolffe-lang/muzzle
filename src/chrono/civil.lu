@@ -1,0 +1,272 @@
+//! <time.h> conversions: C17 7.27.3.3 gmtime, 7.27.3.4 localtime,
+//! 7.27.2.3 mktime; POSIX.1-2024 XSH gmtime_r, localtime_r, timegm, and
+//! struct tm's tm_gmtoff and tm_zone (XBD time.h).
+//!
+//! The local zone is UTC: no zone database is read yet, and TZ is not
+//! consulted (docs/LEDGER.md). So localtime_r is gmtime_r with the zone
+//! named "UTC" (gmtime_r's is "GMT", as glibc names them), and mktime is
+//! timegm, except that a positive tm_isdst asks for summer time a UTC
+//! zone does not have: the result is an hour earlier and tm_isdst is
+//! cleared, glibc's answer (mktime's handling of tm_isdst is the
+//! implementation's, C17 7.27.2.3p2).
+//!
+//! The calendar is the proleptic Gregorian one over the whole range of
+//! time_t: days from a civil date and back by 400-year eras (the
+//! algorithms H. Hinnant published as "chrono-Compatible Low-Level Date
+//! Algorithms", public domain), the day of the year from the month and
+//! the leap rule. A year that does not fit tm_year's int is EOVERFLOW
+//! (POSIX gmtime_r), and mktime and timegm then answer -1 and leave the
+//! struct as it was. Seconds are not leap seconds: POSIX's seconds since
+//! the epoch count 86400 to a day (XBD 4.19).
+//!
+//! Sources: C17 7.27.1-7.27.3; POSIX.1-2024 XBD 4.19, XBD time.h, XSH
+//! gmtime, localtime, mktime, timegm; ctime(3), timegm(3); Hinnant's
+//! paper above.
+
+use sys
+
+/// struct tm (C17 7.27.1p4 and POSIX's two more members), as x86-64 lays
+/// it out: nine ints, then a long at 40 and a pointer at 48.
+#[repr(c)]
+struct Tm {
+    sec: i32,
+    min: i32,
+    hour: i32,
+    mday: i32,
+    mon: i32,
+    year: i32,
+    wday: i32,
+    yday: i32,
+    isdst: i32,
+    gmtoff: i64,
+    zone: u64,
+}
+
+/// A broken-down time, or ok false when its year leaves tm_year's int.
+struct Parts {
+    ok: bool,
+    sec: i32,
+    min: i32,
+    hour: i32,
+    mday: i32,
+    mon: i32,
+    year: i32,
+    wday: i32,
+    yday: i32,
+}
+
+/// gmtime's and localtime's shared result (sys.S, 64 bytes).
+extern "c" let __muzzle_tm: *u8
+
+extern "c" let __muzzle_text_gmt: *u8
+
+extern "c" let __muzzle_text_utc: *u8
+
+const EOVERFLOW: i32 = 75
+
+const DAY: i64 = 86400
+
+const INT_MAX: i64 = 2147483647
+
+const INT_MIN: i64 = -2147483648
+
+/// a / b rounded toward negative infinity (b > 0).
+fn floor_div(a: i64, b: i64) -> i64 {
+    let q = a / b
+    if a % b != 0 && a < 0 { q - 1 } else { q }
+}
+
+/// a mod b in 0..b (b > 0).
+fn floor_mod(a: i64, b: i64) -> i64 {
+    a - floor_div(a, b) * b
+}
+
+/// The Gregorian leap rule.
+fn is_leap(y: i64) -> bool {
+    y % 4 == 0 && (y % 100 != 0 || y % 400 == 0)
+}
+
+/// Days from 1970-01-01 to year y, month m (1..12), day d (d may run
+/// past the month: the days simply add).
+fn days_from_civil(y0: i64, m: i64, d: i64) -> i64 {
+    let y = if m <= 2 { y0 - 1 } else { y0 }
+    let era = floor_div(y, 400)
+    let yoe = y - era * 400
+    let mp = if m > 2 { m - 3 } else { m + 9 }
+    let doy = (153 * mp + 2) / 5 + d - 1
+    let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy
+    era * 146097 + doe - 719468
+}
+
+/// Days before month m (1..12) in a year, leap or not.
+fn days_before(m: i64, leap: bool) -> i64 {
+    if m == 1 {
+        return 0
+    }
+    if m == 2 {
+        return 31
+    }
+    59 + (153 * (m - 3) + 2) / 5 + if leap { 1 } else { 0 }
+}
+
+/// The broken-down UTC time of t seconds since the epoch.
+fn parts(t: i64) -> Parts {
+    let days = floor_div(t, DAY)
+    let secs = t - days * DAY
+    let z = days + 719468
+    let era = floor_div(z, 146097)
+    let doe = z - era * 146097
+    let yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100)
+    let mp = (5 * doy + 2) / 153
+    let d = doy - (153 * mp + 2) / 5 + 1
+    let m = if mp < 10 { mp + 3 } else { mp - 9 }
+    let y = yoe + era * 400 + if m <= 2 { 1 } else { 0 }
+    let year = y - 1900
+    if year > INT_MAX || year < INT_MIN {
+        return Parts { ok: false, sec: 0, min: 0, hour: 0, mday: 0, mon: 0, year: 0, wday: 0, yday: 0 }
+    }
+    Parts {
+        ok: true,
+        sec: (secs % 60) as i32,
+        min: (secs % 3600 / 60) as i32,
+        hour: (secs / 3600) as i32,
+        mday: d as i32,
+        mon: (m - 1) as i32,
+        year: year as i32,
+        wday: floor_mod(days + 4, 7) as i32,
+        yday: (days_before(m, is_leap(y)) + d - 1) as i32,
+    }
+}
+
+fn store(p: Parts, tm: *Tm, zone: u64) {
+    // # Safety: C's precondition: tm addresses a struct tm.
+    unsafe {
+        tm[0].sec = p.sec
+        tm[0].min = p.min
+        tm[0].hour = p.hour
+        tm[0].mday = p.mday
+        tm[0].mon = p.mon
+        tm[0].year = p.year
+        tm[0].wday = p.wday
+        tm[0].yday = p.yday
+        tm[0].isdst = 0
+        tm[0].gmtoff = 0
+        tm[0].zone = zone
+    }
+}
+
+fn gmt() -> u64 {
+    var z: u64 = 0
+    // # Safety: reads the text's address only.
+    unsafe {
+        z = __muzzle_text_gmt.addr() as u64
+    }
+    z
+}
+
+/// The local zone's name, "UTC" (tm_zone of localtime_r and mktime).
+fn utc() -> u64 {
+    var z: u64 = 0
+    // # Safety: reads the text's address only.
+    unsafe {
+        z = __muzzle_text_utc.addr() as u64
+    }
+    z
+}
+
+fn shared() -> *Tm {
+    // # Safety: sys.S's 64 bytes hold one struct tm (56 bytes).
+    unsafe {
+        __muzzle_tm.addr() as *Tm
+    }
+}
+
+fn convert(timer: *i64, result: *Tm, zone: u64) -> *Tm {
+    var t: i64 = 0
+    // # Safety: C's precondition: timer addresses a time_t.
+    unsafe {
+        t = timer[0]
+    }
+    let p = parts(t)
+    if !p.ok {
+        sys.set_errno(EOVERFLOW)
+        // # Safety: the null pointer.
+        unsafe {
+            return 0 as *Tm
+        }
+    }
+    store(p, result, zone)
+    result
+}
+
+/// XSH gmtime_r.
+export fn gmtime_r(timer: *i64, result: *Tm) -> *Tm {
+    convert(timer, result, gmt())
+}
+
+/// C17 7.27.3.3.
+export fn gmtime(timer: *i64) -> *Tm {
+    convert(timer, shared(), gmt())
+}
+
+/// XSH localtime_r: UTC, named "UTC".
+export fn localtime_r(timer: *i64, result: *Tm) -> *Tm {
+    convert(timer, result, utc())
+}
+
+/// C17 7.27.3.4.
+export fn localtime(timer: *i64) -> *Tm {
+    convert(timer, shared(), utc())
+}
+
+/// The seconds since the epoch tm's fields name, every field normalized
+/// (C17 7.27.2.3p2), with mktime's summer-time hour when dst is true.
+fn seconds(tm: *Tm, dst: bool) -> i64 {
+    var year: i64 = 0
+    var mon: i64 = 0
+    var mday: i64 = 0
+    var h: i64 = 0
+    var m: i64 = 0
+    var s: i64 = 0
+    var isdst: i32 = 0
+    // # Safety: C's precondition: tm addresses a struct tm.
+    unsafe {
+        year = tm[0].year as i64 + 1900
+        mon = tm[0].mon as i64
+        mday = tm[0].mday as i64
+        h = tm[0].hour as i64
+        m = tm[0].min as i64
+        s = tm[0].sec as i64
+        isdst = tm[0].isdst
+    }
+    year = year + floor_div(mon, 12)
+    mon = floor_mod(mon, 12)
+    let days = days_from_civil(year, mon + 1, 1) + mday - 1
+    var t = days * DAY + h * 3600 + m * 60 + s
+    if dst && isdst > 0 {
+        t = t - 3600
+    }
+    t
+}
+
+fn normalize(tm: *Tm, dst: bool, zone: u64) -> i64 {
+    let t = seconds(tm, dst)
+    let p = parts(t)
+    if !p.ok {
+        sys.set_errno(EOVERFLOW)
+        return -1
+    }
+    store(p, tm, zone)
+    t
+}
+
+/// XSH timegm: tm read as UTC, normalized in place.
+export fn timegm(tm: *Tm) -> i64 {
+    normalize(tm, false, gmt())
+}
+
+/// C17 7.27.2.3: tm read as local time (UTC), normalized in place.
+export fn mktime(tm: *Tm) -> i64 {
+    normalize(tm, true, utc())
+}
