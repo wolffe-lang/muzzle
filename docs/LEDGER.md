@@ -135,7 +135,7 @@ held by the cases named.
 | `time`, `clock_gettime` and `clock` are system calls, never the vDSO | muzzle's boundary with the kernel is the system call ABI alone (it may use the vDSO, never require it) | a later layer may use the vDSO when the auxiliary vector offers it |
 | `stdin`, `stdout`, `stderr` and the standard streams' records live in `sys.S` | a module cannot export data (wolf-lang#516), and a `var` has no address (wolf-lang#597) | #516, #597 |
 | the texts `(null)` and `(nil)` live in `sys.S` | a `str` literal's bytes cannot reach C as a `*u8` (wolf-lang#604) | #604 |
-| errno is one process-wide int in `sys.S` | ruling R4's single-threaded first cut; it is not a wolf `var` because a `var` has no address (wolf-lang#597) | #597 for the `var`; lc05 (#517) per thread |
+| errno is one process-wide int in `sys.S` | the single-threaded first cut; it is not a wolf `var` because a `var` has no address (wolf-lang#597) | #597 for the `var`; lc05 (#517) per thread |
 | the package root calls a never-used `reach()` | a module reached only by C is not compiled without an import, and an import nothing uses is E0305 (wolf-lang#599) | #599 |
 | the heap state is loaded and stored once per `carve` | wolf 0.2.24 forwards a module var's value across a call that writes it (wolf-lang#598) | #598 |
 | the trap hook writes its fixed text from packed `u64` constants | a `str` literal's bytes cannot reach the kernel as a `*u8` (wolf-lang#604) | #604 |

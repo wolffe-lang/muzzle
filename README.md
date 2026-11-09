@@ -2,7 +2,7 @@
 
 The wolf C library: a C17/POSIX libc for x86-64 Linux, written in
 [wolf](https://github.com/wolffe-lang/wolf-lang). Named for the part of a
-wolf that meets the world, and for the libc it is not (STATUS #26).
+wolf that meets the world, and for the libc it is not.
 muzzle talks to the kernel only through the Linux x86-64 syscall ABI,
 so a program linked against it statically is, unchanged, a userspace
 test for PAX.
@@ -83,9 +83,9 @@ needed until muzzle sets up TLS (`docs/LEDGER.md`).
 | `src/sys.S` | the one syscall routine, two trampolines into C function pointers, `strtod`'s entry, and the static storage wolf cannot hold yet: errno, `environ`, the allocator's bins, the standard streams and `stdin`/`stdout`/`stderr`, the first 32 atexit handlers, strtod's big integers |
 | `src/errtext.S` | strerror's texts: glibc's, as the differential observed them (`notes/lc03-probes/gen-errtext.py`) |
 | `src/crt0.S` | `_start` |
-| `include/` | the C headers, hand-written from the standards' synopses (ruling R3: muzzle's one permanent C) |
+| `include/` | the C headers, hand-written from the standards' synopses (muzzle's one permanent C) |
 | `tests/cases/` | the differential's cases, one per function family (a `.in` file beside a case is its stdin) |
-| `tests/own/` | cases where a ruling makes muzzle's behaviour its own (the floating conversions refused): self-checking, run against muzzle alone |
+| `tests/own/` | cases where a decision makes muzzle's behaviour its own (the floating conversions refused): self-checking, run against muzzle alone |
 | `tests/lib/` | `t.h` (the cases' write(2) output helper) and `ptyrun.c` (a pseudo-terminal for the `tty` cases) |
 | `tests/difftest-selftest` | each comparison `tools/difftest` makes, planted once and seen red by name (`tests/selftest/`) |
 | `tests/stale-compiler` | `tools/build` runs the pinned compiler or refuses: a stale one is staged on purpose (muzzle#4) |
