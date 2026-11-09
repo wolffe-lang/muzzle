@@ -74,6 +74,28 @@ held by the cases named.
 | `errno_strerror.c` `strerror(…)` | C17 7.24.6.2: the text is implementation-defined | glibc's text in the C locale for every number Linux defines; "Unknown error N" for a number with none (41, 58, 134 and beyond, negative numbers) |
 | `errno_strerror.c` `perror kept=` | XSH perror defines no errors; XSH 2.3 leaves errno after a successful call unspecified | errno is left as it was (stderr has had output first: see below) |
 
+### time and the file layer (lc03, the second part)
+
+| case line | the standard | muzzle and glibc |
+|---|---|---|
+| `time_conv.c` `zone=GMT`, `zone=UTC` | XBD time.h: tm_zone is the zone's abbreviation; its spelling for UTC is the implementation's | gmtime_r's is `GMT`, localtime_r's and mktime's `UTC` (the harness runs both columns with `TZ=UTC`) |
+| `time_conv.c` `mktime #17`, `#19` | C17 7.27.2.3p2: a positive tm_isdst means daylight saving time is in effect; what that means where there is none is the implementation's | an hour earlier, and tm_isdst cleared to 0 |
+| `time_conv.c` `mktime #32`, `timegm #32` | XSH mktime: -1 and EOVERFLOW when the result cannot be represented; the struct's contents are not described | -1, EOVERFLOW, and the struct left exactly as it was |
+| `time_strftime.c` `%C`, `%Y`, `%G`, `year …` | C17 7.27.3.5p3 describes %C as the year divided by 100 "as a decimal number (00-99)" and %Y as the year; widths below four digits and negative years are not described | no minimum width (year 1 is `1`, its %C `0`); a negative year divides down: %C of year -5 is `-1`, %y `95` |
+| `time_strftime.c` `%05Y`, `%8Y`, `%012F`, `%03C`, `%06G` | XSH strftime (2024): the `0` flag and a field width apply to %C %F %G %Y | the same, and a width without a flag pads a number with zeros too; a negative number keeps its sign first (`-0001`); %F is padded as a whole |
+| `time_strftime.c` `%Ox`, `%+4Y`, `%+Y` … | C17 7.27.3.5p6: a conversion not listed is undefined | the specification is copied as written |
+| `time_strftime.c` `hand … [%Z]` of a null tm_zone | not described | the local zone's name, `UTC` |
+| `time_strftime.c` `hand off=-59`, `off=1` | XSH strftime: %z is the offset "in the ISO 8601 format" | sign of the offset, then its hours and minutes truncated toward zero: `-0000` for -59 seconds |
+| `time_clock.c` `CLOCKS_PER_SEC=` | C17 7.27.1p2 leaves it to the implementation; XSI fixes it at one million | 1000000 |
+| (no case) strftime's `%k`, `%l`, `%P` | glibc's extensions, in neither C17 nor POSIX | as glibc answered them (`notes/lc03-probes/g1.c`): the hour and the 12-hour hour space-padded to two, `am`/`pm` |
+| `file_dir.c` (the sorted listings) | XSH readdir: the order of entries is unspecified | the file system's order in both; the case sorts what it prints |
+
+### Where muzzle follows glibc rather than the standard
+
+| what | the standard | glibc 2.39 and muzzle |
+|---|---|---|
+| strftime's `+` flag (`time_strftime.c` `%+4Y`, `%+12F`, `%+3C`, `%+6G`, `%+Y`) | XSH strftime (2024) defines `+`: a sign before a year of more than four digits, and the minimum width counted with it | not supported: the specification is copied as written. muzzle follows glibc so the differential holds; a later layer can add the flag to both columns' expectations once glibc has it |
+
 ### Not provided yet, by name
 
 | what | the standard | muzzle |
@@ -81,6 +103,8 @@ held by the cases named.
 | the floating conversions `f F e E g G a A` and the `L` length with them | C17 7.21.6.1 | refused for now; a later layer of the library provides them. A call that meets one answers -1 with errno EINVAL, as any failed call does: a stream receives none of its output; in memory what came before it stays, with its null (`tests/own/printf_refusals.c`) |
 | positional arguments `%n$` and `*m$` | POSIX fprintf (XSI) | refused the same way (`tests/own/printf_refusals.c`) |
 | `%m` | a glibc extension | not one: printed back as an unknown conversion; no case uses it |
+| the zone database and TZ (lc03) | XSH tzset, XBD 8.3: local time follows TZ, else a default zone | the local zone is UTC: localtime_r is gmtime_r named `UTC`, mktime is timegm with the tm_isdst rule above, and TZ is not read. The differential runs both columns with `TZ=UTC` |
+| strftime's `_`, `-`, `^` and `#` flags (lc03) | glibc extensions | copied as written, like any specification muzzle does not take; no case uses them |
 
 ### Where glibc departs from the standard (muzzle follows the standard)
 
@@ -107,6 +131,8 @@ held by the cases named.
 | `strtod` is a five-instruction assembly entry (`sys.S`) around a conversion that answers the double's bits in an integer register | no floating point type on `x86_64-unknown-none` (K10) | a floating point type on that target |
 | strerror's texts are an assembly table (`src/errtext.S`, generated from glibc's observed output) | a `str` literal's bytes cannot reach C as a `*u8` (wolf-lang#604) | #604 |
 | `environ`, the first 32 atexit handlers, strtod's big integers and strerror's and abort's scratch live in `sys.S`; `_start` stores `envp` in `environ` | a module cannot export data (wolf-lang#516), and a `var` has no address (wolf-lang#597) | #516, #597 |
+| gmtime's and localtime's shared struct tm, time's scratch timespec, the C locale's day and month names and the zone texts `GMT` and `UTC` live in `sys.S` | the same, and a `str` literal's bytes cannot reach C as a `*u8` (wolf-lang#604) | #516, #597, #604 |
+| `time`, `clock_gettime` and `clock` are system calls, never the vDSO | muzzle's boundary with the kernel is the system call ABI alone (it may use the vDSO, never require it) | a later layer may use the vDSO when the auxiliary vector offers it |
 | `stdin`, `stdout`, `stderr` and the standard streams' records live in `sys.S` | a module cannot export data (wolf-lang#516), and a `var` has no address (wolf-lang#597) | #516, #597 |
 | the texts `(null)` and `(nil)` live in `sys.S` | a `str` literal's bytes cannot reach C as a `*u8` (wolf-lang#604) | #604 |
 | errno is one process-wide int in `sys.S` | ruling R4's single-threaded first cut; it is not a wolf `var` because a `var` has no address (wolf-lang#597) | #597 for the `var`; lc05 (#517) per thread |
