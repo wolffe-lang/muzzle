@@ -30,6 +30,9 @@ if [ ${#cases[@]} -eq 0 ]; then
   cases=("$root"/tests/cases/*.c)
   for o in "$root"/tests/own/*.c; do [ -e "$o" ] && own+=("$o"); done
 fi
+# No core files: abort's case dies by SIGABRT in both columns, and a
+# host whose core pattern is a program gets the limit with the dump.
+ulimit -c 0
 CFLAGS=(-std=c17 -O1 -Wall -Werror -fno-builtin -fno-stack-protector -I "$root/tests/lib")
 MUZZLE=(-nostdinc -isystem "$root/include" -nostdlib -static)
 echo "difftest: tier=$tier glibc=$(getconf GNU_LIBC_VERSION 2>/dev/null) $(clang --version | head -1)"
