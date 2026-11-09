@@ -36,8 +36,6 @@ use sys
 /// The three big-integer regions, 160 limbs each (sys.S, 1920 bytes).
 extern "c" let __muzzle_limbs: *u32
 
-const ERANGE: i32 = 34
-
 const RA: int = 0
 
 const RB: int = 160
@@ -197,13 +195,13 @@ fn big_cmp(a: int, na: int, b: int, nb: int) -> int {
 
 /// a = a - b, for a >= b; the new length.
 fn big_sub(a: int, na: int, b: int, nb: int) -> int {
-    var borrow: u64 = 0
+    var owe: u64 = 0
     var i: int = 0
     while i < na {
         let y = if i < nb { limb(b + i) } else { 0 }
-        let x = limb(a + i) + BASE32 - y - borrow
+        let x = limb(a + i) + BASE32 - y - owe
         set_limb(a + i, x % BASE32)
-        borrow = if x < BASE32 { 1 } else { 0 }
+        owe = if x < BASE32 { 1 } else { 0 }
         i += 1
     }
     var len = na
