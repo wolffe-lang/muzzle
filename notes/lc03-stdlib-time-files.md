@@ -208,9 +208,10 @@ tiers, every glibc column builds, and the 23 trunk cases stay `PASS`.
   as a git bundle). Each job removes its worktree when it ends (the host's
   disk is short). Nothing was committed on the test host; nothing was
   written under `/tmp`.
-- **Kills: three of the lane's own jobs, none started.** A duplicate of the
-  red run, a run queued on the busier block, and a run queued with a stale
-  commit id. Each was still waiting on its block's lock. Its ancestry was
+- **Kills: four of the lane's own jobs, none started.** A duplicate of the
+  red run, a run queued on the busier block, a run queued with a stale
+  commit id, and a development run the gauntlet made redundant. (PR 1's
+  head said three: the fourth came after it was written.) Each was still waiting on its block's lock. Its ancestry was
   checked, then its wrapper and its waiting `flock` were sent TERM. Their
   markers and logs were renamed `*.void-term`, with the reason recorded.
 - No label, merge, tag or close; no attribution trailer.
@@ -294,3 +295,54 @@ in the PR body and the hand-back.
 - [x] The ledger, the sources and the README.
 - [ ] The gauntlet green at the head, and the two plants red by name: the
   PR body and the hand-back.
+
+---
+
+# Report, PR 2 (2026-11-09): time, the file layer and the programs
+
+Branch `lc03b`, from PR 1's head `782c3e1`. Its first commit moves the
+nine cases from `tests/next/` into `tests/cases/`, so they are red by name
+at that commit (no `<time.h>`, `<sys/stat.h>` or `<dirent.h>` yet), as
+`red1c` showed them before any library code.
+
+## 1. Forbidden: held
+
+As for PR 1: no C library's source or headers read; glibc a black box;
+every build on the Linux test host from a commit, under a block's two
+locks; nothing under `/tmp`; no commit on the test host; no kill in this
+part; no label, merge, tag or close; no attribution trailer.
+
+## 3. Prediction, scored for PR 2
+
+| # | predicted | measured | score |
+|---|---|---|---|
+| P1 | the functions in wolf; the new non-wolf code is `sys.S` storage (the static struct tm and its texts) | as predicted: the struct tm, a timespec, the day and month names, `GMT` and `UTC` | right |
+| P2 | seventeen new system calls | those seventeen: stat 4, lstat 6, access 21, pipe 22, dup 32, dup2 33, nanosleep 35, getcwd 79, chdir 80, rename 82, mkdir 83, rmdir 84, unlink 87, symlink 88, readlink 89, getdents64 217, clock_gettime 228 | right |
+| P3 | the 9 cases agree on both tiers | at the first run that built (`dev8`), 8 of 9 agreed on both tiers; `time_conv` trapped (muzzle's own overflow: `floor_div(t, 86400) * 86400` leaves i64 for t near `LLONG_MIN`). Fixed by truncating and stepping down; then 45 of 45 cases on both tiers (`dev9`) | **wrong in part** |
+| P6 | the leap plant red in `time_conv` | see the PR body and the hand-back | (at the head) |
+| P8 | no new wolf limitation | none: `shared` is a keyword, renamed | right |
+
+strftime agreed with glibc at its first build, on every one of its 2,242
+lines: the widths, the negative years and the specifications copied back
+had been read from glibc's expected output before the code was written.
+
+## 4. Evidence index (PR 2)
+
+| file | sha256 | shows |
+|---|---|---|
+| `dev8-first-build-part2.log` | `efcc384abb00…` | the first build of this part: 8 of the 9 cases agree on both tiers, `time_conv` traps at its `LLONG_MIN` row |
+
+The red rows are `red1c`'s (PR 1's evidence, every one of these nine
+cases `FAIL <case>: muzzle column does not build`). The gauntlet at this
+PR's head and its plant's record are local records, named in the PR body
+and the hand-back.
+
+## 5. Done-when (PR 2)
+
+- [x] `<time.h>`: the clocks, the calendar (UTC), strftime.
+- [x] The POSIX file layer and directory streams.
+- [x] Three programs in plain C (`prog_wc`, `prog_sort`, `prog_tree`)
+  agree with glibc on both tiers.
+- [x] The ledger, the sources and the README.
+- [ ] The gauntlet green at the head and the plant red by name: the PR
+  body and the hand-back.

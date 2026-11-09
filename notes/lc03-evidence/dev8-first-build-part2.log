@@ -1,0 +1,97 @@
+QUEUED 2026-11-09T19:35:49Z job=dev8 block=C pid=2681219 inner=<lane>/job.sh 86070514b7f63edb8121364d4d9ecbac1d0c05da dev8
+job: sha=86070514b7f63edb8121364d4d9ecbac1d0c05da block=C cpus=12-17 out=<lane>/out-dev8 ctr=ctr-dev.sh
+BEGIN env
+86070514b7f63edb8121364d4d9ecbac1d0c05da
+Ubuntu clang version 18.1.3 (1ubuntu1)
+glibc 2.39
+END env exit=0
+BEGIN fetch
+fetch-toolchain: wolf-0.2.36-x86_64-unknown-linux-gnu.tar.gz d383c74c8cd123b9… -> /work/.wolf-bin/wolf-0.2.36-x86_64-unknown-linux-gnu/wolf
+END fetch exit=0
+BEGIN build.native
+build: native: 12 objects, 115 exports defined, 71 internal references, 0 imports -> /work/build/native/libmuzzle.a
+END build.native exit=0
+BEGIN difftest.native
+difftest: tier=native glibc=glibc 2.39 Ubuntu clang version 18.1.3 (1ubuntu1)
+PASS time_clock exit=0 lines=18 stderr=0 files=0
+FAIL time_conv: exit glibc=0 muzzle=134
+FAIL time_conv: stdout differs
+--- time_conv stdout (glibc)
++++ time_conv stdout (muzzle native)
+@@ -80,142 +80,4 @@
+   mktime=-2147483648 errno=0
+ t=-2147483649 errno=0 gmtime_r 1-11-13 20:45:51 wday=5 yday=346 isdst=0 off=0 zone=GMT
+   localtime_r 1-11-13 20:45:51 wday=5 yday=346 isdst=0 off=0 zone=UTC
+-  timegm=-2147483649 errno=0
+-  mktime=-2147483649 errno=0
+-t=253402300799 errno=0 gmtime_r 8099-11-31 23:59:59 wday=5 yday=364 isdst=0 off=0 zone=GMT
+-  localtime_r 8099-11-31 23:59:59 wday=5 yday=364 isdst=0 off=0 zone=UTC
+-  timegm=253402300799 errno=0
+-  mktime=253402300799 errno=0
+-t=253402300800 errno=0 gmtime_r 8100-0-1 0:0:0 wday=6 yday=0 isdst=0 off=0 zone=GMT
+-  localtime_r 8100-0-1 0:0:0 wday=6 yday=0 isdst=0 off=0 zone=UTC
+-  timegm=253402300800 errno=0
+-  mktime=253402300800 errno=0
+-t=-62135596800 errno=0 gmtime_r -1899-0-1 0:0:0 wday=1 yday=0 isdst=0 off=0 zone=GMT
+-  localtime_r -1899-0-1 0:0:0 wday=1 yday=0 isdst=0 off=0 zone=UTC
+-  timegm=-62135596800 errno=0
+-  mktime=-62135596800 errno=0
+FAIL time_conv: stderr differs
+--- time_conv stderr (glibc)
++++ time_conv stderr (muzzle native)
+@@ -0,0 +1 @@
++muzzle: trap 1 at ./chrono/civil.lu:115
+PASS time_strftime exit=0 lines=2242 stderr=0 files=0
+PASS file_dir exit=0 lines=36 stderr=0 files=0
+PASS file_io exit=0 lines=82 stderr=0 files=3
+PASS file_meta exit=0 lines=58 stderr=0 files=0
+PASS prog_sort exit=0 lines=1148 stderr=0 files=1
+PASS prog_tree exit=0 lines=72 stderr=0 files=0
+PASS prog_wc exit=0 lines=5 stderr=39 files=3
+difftest: tier=native pass=8 fail=1
+END difftest.native exit=1
+BEGIN build.release
+build: release: 10 objects, 115 exports defined, 80 internal references, 0 imports -> /work/build/release/libmuzzle.a
+END build.release exit=0
+BEGIN difftest.release
+difftest: tier=release glibc=glibc 2.39 Ubuntu clang version 18.1.3 (1ubuntu1)
+PASS time_clock exit=0 lines=18 stderr=0 files=0
+FAIL time_conv: exit glibc=0 muzzle=134
+FAIL time_conv: stdout differs
+--- time_conv stdout (glibc)
++++ time_conv stdout (muzzle release)
+@@ -80,142 +80,4 @@
+   mktime=-2147483648 errno=0
+ t=-2147483649 errno=0 gmtime_r 1-11-13 20:45:51 wday=5 yday=346 isdst=0 off=0 zone=GMT
+   localtime_r 1-11-13 20:45:51 wday=5 yday=346 isdst=0 off=0 zone=UTC
+-  timegm=-2147483649 errno=0
+-  mktime=-2147483649 errno=0
+-t=253402300799 errno=0 gmtime_r 8099-11-31 23:59:59 wday=5 yday=364 isdst=0 off=0 zone=GMT
+-  localtime_r 8099-11-31 23:59:59 wday=5 yday=364 isdst=0 off=0 zone=UTC
+-  timegm=253402300799 errno=0
+-  mktime=253402300799 errno=0
+-t=253402300800 errno=0 gmtime_r 8100-0-1 0:0:0 wday=6 yday=0 isdst=0 off=0 zone=GMT
+-  localtime_r 8100-0-1 0:0:0 wday=6 yday=0 isdst=0 off=0 zone=UTC
+-  timegm=253402300800 errno=0
+-  mktime=253402300800 errno=0
+-t=-62135596800 errno=0 gmtime_r -1899-0-1 0:0:0 wday=1 yday=0 isdst=0 off=0 zone=GMT
+-  localtime_r -1899-0-1 0:0:0 wday=1 yday=0 isdst=0 off=0 zone=UTC
+-  timegm=-62135596800 errno=0
+-  mktime=-62135596800 errno=0
+FAIL time_conv: stderr differs
+--- time_conv stderr (glibc)
++++ time_conv stderr (muzzle release)
+@@ -0,0 +1 @@
++muzzle: trap 1 at ./chrono/civil.lu:115
+PASS time_strftime exit=0 lines=2242 stderr=0 files=0
+PASS file_dir exit=0 lines=36 stderr=0 files=0
+PASS file_io exit=0 lines=82 stderr=0 files=3
+PASS file_meta exit=0 lines=58 stderr=0 files=0
+PASS prog_sort exit=0 lines=1148 stderr=0 files=1
+PASS prog_tree exit=0 lines=72 stderr=0 files=0
+PASS prog_wc exit=0 lines=5 stderr=39 files=3
+difftest: tier=release pass=8 fail=1
+END difftest.release exit=1
+job: container exit=0
+job: worktree removed
+DONE 2026-11-09T19:36:01Z job=dev8 exit=0
