@@ -1,0 +1,94 @@
+//! C17 7.24.6.2 strerror: the C locale's text for every errno Linux
+//! defines, equal to glibc's, from errtext.S's table; a number
+//! with no text is "Unknown error N", formatted into errbuf, which the
+//! next such call overwrites (7.24.6.2p2 allows it). errno is left alone.
+//!
+//! Sources: C17 7.24.6.2; POSIX.1-2024 XSH strerror; strerror(3). The
+//! texts are glibc's output, observed (errtext.S's header).
+
+/// 134 entries, one per number 0..133: a pointer to the text, or 0.
+extern "c" let __muzzle_errtext: *u64
+
+/// 32 bytes for "Unknown error N" (sys.S).
+extern "c" let __muzzle_errbuf: *u8
+
+const NERR: i32 = 134
+
+/// "Unknown " for put_text.
+const TEXT_UNKNOWN: u64 = 0x206e_776f_6e6b_6e55
+
+/// "error " for put_text.
+const TEXT_ERROR: u64 = 0x2072_6f72_7265
+
+/// Stores the ASCII text packed into w, low byte first, at errbuf[at];
+/// answers the index past it.
+fn put_text(w: u64, at: int) -> int {
+    var v = w
+    var k = at
+    // # Safety: k stays below 32: callers put at most 14 bytes of text
+    // and 11 of number.
+    unsafe {
+        while v != 0 {
+            __muzzle_errbuf[k] = (v % 256) as u8
+            v = v / 256
+            k += 1
+        }
+    }
+    k
+}
+
+/// "Unknown error N" in errbuf.
+fn unknown(e: i32) -> *u8 {
+    var k = put_text(TEXT_UNKNOWN, 0)
+    k = put_text(TEXT_ERROR, k)
+    var v = e as i64
+    // # Safety: k + 11 < 32: "-2147483648" is the longest number.
+    unsafe {
+        if v < 0 {
+            __muzzle_errbuf[k] = 45
+            k += 1
+            v = 0 - v
+        }
+        var digits: int = 1
+        var t = v / 10
+        while t > 0 {
+            digits += 1
+            t = t / 10
+        }
+        var at = k + digits - 1
+        __muzzle_errbuf[at] = 48 + (v % 10) as u8
+        v = v / 10
+        while v > 0 {
+            at -= 1
+            __muzzle_errbuf[at] = 48 + (v % 10) as u8
+            v = v / 10
+        }
+        __muzzle_errbuf[k + digits] = 0
+    }
+    __muzzle_errbuf
+}
+
+/// C17 7.24.6.2: errnum's text.
+pub export fn strerror(errnum: i32) -> *u8 {
+    if errnum >= 0 && errnum < NERR {
+        var t: u64 = 0
+        // # Safety: errnum indexes the 134-entry table.
+        unsafe {
+            t = __muzzle_errtext[errnum as int]
+        }
+        if t != 0 {
+            // # Safety: t is a text in errtext.S.
+            unsafe {
+                return t as uint as *u8
+            }
+        }
+    }
+    unknown(errnum)
+}
+
+/// True. The package root calls it so the build reaches this module:
+/// a module only C calls into is otherwise never compiled, and an
+/// import nothing uses is E0305 (wolf-lang#599).
+pub fn linked() -> bool {
+    true
+}
