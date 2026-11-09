@@ -1,0 +1,90 @@
+//! <stdlib.h> integer arithmetic and pseudo-random numbers: C17 7.22.6.1
+//! abs, labs, llabs; 7.22.6.2 div, ldiv, lldiv; 7.22.2 rand, srand.
+//!
+//! `/` and `%` truncate toward zero, which is C17 6.5.5p6's rule, so div
+//! is the two operations. A result C cannot represent (abs(INT_MIN),
+//! div(INT_MIN, -1)) is undefined in C; here it is wolf's overflow trap.
+//!
+//! rand: C17 fixes no sequence (7.22.2.1), so muzzle's is its
+//! own: a 64-bit linear congruential state (Knuth's MMIX multiplier and
+//! increment), answering its top 31 bits, so RAND_MAX is glibc's
+//! 2147483647. The default sequence is srand(1)'s (C17 7.22.2.2p2), and
+//! srand(0) is srand(1), as in glibc. The values are never compared with
+//! glibc's: only the properties C fixes are.
+//!
+//! Sources: C17 7.22.2, 7.22.6, 6.5.5; rand(3); Knuth, TAOCP vol. 2
+//! 3.3.4 (the MMIX constants).
+
+/// div_t (C17 7.22): quot then rem, ints.
+#[repr(c)]
+struct DivT {
+    quot: i32,
+    rem: i32,
+}
+
+/// ldiv_t and lldiv_t: quot then rem, 64-bit on x86-64.
+#[repr(c)]
+struct LDivT {
+    quot: i64,
+    rem: i64,
+}
+
+const LCG_MUL: u64 = 6364136223846793005
+
+const LCG_ADD: u64 = 1442695040888963407
+
+var rand_state: u64 = 1
+
+/// C17 7.22.6.1.
+export fn abs(j: i32) -> i32 {
+    if j < 0 { 0 - j } else { j }
+}
+
+/// C17 7.22.6.1.
+export fn labs(j: i64) -> i64 {
+    if j < 0 { 0 - j } else { j }
+}
+
+/// C17 7.22.6.1.
+export fn llabs(j: i64) -> i64 {
+    if j < 0 { 0 - j } else { j }
+}
+
+/// C17 7.22.6.2.
+export fn div(numer: i32, denom: i32) -> DivT {
+    DivT { quot: numer / denom, rem: numer % denom }
+}
+
+/// C17 7.22.6.2.
+export fn ldiv(numer: i64, denom: i64) -> LDivT {
+    LDivT { quot: numer / denom, rem: numer % denom }
+}
+
+/// C17 7.22.6.2.
+export fn lldiv(numer: i64, denom: i64) -> LDivT {
+    LDivT { quot: numer / denom, rem: numer % denom }
+}
+
+/// C17 7.22.2.1: the next value in 0..RAND_MAX.
+export fn rand() -> i32 {
+    var x: u64 = 0
+    // # Safety: one thread; a scalar.
+    unsafe {
+        x = rand_state
+    }
+    x = (x as wrapping[u64] * LCG_MUL as wrapping[u64] + LCG_ADD as wrapping[u64]) as u64
+    // # Safety: one thread; a scalar.
+    unsafe {
+        rand_state = x
+    }
+    (x >> 33) as i32
+}
+
+/// C17 7.22.2.2: a new sequence; 0 seeds as 1 does.
+export fn srand(seed: u32) {
+    let s = if seed == 0 { 1 } else { seed as u64 }
+    // # Safety: one thread; a scalar.
+    unsafe {
+        rand_state = s
+    }
+}
