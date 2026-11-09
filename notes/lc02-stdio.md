@@ -1,8 +1,7 @@
 # lc02: stdio and the printf family
 
-Lane lc02 (crawl 54, batch A, the libc track, Opus). Contract: wolffe-lang/wolf
-`sprints/libc/02-stdio/lc02-stdio.md` at planning trunk `97331d5`, under
-`sprints/the-lane-rules-1031.md` and `sprints/RULES.md` §1–§10. Base: muzzle
+Lane lc02 (the libc track, Opus). Contract: the lane's contract, under
+the lane rules. Base: muzzle
 trunk `8d5896fa` (wolf 0.2.36). Branch `lc02`.
 
 This file holds §2 as re-derived and §3 as committed before the first line of
@@ -13,8 +12,8 @@ library code. §1, §4 and §5 are filled in at the end.
 | input as written | at origin | drift |
 |---|---|---|
 | muzzle trunk `8d5896fa`, wolf 0.2.36 | `origin/trunk` = `8d5896faf7d1…`; `wolf-toolchain.toml` pins 0.2.36, rev `5adf3d91`, version line `wolf 0.2.36 (wolfgang, pin 5adf3d9)`, linux x86-64 `d383c74c8cd1…` | none |
-| the pinned archive | tag `v0.2.36` → `5adf3d91f75b…`; release 427033151 (published 2026-10-28T19:20:00Z), asset digest `sha256:d383c74c8cd1…`, 82,827,649 bytes (read 1, the release API); `sha256sum` twice on hasu of the copy taken from r41p's read-back (read 2) `d383c74c8cd1…`; `tools/fetch-toolchain` checks it a third time in every run | none |
-| the build host: hasu's container `localhost/px75-ubuntu:2`, a block per run | clang 18.1.3, glibc 2.39, kernel 7.2.4, x86-64; `script`, `nm`, `readelf`, `objdump`, `python3`, `od`, `cmp`, `timeout` present; `strace` and `xxd` absent; `/dev/full` and `/dev/ptmx` present. The same clang and glibc as CI's ubuntu-latest (lc01's runs: glibc 2.39, clang 18.1.3) | none |
+| the pinned archive | tag `v0.2.36` → `5adf3d91f75b…`; release 427033151 (published 2026-10-28T19:20:00Z), asset digest `sha256:d383c74c8cd1…`, 82,827,649 bytes (read 1, the release API); `sha256sum` twice on the Linux test host of the copy taken from r41p's read-back (read 2) `d383c74c8cd1…`; `tools/fetch-toolchain` checks it a third time in every run | none |
+| the build host: the Linux test host's container `localhost/px75-ubuntu:2`, a block per run | clang 18.1.3, glibc 2.39, kernel 7.2.4, x86-64; `script`, `nm`, `readelf`, `objdump`, `python3`, `od`, `cmp`, `timeout` present; `strace` and `xxd` absent; `/dev/full` and `/dev/ptmx` present. The same clang and glibc as CI's ubuntu-latest (lc01's runs: glibc 2.39, clang 18.1.3) | none |
 | the baseline at trunk | block B, job `explore1`: `tests/stale-compiler` 5/5, `tools/build`, `tools/difftest` 9/9 on both tiers, every step exit 0 (`notes/lc02-evidence/explore1.log`) | none |
 | #515 C variadics in 0.2.36 | closed 2026-10-25; `[abi.c.variadic]` at `v0.2.36`: `VaList` (24 bytes), `va_start`/`va_arg[T]`/`va_copy`/`va_end` in `unsafe`, `*VaList` for C's decayed `va_list`; supported on `x86_64-unknown-none`, where "wolf floating values remain refused" | see the probes: `VaList`'s fields cannot be read from wolf |
 | what lc01 said lc02 waits on | #598 closed (2026-10-07); #516 (exported data), #597 (a var's address), #599 (C-only modules), #604 (a literal's bytes), #520 (C function pointers), #517 (TLS), #522 (loop idiom) open | none. So `stdin`, `stdout`, `stderr` and the standard streams' storage live in `sys.S`, named with `extern "c" let`, as errno does; literal text (`(null)`, `(nil)`) too |
@@ -74,7 +73,7 @@ buffer is its file's `st_blksize`, as glibc's 4096 shows), `lseek` 8, `ioctl` 16
 mode), `openat` 257. Falsified by any other, or if `fstat` or `fcntl` is not
 needed.
 
-**R-lc02-1 predicted B**: the floating conversions go to lc03 and this lane
+**Predicted for the floating conversions: B**: the floating conversions go to lc03 and this lane
 refuses them by name. The probes already show why (A) costs more than this
 lane can carry: `f64` is refused on muzzle's only target, `VaList`'s fields
 cannot be read, so a double reaches wolf only by hand-walking a `VaList` record
@@ -89,11 +88,11 @@ integer arithmetic (a bignum of up to 1,074 fractional bits), then held to
 | P3 | **13 new case files**, one per family: `unistd`, `stdio_open`, `stdio_char`, `stdio_rw`, `stdio_ungetc`, `stdio_buf`, `stdio_tty`, `stdio_err`, `stdio_exit`, `stdio_exit_` (`_exit` does not flush), `printf`, `printf_grammar` (the generated corpus), `snprintf`, plus `vprintf`: 14 at most. 22–23 cases agree with glibc on both tiers at the head: stdout, stderr, exit status and every file the case wrote | any case disagrees on either tier, or a tier needs a case the other does not |
 | P4 | the harness grows four comparisons (each case in its own directory, its written files compared; stderr compared; stdin fed from `<case>.in`; a `.tty` case run with stdout on a pseudo-terminal) and each is seen red by a self-test before it is trusted | a comparison is never seen red |
 | P5 | the printf corpus from the grammar (flags × width × precision × length × value edges, for `d i u o x X`, plus `c s p %` and `n`) is over 300,000 calls and agrees byte for byte | it disagrees anywhere, or is smaller |
-| P6 | **8 to 12 new ledger rows**, every one a place where C17 or POSIX leaves the choice open and muzzle matches glibc, plus one row for the floating conversions' refusal (R-lc02-1) and one for positional arguments (`%n$`, not provided) | fewer than 8, or a row where muzzle disagrees with glibc on a case |
+| P6 | **8 to 12 new ledger rows**, every one a place where C17 or POSIX leaves the choice open and muzzle matches glibc, plus one row for the floating conversions' refusal and one for positional arguments (`%n$`, not provided) | fewer than 8, or a row where muzzle disagrees with glibc on a case |
 | P7 | the plant (`%X` printing lower case) is red by name on both tiers in exactly the cases whose output has a `%X` conversion (`printf`, `printf_grammar`, `snprintf`), green elsewhere | another case goes red, or one of those stays green |
 | P8 | the archive gate stays at 0 imports on both tiers (no `memcpy`/`memset` from wolf-lang#522 outside muzzle's own) | `nm -u` shows an import |
 | P9 | wolf limitations met that a lane would file: 1 to 3 (one known: `VaList`'s fields) | none, or more than 3 |
-| P10 | R-lc02-1 = B, recommended with the evidence above; the refusal is a `-1` return with errno `EINVAL` and none of the call's output, tested by a muzzle-only self-checking case | (A) turns out cheap enough to do here |
+| P10 | the floating conversions B, recommended with the evidence above; the refusal is a `-1` return with errno `EINVAL` and none of the call's output, tested by a muzzle-only self-checking case | (A) turns out cheap enough to do here |
 
 ---
 
@@ -109,18 +108,18 @@ integer arithmetic (a bignum of up to 1,074 fractional bits), then held to
   libcs' documentation, allowed as design references, was not needed.
   Every source is in `docs/SOURCES.md`.
 - No build on the Mac: the Mac edits and commits; every build, probe and
-  differential ran in hasu's `localhost/px75-ubuntu:2`, one block per
+  differential ran in the Linux test host's `localhost/px75-ubuntu:2`, one block per
   run by both lock names, each job a single `flock -w 21600` per name,
   detached (`setsid -f`, a pid file, a log, an exit marker), and from
   2026-11-01 21:10Z on the emptier block. Every build ran from a commit
-  (a worktree pinned to it; local WIP commits reached hasu as a git
+  (a worktree pinned to it; local WIP commits reached the Linux test host as a git
   bundle, never pushed).
-- kasumi untouched. Nothing under `/var/folders` touched. No attribution
+- The other Linux test host untouched. Nothing under `/var/folders` touched. No attribution
   trailer, no label, merge, tag or close. Kills: none.
 
 ## R-list
 
-- **R-lc02-1: the floating conversions.** (A) in this lane, against
+- **The floating conversions.** (A) in this lane, against
   100,000 doubles per conversion; (B) lc03, this lane refusing them by
   name. **Recommended and implemented: B.** What (A) costs, measured: `f64`
   is refused on muzzle's only target (q3b: "a floating-point value (`f64`)
@@ -135,13 +134,13 @@ integer arithmetic (a bignum of up to 1,074 fractional bits), then held to
   work on its own, after this one's streams and integer printf. An upstream
   ask would cut it: a `va_arg` that yields a double's bits as a `u64` on the
   none target.
-- **R-lc02-2: how the refusal behaves.** (a) -1 with errno `EINVAL` and none
+- **How the refusal behaves.** (a) -1 with errno `EINVAL` and none
   of the call's output, the discipline glibc keeps for every failed call;
   (b) a trap naming the conversion (exit 134); (c) print the specification
   back as an unknown conversion. **Recommended and implemented: (a)**, a
   failure the program can see and test (`tests/own/printf_refusals.c`),
   named in `<stdio.h>`, the README and the ledger.
-- **R-lc02-3: how closely streams follow glibc's flush moments.** (a) match
+- **How closely streams follow glibc's flush moments.** (a) match
   every moment glibc was seen to choose (a full buffer written when the
   next byte arrives; the fill, block and remainder rule for a write too
   big; no room before the first byte; the 128-byte threshold; a
@@ -150,21 +149,21 @@ integer arithmetic (a bignum of up to 1,074 fractional bits), then held to
   mid-way. **Recommended and implemented: (a)**: the differential can then
   hold muzzle to glibc mid-stream (`stdio_buf.c`, `stdio_tty.c`,
   `stdio_exit.c`), and each choice is a ledger row.
-- **R-lc02-4: positional arguments (`%n$`, `*m$`).** (a) refuse them now
+- **Positional arguments (`%n$`, `*m$`).** (a) refuse them now
   (-1, `EINVAL`), a later lane's; (b) implement here (two passes over the
   format to learn every argument's type). **Recommended and implemented:
   (a).**
-- **R-lc02-5: how `exit` reaches the streams.** (a) `process` imports
+- **How `exit` reaches the streams.** (a) `process` imports
   `stdio` and calls its flush; (b) a C-level hook. A bodyless `extern "c"
   fn` defined in wolf is E1306 on this target (`[abi.asm.roster]`: such a
   call may reach only the listed assembly or the hooks), so (b) would need
   an assembly trampoline. **Recommended and implemented: (a).**
-- **R-lc02-6: the harness self-test in CI.** (a) this module PR leaves
+- **The harness self-test in CI.** (a) this module PR leaves
   `.github/` alone, and `tests/difftest-selftest` runs in the lane's
   gauntlet; CI's `tools/difftest` already makes every new comparison; a
   follow-up adds the step (cross-cutting); (b) add it here and declare
   the PR cross-cutting. **Recommended and implemented: (a).**
-- **R-lc02-7: `ungetc`'s depth.** (a) 8 bytes, last in first out (C
+- **`ungetc`'s depth.** (a) 8 bytes, last in first out (C
   guarantees one; glibc takes more); (b) unbounded, as glibc. **Recommended
   and implemented: (a)**, with a ledger row; no case pushes more than two.
 
@@ -181,7 +180,7 @@ integer arithmetic (a bignum of up to 1,074 fractional bits), then held to
 | P7 | the plant red in `printf`, `printf_grammar` and `snprintf` | `snprintf.c` has no `%X`; see §4 for the plant's red cases | **wrong** in the list |
 | P8 | 0 imports | `build: native: 8 objects, 57 exports defined, 43 internal references, 0 imports`; release the same | right |
 | P9 | 1 to 3 wolf limitations to file | 2 (below) | right |
-| P10 | R-lc02-1 = B; the refusal a -1 with errno EINVAL and none of the call's output | B, with that refusal to a stream; to memory the prefix stays, as for every failed call in glibc (the own case was first written to the wrong shape, red in the first full run, then corrected) | right in part |
+| P10 | the floating conversions B; the refusal a -1 with errno EINVAL and none of the call's output | B, with that refusal to a stream; to memory the prefix stays, as for every failed call in glibc (the own case was first written to the wrong shape, red in the first full run, then corrected) | right in part |
 
 Beyond the prediction:
 - **glibc's flush moments are a model, not a list.** One rule set reproduces
@@ -204,8 +203,8 @@ Beyond the prediction:
 
 ## 4. Evidence index
 
-hasu, `localhost/px75-ubuntu:2` (clang 18.1.3, glibc 2.39), one block per
-run. Logs under `notes/lc02-evidence/` (sha256 prefix):
+The Linux test host, in an Ubuntu container (`localhost/px75-ubuntu:2`:
+clang 18.1.3, glibc 2.39), one block per run. Logs under `notes/lc02-evidence/` (sha256 prefix):
 
 | file | sha256 | shows |
 |---|---|---|
@@ -225,12 +224,12 @@ the head this note is part of.
 
 Probes and their scripts: `notes/lc02-probes/` (q1–q8 and their C
 drivers, g1–g5, `ptyrun.c` as first written, the job scripts exactly as
-they ran on hasu).
+they ran on the Linux test host).
 
 ## 5. Done-when
 
 - [x] Items 1–4: streams, the descriptor calls, the printf family without
-  the floating conversions (R-lc02-1 = B), the differential grown to
+  the floating conversions (refused: B), the differential grown to
   stdout, stderr, the exit status and written files, with stdin and a
   terminal; `<stdio.h>` and seven more headers hand-written; the archive
   self-contained (0 imports), no `libwolf_rt.a`.
@@ -252,6 +251,6 @@ To file (not filed: a lane files nothing):
   taken at all (`va_arg[f64]` refused by K10, q3b); lc03 needs a way to
   take its bits (a `u64`), or it hand-walks a raw copy of the record (q8).
 - **muzzle**: add `tests/difftest-selftest` to CI (a `.github/` change,
-  cross-cutting; R-lc02-6).
+  cross-cutting; the harness self-test above).
 
 To close: none.

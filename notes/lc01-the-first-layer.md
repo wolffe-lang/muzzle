@@ -1,8 +1,7 @@
 # lc01: muzzle's first layer
 
-Lane lc01 (wave 53, libc track, Opus). Contract: wolffe-lang/wolf
-`sprints/libc/01-the-first-layer/lc01-the-first-layer.md` at planning
-trunk `c4f30dc`; its five sections are this repository's first commit
+Lane lc01 (the libc track, Opus). Contract: the lane's contract; its five
+sections are this repository's first commit
 (`2c82cba`). This file holds §2 as re-derived and §3 as committed before
 the first line of library code. The report fills in §4 and §5.
 
@@ -10,9 +9,9 @@ the first line of library code. The report fills in §4 and §5.
 
 | input as written | at origin | drift |
 |---|---|---|
-| wolf 0.2.24 = wolf-lang `294d626d`, release 404332628, linux x86-64 `501d6d3f…`, aarch64 `3e4386bb…` | tag `v0.2.24` → `294d626dd596…`; release id 404332628; asset digests `501d6d3f45124c84…`, `3e4386bbba3c8a28…`; re-hashed on kasumi `501d6d3f45124c84…` OK; `wolf --version` = `wolf 0.2.24 (wolfgang, pin 294d626)`, paired with lupin 0.1.47 pin `8e36bc1` | none |
-| lupin 0.1.47 = wolf-interp `b3228cb5`, release 404283632, linux x86-64 `0ddc4ff3…` | tag `v0.1.47` → `b3228cb5905f…`; release 404283632; re-hashed on kasumi `0ddc4ff38d61…` OK | none. lupin is staged but answers nothing for muzzle: it has no C membrane, no assembly and no freestanding target (`[abi.c.import]`, `[abi.asm.machines]`, `[abi.target]`) |
-| rulings #25, #26, #32 (R1–R4) | STATUS.md lines 1186, 1178, 1177 at `c4f30dc`, as the contract says | none |
+| wolf 0.2.24 = wolf-lang `294d626d`, release 404332628, linux x86-64 `501d6d3f…`, aarch64 `3e4386bb…` | tag `v0.2.24` → `294d626dd596…`; release id 404332628; asset digests `501d6d3f45124c84…`, `3e4386bbba3c8a28…`; re-hashed on the Linux test host `501d6d3f45124c84…` OK; `wolf --version` = `wolf 0.2.24 (wolfgang, pin 294d626)`, paired with lupin 0.1.47 pin `8e36bc1` | none |
+| lupin 0.1.47 = wolf-interp `b3228cb5`, release 404283632, linux x86-64 `0ddc4ff3…` | tag `v0.1.47` → `b3228cb5905f…`; release 404283632; re-hashed on the Linux test host `0ddc4ff38d61…` OK | none. lupin is staged but answers nothing for muzzle: it has no C membrane, no assembly and no freestanding target (`[abi.c.import]`, `[abi.asm.machines]`, `[abi.target]`) |
+| the track's rulings: the clean room, the library's name, and four design rulings (syscalls through a linked `.S`, hand-written headers, a raw pointer at the C membrane, a single-threaded errno) | as the contract cites them | none |
 | `export fn` with C names (kw02) | `[abi.c.export]`; probe q2: `T write`, `T _exit`, `T exit`, `T strlen`, `T __errno_value`, `T wolf_trap` on both tiers | none. Names with leading underscores export unmangled |
 | `*T` across the membrane (K9(b)) | `[mem.unsafe.sig]`; q2 passes `*u8` both ways | none |
 | `asm:` linked `.S` (kw05) | `[abi.asm.link]`; q2's `wolf.pkg` lists `sys.S`, written as `lib.asm-sys.o` beside the object; the call needs `unsafe` | none |
@@ -20,9 +19,9 @@ the first line of library code. The report fills in §4 and §5.
 | module `var` (kw09) | `[mem.static.2]`: compiles, every access raw-tier, scalars only (`[mem.static.3]`) | **drift: a module `var` has no address.** C17 7.5 needs `errno` to be a modifiable lvalue, so C must hold a pointer to it, and no spelling yields one: `&errno_v` is `cannot compile this yet — borrow expressions`; `errno_v as *i32` compiles and is the VALUE cast to an address (q4: `q_errno_loc=0x4d` for a var holding 77, both tiers); `addr_of` is E0301; `&raw` is E0201. The symbol is global but mangled (`B _Werrno_v.s23fa9a3cc4c9cd7`), so assembly cannot name it stably either. Logs `probes.log` `0c55b52e9e82…`, `q4.log` `9e1fb34da9b2…`. Filed upstream (see the report); this layer keeps errno's storage in `sys.S` and names it with `extern "c" let` (`[abi.link.extern]`, the spec's own shape for static storage wolf cannot hold) |
 | atomics (kw11) | `[conc.mm.atomic.raw]` | not used: the first cut is single-threaded |
 | varargs, `#[thread_local]` absent | #515, #517 open | none: no `printf`; errno is one process-wide int (R4's first cut) |
-| `clang -nostdlib crt0.o prog.o libmuzzle.a`, muzzle's `_start` calling `main` and `exit` | q2 links exactly so and runs on both tiers (`probes3.log` `34e5239f6daf…`) | **one addition**: kasumi's clang 23.1.1 turns the stack protector on by default, and `main.o` then needs `__stack_chk_fail` and reads its canary at `%fs:0x28`. muzzle sets up no TLS block until lc05, so `%fs` is 0 and the canary read would fault. Every case builds with `-fno-stack-protector` on both columns until lc05 |
+| `clang -nostdlib crt0.o prog.o libmuzzle.a`, muzzle's `_start` calling `main` and `exit` | q2 links exactly so and runs on both tiers (`probes3.log` `34e5239f6daf…`) | **one addition**: the Linux test host's clang 23.1.1 turns the stack protector on by default, and `main.o` then needs `__stack_chk_fail` and reads its canary at `%fs:0x28`. muzzle sets up no TLS block until lc05, so `%fs` is 0 and the canary read would fault. Every case builds with `-fno-stack-protector` on both columns until lc05 |
 | px04's census | pax `docs/CENSUS.md`: 127-call union; `write` 1, `mmap` 9, `munmap` 11, `brk` 12, `exit_group` 231 are all in boreutils-static's 26 | none |
-| kasumi | clang 23.1.1, glibc 2.44 (black box only), kernel 7.2.8-1-cachyos, /home at 94% | none |
+| the Linux test host | clang 23.1.1, glibc 2.44 (black box only), kernel 7.2.8-1-cachyos, /home at 94% | none |
 | wolf-lang#522 (release turns a copy loop into `memcpy`) | open; q3 builds a byte-copy `memcpy` and `memset` freestanding on both tiers: neither object imports `memcpy` or calls itself (`probes2.log` `2e85fbc5ca82…`) | does not bite on `x86_64-unknown-none` for these loops; re-checked on the real objects by the build's `nm -u` gate |
 
 ## 3. Prediction, committed before the first change
@@ -76,13 +75,13 @@ family split because a process exits once: `mem.c`, `str.c`,
   correction made in-lane: `malloc(3p)` was located but not read, and was
   struck from the list.
 - **Breach:** while probing the package root (q6), I wrote three scratch
-  files under kasumi's `/tmp` (`/tmp/lc01-none.o`, `/tmp/lc01-pub.o`,
+  files under the Linux test host's `/tmp` (`/tmp/lc01-none.o`, `/tmp/lc01-pub.o`,
   `/tmp/lc01-root.bak`) and removed them in the same command. They were
-  this lane's own files, but `rm` outside `~/lanes/lc01/` is forbidden
-  by the letter. Every later scratch file lives under
-  `~/lanes/lc01/tmp/`.
-- No build on nomad-1 (it only edits and pushes). No merge, no tag, no
-  `git add -A`, no trailers. kasumi jobs: the gauntlet ran under `setsid`
+  this lane's own files, but `rm` outside the lane's own directory is
+  forbidden by the letter. Every later scratch file lives under the
+  lane's `tmp/`.
+- No build on the Mac (it only edits and pushes). No merge, no tag, no
+  `git add -A`, no trailers. Jobs on the Linux test host: the gauntlet ran under `setsid`
   with its own pid recorded (236826, gone at the done-file) and a
   done-file. Everything else was a foreground ssh that returned within
   seconds.
@@ -94,7 +93,7 @@ family split because a process exits once: `mem.c`, `str.c`,
 | P1 | all 18 functions in wolf; non-wolf code only `sys.S` and `crt0.S` | as predicted | right |
 | P2 | errno's storage is the only deviation a wolf limitation forces | **four**: errno's storage (#597); the root's never-called `reach()` (#599); `carve` holding the heap state in locals across its calls (#598); the trap hook's text packed into `u64` constants (#604) | **wrong** |
 | P3 | 5 syscalls: write, mmap, munmap, brk, exit_group | those 5 (`sys.lu`, `heap.lu`, `process.lu`) | right |
-| P4 | 9 cases, 18/18 comparisons agree, **0 ledger rows** | 9 cases, 18/18 at head (CI and kasumi); **3 ledger rows**: `malloc(0)`, errno after a successful call, `write` of 0 bytes, where the standards leave the behaviour open and muzzle matches glibc (`docs/LEDGER.md`) | **wrong** |
+| P4 | 9 cases, 18/18 comparisons agree, **0 ledger rows** | 9 cases, 18/18 at head (CI and the Linux test host); **3 ledger rows**: `malloc(0)`, errno after a successful call, `write` of 0 bytes, where the standards leave the behaviour open and muzzle matches glibc (`docs/LEDGER.md`) | **wrong** |
 | P5 | the planted `memmove` off-by-one is red in `mem.c` on both tiers, nothing else | run 37522862674: `FAIL mem` on both tiers, 8/9 elsewhere green; only the `memmove.shiftN.down` lines differ | right |
 | P6 | no external imports (no `memcpy` from #522) | the archive is self-contained on both tiers: `build: … 0 imports` | right |
 | P7 | 1 to 3 wolf-lang issues | **4**: #597, #598, #599, #604 | **wrong** |
@@ -138,10 +137,10 @@ Logs, under `notes/` (sha256):
 | file | sha256 | shows |
 |---|---|---|
 | `lc01-evidence/red-0-no-library.log` | `1f56990264ce…` | the harness red with no library: 9/9 fail, the glibc column builds |
-| `lc01-evidence/red-1-native-first-heap.log` | `54f69c10c6f0…` | kasumi, the first heap: `FAIL malloc`, exit 139 |
+| `lc01-evidence/red-1-native-first-heap.log` | `54f69c10c6f0…` | the Linux test host, the first heap: `FAIL malloc`, exit 139 |
 | `lc01-evidence/gate-red-sys-object-dropped.log` | `d3a1dad57461…` | the archive gate refusing a set without `sys.S`'s object (exit 1, four imports named) |
 | `lc01-evidence/gate-green.log` | `6a5ac5579bfa…` | the gate on the real set |
-| `lc01-evidence/gauntlet-fed3549.log` | `35c43fe255cd…` | kasumi (glibc 2.44, clang 23.1.1) at `fed3549`: `STATUS fetch=0 build.native=0 difftest.native=0 build.release=0 difftest.release=0`, 9/9 both tiers |
+| `lc01-evidence/gauntlet-fed3549.log` | `35c43fe255cd…` | the Linux test host (glibc 2.44, clang 23.1.1) at `fed3549`: `STATUS fetch=0 build.native=0 difftest.native=0 build.release=0 difftest.release=0`, 9/9 both tiers |
 | `lc01-probes/probes.log` … `q11.log` | see `lc01-probes/README.md` and below | each wolf limitation's witness |
 | `lc01-probes/q6-root.log` | `5b2430765226…` | #599 |
 | `lc01-probes/q8.log`, `q9.log`, `q10.log` | `62abfc8c1bb7…`, `163f5c96e891…`, `f56db2c0c4ca…` | #598 (module var, raw pointer, hosted on four machines) |
@@ -165,7 +164,7 @@ literal's bytes cannot reach C as `*u8`).
 - [x] Every wolf limitation met is filed with a witness (4).
 - [x] Branch `lc01`, PR #1 open and unmerged. CI green at the head is
   recorded in the PR.
-- [x] kasumi pruned (build and out trees, scratch, the clone's
+- [x] the Linux test host pruned (build and out trees, scratch, the clone's
   toolchain stage); logs kept. No orphan pids.
 
 ## What lc02 (stdio) inherits, and what it waits on

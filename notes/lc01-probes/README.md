@@ -1,7 +1,8 @@
-# lc01 probes (wolf 0.2.24, kasumi, 2026-10-06)
+# lc01 probes (wolf 0.2.24, the Linux test host, 2026-10-06)
 
 Throwaway programs that measured what wolf 0.2.24 gives muzzle's first
-layer, before any library code. Built on kasumi under ~/lanes/lc01/probes
+layer, before any library code. Built on the Linux test host, in the
+lane's `probes` directory,
 with the release archive wolf-0.2.24-x86_64-unknown-linux-gnu.tar.gz,
 sha256 501d6d3f45124c84…, clang 23.1.1, kernel 7.2.8-1-cachyos.
 
