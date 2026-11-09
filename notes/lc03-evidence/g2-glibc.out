@@ -1,0 +1,9 @@
+first0 before=0 after=22
+second0 before=0 after=0
+null0 before=0 after=0
+einval before=22 after=22
+unknown before=1000 after=1000
+negative before=-1 after=-1
+fputs0 before=0 after=0
+strerror0 before=0 after=0
+strerror1000 before=0 after=0

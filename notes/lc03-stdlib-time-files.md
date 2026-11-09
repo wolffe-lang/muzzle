@@ -187,3 +187,110 @@ tiers, every glibc column builds, and the 23 trunk cases stay `PASS`.
 | P7 | 10 to 16 new ledger rows | fewer than 10 |
 | P8 | wolf limitations met that a lane would file: 0 to 2 beyond the known (#520, #604, `f64` on the freestanding target) | more |
 | P9 | the slowest case, `stdlib_strtod`, runs under 20 s on the native tier | it takes longer |
+
+---
+
+# Report, PR 1 (2026-11-09): stdlib, errno and strerror
+
+## 1. Forbidden: held
+
+- **Clean room.** No C library's source or headers were read (glibc, musl,
+  the BSD libcs). glibc ran as a black box only: probes `g1`–`g3` and the
+  differential's reference column. Each uapi file's package was checked
+  with `dpkg -S` before its `#define` lines were read
+  (`notes/lc03-evidence/red1c.log`). musl's and the BSD libcs'
+  documentation, allowed as a design reference, was not needed. Every
+  source is in `docs/SOURCES.md`.
+- **Hosts.** Every build and differential ran on the Linux test host, in an
+  Ubuntu container, under a block's two locks taken in the one order,
+  each job detached with a pid file, a log and an exit marker, and built
+  from a commit (a worktree pinned to it; local commits reached the host
+  as a git bundle). Each job removes its worktree when it ends (the host's
+  disk is short). Nothing was committed on the test host; nothing was
+  written under `/tmp`.
+- **Kills: three of the lane's own jobs, none started.** A duplicate of the
+  red run, a run queued on the busier block, and a run queued with a stale
+  commit id. Each was still waiting on its block's lock. Its ancestry was
+  checked, then its wrapper and its waiting `flock` were sent TERM. Their
+  markers and logs were renamed `*.void-term`, with the reason recorded.
+- No label, merge, tag or close; no attribution trailer.
+
+## R-list, as ruled
+
+- **R-lc03-1 = (b):** two PRs, this one (`lc03`) first, `lc03b` from its head.
+- **R-lc03-2 = (a):** the exception on trunk is already the shape asked for;
+  no commit.
+- **R-lc03-3 to R-lc03-9, R-lc03-11:** as recommended in §3.
+- **R-lc03-10 = (a):** `tools/difftest` sets `ulimit -c 0`.
+- **R-lc03-12 = (a):** the floating conversions stay refused. The ledger's
+  row, `<stdio.h>` and `format.lu` now say a later layer provides them.
+- **R-lc03-13 (new): errno after glibc's first `perror`.** glibc's first
+  `perror` on a stderr that has had no output yet leaves errno EINVAL,
+  whatever it entered with; later calls keep errno (`g2`, `g3`, in
+  forked children: it holds after `fflush(stderr)` or `setvbuf`, and not
+  once stderr has had a byte of output). The likely cause, unobserved, is
+  a write through a duplicate of fd 2 opened `"w+"`, which a write-only
+  descriptor refuses. (a) muzzle leaves errno as it was; `errno_strerror.c`
+  writes a line to stderr before its `perror` rows; a known-difference
+  row in the ledger; (b) emulate it: a `perror` on a stream with no output
+  yet ends with EINVAL when fd 2 is not open for reading. **Recommended
+  and implemented: (a).** POSIX leaves errno after a successful call
+  unspecified, and (b) would copy an artefact whose read-write branch was
+  never observed.
+
+## 3. Prediction, scored for PR 1
+
+| # | predicted | measured | score |
+|---|---|---|---|
+| P1 | the functions in wolf; new non-wolf code: `sys.S`'s two trampolines, `strtod`'s entry, `environ` and storage, one line of `crt0.S`, `errtext.S` | as predicted. `strtod`'s entry is five instructions, not four (`sub`, `call`, `add`, `movq`, `ret`) | right |
+| P2 | PR 1's new system calls: `rt_sigaction` 13, `rt_sigprocmask` 14, `getpid` 39, `gettid` 186, `tgkill` 234 | those five, all in `abort` | right |
+| P3 | the 11 cases agree on both tiers at PR 1's head, the trunk cases stay green | at the first run that built (`dev3`), 10 of the 11 agreed on both tiers; `errno_strerror` differed on one line, glibc's first `perror` leaving errno EINVAL (R-lc03-13). The case now writes stderr first, so every case agrees at the head (the gauntlet) | **wrong in part** |
+| P4 | strtod's corpora agree digest for digest at the first run that builds | `dev3`, both tiers: 3,837 halfway strings, 200,000 decimal, 50,000 hexadecimal, and the 117 single rows, all identical | right |
+| P5 | 0 imports on both tiers | `tools/build`'s gate passes on both tiers (it refuses any import) | right |
+| P6 | realloc's plant red in `stdlib_alloc` and `malloc`; qsort's in `stdlib_sort` only | see the PR body and the hand-back: the plants run at the head this note is part of | (at the head) |
+| P7 | 10 to 16 new ledger rows | 18 open-choice rows, 3 known differences, 3 new link rows (one replaced) | **wrong** (more) |
+| P8 | 0 to 2 wolf limitations beyond the known ones | none to file. Four rules were met and kept: `borrow` is a keyword; a constant is module-wide across a module's files (E0302); `.addr()` needs `unsafe` (E1301); a `pub fn` that is not an export cannot take a raw pointer (E1302) | right |
+| P9 | `stdlib_strtod` under 20 s on the native tier | not measured alone: difftest times no single case | not measured |
+
+Beyond the prediction:
+- **glibc's `perror` and errno**, above (R-lc03-13).
+- **The corpora agreed at the first run that built.** No strtod row needed
+  a second attempt. That run used the halfway strings, the tiny-value
+  rule (ERANGE below `DBL_MIN` when inexact, `g1`) and the NaN payloads
+  taken from `g1` before any code was written.
+- **The first two runs did not compile.** They failed on wolf's rules
+  above: a duplicate constant, the `borrow` keyword, eleven `.addr()`
+  reads outside `unsafe` and one `pub fn` with a raw pointer. Those runs
+  are `dev1` and `dev2`; their logs are not kept.
+
+## 4. Evidence index (PR 1)
+
+The Linux test host's container: clang 18.1.3, glibc 2.39. Logs under
+`notes/lc03-evidence/` (sha256 prefix; paths in the first lines are the
+lane's directory, written `<lane>`):
+
+| file | sha256 | shows |
+|---|---|---|
+| `explore1.log` | `e31ae51ff9cc…` | trunk `230cd000`: stale, build and difftest exit 0 on both tiers, 25 of 25; probes p1–p3b; `g1` |
+| `red1c.log` | `a2cf88560a41…` | **red first** at `4d0389b`: every new case `FAIL <case>: muzzle column does not build` on both tiers, every trunk case `PASS`; the uapi numbers |
+| `glibc1.log`, `expected/` | `dafbb597f31c…`, `expected/SHA256SUMS` | glibc's expected output for the 20 cases |
+| `uapi-errno.txt` | `dea59181197f…` | the 133 errno names and numbers, as read |
+| `dev3-first-build.log` | `049c8cfe86ab…` | the first run that built (`fcdffb1`): 12 of 13 named cases agree on both tiers, `errno_strerror` one line apart |
+| `g2-glibc.out`, `g2-glibc.err`, `g3-glibc.out` | `9f6391e1836c…`, `767aadc80786…`, `275c3a146fd6…` | glibc's `perror` and errno |
+
+The gauntlet at the head (`tests/stale-compiler`, `tools/build`,
+`tests/difftest-selftest`, `tools/difftest`, both tiers, stopping at the
+first nonzero step) and the two plants' records are local records, named
+in the PR body and the hand-back.
+
+## 5. Done-when (PR 1)
+
+- [x] The prediction first; the rows red before the library (`red1c`).
+- [x] `<stdlib.h>`: the aligned allocation forms, `qsort` and `bsearch`,
+  the strtol family, `strtod`, the integer arithmetic, the environment,
+  `atexit` with `exit`, `abort`, `rand` and `srand`.
+- [x] `<errno.h>` with every number Linux defines; `strerror` with glibc's
+  text; `perror`.
+- [x] The ledger, the sources and the README.
+- [ ] The gauntlet green at the head, and the two plants red by name: the
+  PR body and the hand-back.

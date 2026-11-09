@@ -1,0 +1,79 @@
+QUEUED 2026-11-09T19:08:32Z job=dev3 block=C pid=1878858 inner=<lane>/job.sh fcdffb1b374cd4f64d698f9ab72771ca7a4f57e9 dev3
+job: sha=fcdffb1b374cd4f64d698f9ab72771ca7a4f57e9 block=C cpus=12-17 out=<lane>/out-dev3 ctr=ctr-dev.sh
+BEGIN env
+fcdffb1b374cd4f64d698f9ab72771ca7a4f57e9
+Ubuntu clang version 18.1.3 (1ubuntu1)
+glibc 2.39
+END env exit=0
+BEGIN fetch
+fetch-toolchain: wolf-0.2.36-x86_64-unknown-linux-gnu.tar.gz d383c74c8cd123b9… -> /work/.wolf-bin/wolf-0.2.36-x86_64-unknown-linux-gnu/wolf
+END fetch exit=0
+BEGIN build.native
+build: native: 11 objects, 85 exports defined, 64 internal references, 0 imports -> /work/build/native/libmuzzle.a
+END build.native exit=0
+BEGIN difftest.native
+difftest: tier=native glibc=glibc 2.39 Ubuntu clang version 18.1.3 (1ubuntu1)
+tools/difftest: line 45:   193 Aborted                 ( cd "$d" && exec timeout 60 "$bin" ) < "$in" > "$out/$n.$col.out" 2> "$out/$n.$col.err"
+tools/difftest: line 45:   196 Aborted                 ( cd "$d" && exec timeout 60 "$bin" ) < "$in" > "$out/$n.$col.out" 2> "$out/$n.$col.err"
+PASS stdlib_abort exit=134 lines=1 stderr=55 files=0
+PASS stdlib_alloc exit=0 lines=121 stderr=0 files=0
+PASS stdlib_env exit=0 lines=35 stderr=0 files=0
+PASS stdlib_misc exit=0 lines=24 stderr=0 files=0
+PASS stdlib_sort exit=0 lines=77 stderr=0 files=0
+PASS stdlib_strtod exit=0 lines=138 stderr=0 files=0
+PASS stdlib_strtol exit=0 lines=924 stderr=0 files=0
+PASS atexit_Exit exit=5 lines=1 stderr=0 files=0
+PASS atexit_order exit=3 lines=9 stderr=0 files=0
+PASS atexit_return exit=7 lines=44 stderr=0 files=0
+FAIL errno_strerror: stdout differs
+--- errno_strerror stdout (glibc)
++++ errno_strerror stdout (muzzle native)
+@@ -284,7 +284,7 @@
+ strerror(-2147483648)=[Unknown error -2147483648]
+ strerror(-4095)=[Unknown error -4095]
+ again=1
+-perror kept=0
++perror kept=1
+ perror kept=1
+ perror kept=1
+ perror kept=1
+PASS malloc exit=0 lines=20 stderr=0 files=0
+PASS exit exit=42 lines=1 stderr=0 files=0
+difftest: tier=native pass=12 fail=1
+END difftest.native exit=1
+BEGIN build.release
+build: release: 10 objects, 85 exports defined, 68 internal references, 0 imports -> /work/build/release/libmuzzle.a
+END build.release exit=0
+BEGIN difftest.release
+difftest: tier=release glibc=glibc 2.39 Ubuntu clang version 18.1.3 (1ubuntu1)
+tools/difftest: line 45:   703 Aborted                 ( cd "$d" && exec timeout 60 "$bin" ) < "$in" > "$out/$n.$col.out" 2> "$out/$n.$col.err"
+tools/difftest: line 45:   706 Aborted                 ( cd "$d" && exec timeout 60 "$bin" ) < "$in" > "$out/$n.$col.out" 2> "$out/$n.$col.err"
+PASS stdlib_abort exit=134 lines=1 stderr=55 files=0
+PASS stdlib_alloc exit=0 lines=121 stderr=0 files=0
+PASS stdlib_env exit=0 lines=35 stderr=0 files=0
+PASS stdlib_misc exit=0 lines=24 stderr=0 files=0
+PASS stdlib_sort exit=0 lines=77 stderr=0 files=0
+PASS stdlib_strtod exit=0 lines=138 stderr=0 files=0
+PASS stdlib_strtol exit=0 lines=924 stderr=0 files=0
+PASS atexit_Exit exit=5 lines=1 stderr=0 files=0
+PASS atexit_order exit=3 lines=9 stderr=0 files=0
+PASS atexit_return exit=7 lines=44 stderr=0 files=0
+FAIL errno_strerror: stdout differs
+--- errno_strerror stdout (glibc)
++++ errno_strerror stdout (muzzle release)
+@@ -284,7 +284,7 @@
+ strerror(-2147483648)=[Unknown error -2147483648]
+ strerror(-4095)=[Unknown error -4095]
+ again=1
+-perror kept=0
++perror kept=1
+ perror kept=1
+ perror kept=1
+ perror kept=1
+PASS malloc exit=0 lines=20 stderr=0 files=0
+PASS exit exit=42 lines=1 stderr=0 files=0
+difftest: tier=release pass=12 fail=1
+END difftest.release exit=1
+job: container exit=0
+job: worktree removed
+DONE 2026-11-09T19:10:24Z job=dev3 exit=0

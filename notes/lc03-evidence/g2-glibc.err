@@ -1,0 +1,7 @@
+first, errno 0: Success
+second, errno 0: Success
+Success
+einval: Invalid argument
+unknown: Unknown error 1000
+negative: Unknown error -1
+plain
