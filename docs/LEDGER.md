@@ -48,6 +48,32 @@ the cases named.
 | `printf.c` `big.3` … `big.7` | POSIX fprintf: EOVERFLOW when the count would exceed INT_MAX | the same for a width or precision past INT_MAX, a `*` width of INT_MIN included |
 | `printf.c` `[%qd]`, `[%Zu]`, `[%Lx]` | not C17 lengths (undefined) | glibc's: `q` and `L` are `ll`, `Z` is `z` |
 
+### stdlib, errno and strerror (lc03)
+
+Seen as a black box first (`notes/lc03-probes/g1.c`, `g2.c`, `g3.c`), then
+held by the cases named.
+
+| case line | the standard | muzzle and glibc |
+|---|---|---|
+| `stdlib_sort.c` `ties *` | C17 7.22.5.2p4: the order of elements that compare equal is unspecified | kept: equal elements stay in their original order (muzzle's qsort is a stable merge sort; glibc's was stable at every size probed, up to 2,000,000 elements) |
+| `stdlib_alloc.c` `aligned_alloc(0,64)` … `aligned_alloc(100,64)` | C17 7.22.3.1p2: an alignment the implementation does not support gives a null pointer; errno is not specified | a null pointer and EINVAL for any alignment that is not a power of two; a size that is not a multiple of the alignment is accepted |
+| `stdlib_alloc.c` `posix_memalign(0,200)` … `(24,200)` | XSH posix_memalign: EINVAL "if the value of the alignment parameter is not a power of two multiple of sizeof(void *)" | EINVAL, with `*memptr` and errno left alone |
+| `stdlib_alloc.c` `posix_memalign(64,0)` | XSH posix_memalign: a size of 0 gives a null pointer or a unique one | a unique block |
+| `stdlib_alloc.c` `posix_memalign(64,huge)` | XSH posix_memalign: ENOMEM is returned; errno is not mentioned | ENOMEM returned, and errno ENOMEM too |
+| `stdlib_strtol.c` `b=1`, `b=37`, `b=-1` | C17 7.22.1.4p3 allows only 0 and 2 to 36; anything else is undefined | 0, errno EINVAL, the end pointer left alone |
+| `stdlib_strtol.c` `[0b101]` | C17 has no `0b` prefix (C23 adds it) | not taken: `0` is read and the conversion stops at `b` |
+| `stdlib_strtol.c` `atol=`, `atoll=` past `LONG_MAX` | C17 7.22.1.2p2: undefined when the value cannot be represented | the value strtol gives: `LONG_MAX` or `LONG_MIN` |
+| `stdlib_strtod.c` `[1e-320]`, `[2.2250738585072012e-308]` … | C17 7.22.1.3p10: whether an underflow sets ERANGE is implementation-defined | ERANGE when the exact value is below `DBL_MIN` and the result is inexact, even when it rounds up to `DBL_MIN`; an exact subnormal (`0x1p-1074`) leaves errno alone |
+| `stdlib_strtod.c` `[nan(123)]`, `[nan(0x7ff)]`, `[nan(abc_9)]` | C17 7.22.1.3p4: the meaning of the n-char-sequence is implementation-defined | a quiet NaN; when the sequence is a number strtoull reads in base 0, its value is the payload, else the payload is 0 |
+| `stdlib_misc.c` `RAND_MAX=` | C17 7.22.2.1p2: at least 32767 | 2147483647 |
+| `stdlib_env.c` `setenv(NULL)`, `unsetenv(NULL)` | XSH setenv, unsetenv: a null name is not described | -1, EINVAL |
+| `stdlib_env.c` `LC03_A at end-1`, `many … order=` | XBD 8.1 leaves the order of environ's entries open | setenv appends a new entry at the end and replaces an existing one in place; unsetenv keeps the others' order |
+| `stdlib_env.c` `getenv()` | C17 7.22.4.6 does not describe an empty name | a null pointer |
+| `stdlib_abort.c` | C17 7.22.4.1p2: whether open streams are flushed is implementation-defined | not flushed; no atexit handler runs |
+| `atexit_return.c` | C17 7.22.4.2p3: room for at least 32 handlers | no fixed limit: past 32 the table moves to the heap |
+| `errno_strerror.c` `strerror(…)` | C17 7.24.6.2: the text is implementation-defined | glibc's text in the C locale for every number Linux defines; "Unknown error N" for a number with none (41, 58, 134 and beyond, negative numbers) |
+| `errno_strerror.c` `perror kept=` | XSH perror defines no errors; XSH 2.3 leaves errno after a successful call unspecified | errno is left as it was (stderr has had output first: see below) |
+
 ### Not provided yet, by name
 
 | what | the standard | muzzle |
@@ -68,13 +94,19 @@ the cases named.
 |---|---|---|
 | a printf that fails after its output has passed the stream's buffer size | writes one byte more than its buffer had sent (4097 of 5000, 8193 of 9000: `notes/lc02-evidence/g5-glibc.out`, `pf.fail.*`) | writes what its buffer had sent (4096, 8192) |
 | a long write to a line-buffered stream whose newline lies in the part that went out whole | the observed rule (`g5`: `lbf.long_nl_*`) | the same rule; only the two shapes probed are known to agree |
+| glibc's first `perror` on a stderr that has had no output yet (lc03) | leaves errno EINVAL, whatever it was on entry, when fd 2 is open for writing only (`notes/lc03-probes/g2.c`, `g3.c`; a later `perror` keeps errno) | leaves errno as it was; `errno_strerror.c` writes a line to stderr before its `perror` rows |
+| `qsort` when no buffer can be allocated (lc03) | not observed | a stable insertion sort in place, quadratic |
+| `rand`'s values (lc03) | its own sequence | its own sequence; only C17's properties are compared (`stdlib_misc.c`) |
 
-## How muzzle's link differs (lc01, lc02)
+## How muzzle's link differs (lc01, lc02, lc03)
 
 | what | why | until |
 |---|---|---|
 | every case builds with `-fno-stack-protector`, in both columns | the protector's canary is read at `%fs:0x28`, and muzzle sets up no TLS block, so `%fs` is 0 | lc05 (the main thread's TLS block) |
-| `exit` flushes the streams but runs no `atexit` handler | C function pointers (wolf-lang#520) | lc04 |
+| qsort's and bsearch's comparator and atexit's handlers are called through two assembly trampolines (`__muzzle_call2`, `__muzzle_call0` in `sys.S`) | C function pointers (wolf-lang#520) | #520 |
+| `strtod` is a five-instruction assembly entry (`sys.S`) around a conversion that answers the double's bits in an integer register | no floating point type on `x86_64-unknown-none` (K10) | a floating point type on that target |
+| strerror's texts are an assembly table (`src/errtext.S`, generated from glibc's observed output) | a `str` literal's bytes cannot reach C as a `*u8` (wolf-lang#604) | #604 |
+| `environ`, the first 32 atexit handlers, strtod's big integers and strerror's and abort's scratch live in `sys.S`; `_start` stores `envp` in `environ` | a module cannot export data (wolf-lang#516), and a `var` has no address (wolf-lang#597) | #516, #597 |
 | `stdin`, `stdout`, `stderr` and the standard streams' records live in `sys.S` | a module cannot export data (wolf-lang#516), and a `var` has no address (wolf-lang#597) | #516, #597 |
 | the texts `(null)` and `(nil)` live in `sys.S` | a `str` literal's bytes cannot reach C as a `*u8` (wolf-lang#604) | #604 |
 | errno is one process-wide int in `sys.S` | ruling R4's single-threaded first cut; it is not a wolf `var` because a `var` has no address (wolf-lang#597) | #597 for the `var`; lc05 (#517) per thread |
