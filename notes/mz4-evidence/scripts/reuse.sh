@@ -4,7 +4,7 @@
 # moves to the 0.2.32 pin commit given as $1.
 #   reuse.sh <commit>
 set -uo pipefail
-co=$HOME/lanes/mz4/base; arc=$HOME/lanes/mz4/dl/wolf-0.2.32-x86_64-unknown-linux-gnu.tar.gz
+co=<lanes>/mz4/base; arc=<lanes>/mz4/dl/wolf-0.2.32-x86_64-unknown-linux-gnu.tar.gz
 cd "$co" || exit 2
 git fetch -q origin mz4 || exit 2
 echo "== before: $(git rev-parse HEAD), staged: $(ls .wolf-bin | tr '\n' ' ')"

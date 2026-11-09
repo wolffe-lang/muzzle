@@ -9,7 +9,7 @@
 # no differing section.
 #   sections.sh <labelA> <labelB>
 set -uo pipefail
-A=$HOME/lanes/mz6/objs/$1; B=$HOME/lanes/mz6/objs/$2
+A=<lanes>/mz6/objs/$1; B=<lanes>/mz6/objs/$2
 bad=0
 echo "== unstripped objects, $1 against $2, section by section (readelf -x by index)"
 for t in native-raw release-raw; do

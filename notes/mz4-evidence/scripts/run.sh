@@ -3,7 +3,7 @@
 #   run.sh <checkout> <label> <archive>
 set -uo pipefail
 co=$1; label=$2; arc=$3
-keep=$HOME/lanes/mz4/objs/$label
+keep=<lanes>/mz4/objs/$label
 rm -rf "$keep"; mkdir -p "$keep"
 cd "$co" || exit 2
 git clean -xfdq

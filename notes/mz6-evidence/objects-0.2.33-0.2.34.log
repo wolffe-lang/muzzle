@@ -19,7 +19,7 @@ DIFFER native-raw/muzzle.heap.o 706 byte(s)
 DIFFER native-raw/muzzle.process.o 186 byte(s)
 DIFFER native-raw/muzzle.root.o 29 byte(s)
 DIFFER native-raw/muzzle.string.o 601 byte(s)
-cmp: EOF on ‘/home/mfwolffe/lanes/mz6/objs/0.2.33/native-raw/muzzle.sys.o’ after byte 7840
+cmp: EOF on ‘<lanes>/mz6/objs/0.2.33/native-raw/muzzle.sys.o’ after byte 7840
 DIFFER native-raw/muzzle.sys.o 2738 byte(s)
 same   release-raw/crt0.o
 same   release-raw/muzzle.asm-sys.o

@@ -20,24 +20,24 @@ staged: wolf-0.2.34-x86_64-unknown-linux-gnu wolf-0.2.34-x86_64-unknown-linux-gn
 wolf 0.2.34 (wolfgang, pin 9da7bdc)
 
 #### 2. tools/build with that driver at the pin's path, an earlier build's output in build/<tier>/
-build: found 'wolf 0.2.34 (wolfgang, pin 9da7bdc)' at /home/mfwolffe/lanes/mz6/digest/.wolf-bin/wolf-0.2.34-x86_64-unknown-linux-gnu/wolf; the pin wants 'wolf 0.2.34 (wolfgang, pin 9da7bdd)' (wolf-toolchain.toml)
+build: found 'wolf 0.2.34 (wolfgang, pin 9da7bdc)' at <lanes>/mz6/digest/.wolf-bin/wolf-0.2.34-x86_64-unknown-linux-gnu/wolf; the pin wants 'wolf 0.2.34 (wolfgang, pin 9da7bdd)' (wolf-toolchain.toml)
 build: not building with it: run tools/fetch-toolchain, or set WOLF to the pinned driver
 build native exit=2
 ls: cannot access 'build/native': No such file or directory
 ls build/native exit=2
-build: found 'wolf 0.2.34 (wolfgang, pin 9da7bdc)' at /home/mfwolffe/lanes/mz6/digest/.wolf-bin/wolf-0.2.34-x86_64-unknown-linux-gnu/wolf; the pin wants 'wolf 0.2.34 (wolfgang, pin 9da7bdd)' (wolf-toolchain.toml)
+build: found 'wolf 0.2.34 (wolfgang, pin 9da7bdc)' at <lanes>/mz6/digest/.wolf-bin/wolf-0.2.34-x86_64-unknown-linux-gnu/wolf; the pin wants 'wolf 0.2.34 (wolfgang, pin 9da7bdd)' (wolf-toolchain.toml)
 build: not building with it: run tools/fetch-toolchain, or set WOLF to the pinned driver
 build release exit=2
 ls: cannot access 'build/release': No such file or directory
 ls build/release exit=2
 
 #### 3. tools/build with WOLF naming the same driver
-build: found 'wolf 0.2.34 (wolfgang, pin 9da7bdc)' at /home/mfwolffe/lanes/mz6/digest/.wolf-bin/wolf-0.2.34-x86_64-unknown-linux-gnu/wolf; the pin wants 'wolf 0.2.34 (wolfgang, pin 9da7bdd)' (wolf-toolchain.toml)
+build: found 'wolf 0.2.34 (wolfgang, pin 9da7bdc)' at <lanes>/mz6/digest/.wolf-bin/wolf-0.2.34-x86_64-unknown-linux-gnu/wolf; the pin wants 'wolf 0.2.34 (wolfgang, pin 9da7bdd)' (wolf-toolchain.toml)
 build: not building with it: run tools/fetch-toolchain, or set WOLF to the pinned driver
 build native (WOLF) exit=2
 plant restored, git status exit=0
 
 #### 4. control: the real pin, the driver already staged
-build: native: 6 objects, 19 exports defined, 19 internal references, 0 imports -> /home/mfwolffe/lanes/mz6/digest/build/native/libmuzzle.a
+build: native: 6 objects, 19 exports defined, 19 internal references, 0 imports -> <lanes>/mz6/digest/build/native/libmuzzle.a
 build native exit=0
 git status exit=0

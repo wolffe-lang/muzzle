@@ -4,10 +4,10 @@
 # runs ctr-explore.sh (every step runs; each prints END <step> exit=N).
 #   job-explore.sh SHA STAMP
 set -u
-L=/home/mfwolffe/lanes/lc02
+L=<lanes>/lc02
 sha=$1; stamp=$2
 case ${LC02_BLOCK:?} in A) cpus=0-5;; B) cpus=6-11;; *) echo "bad block"; exit 2;; esac
-export PATH=$HOME/lanes/hasu-env/bin:$HOME/lanes/hasu-env/profile/bin:$PATH
+export PATH=<lanes>/test-host-env/bin:<lanes>/test-host-env/profile/bin:$PATH
 git -C "$L/muzzle" fetch -q origin '+refs/heads/*:refs/remotes/origin/*' || { echo "fetch failed"; exit 2; }
 # Local WIP commits come as a bundle (never pushed): xfer.bundle.
 if [ -f "$L/xfer.bundle" ]; then
@@ -23,6 +23,6 @@ echo "explore: sha=$sha block=$LC02_BLOCK cpus=$cpus out=$out"
 echo "$sha" >"$w/.lc02-sha"
 podman run --rm --memory 12g --network none -e QUICK="${QUICK:-}" -e PROBES="${PROBES:-}" -e GPROBES="${GPROBES:-}" -e STOP_ON_FAIL="${STOP_ON_FAIL:-}" \
   -v "$w":/work -v "$L/archives":/archives:ro -v "$L/probes":/probes:ro \
-  -v "$L/hasu":/scripts:ro -v "$out":/out -w /work \
+  -v "$L/test-host":/scripts:ro -v "$out":/out -w /work \
   localhost/px75-ubuntu:2 bash -c "taskset -c $cpus bash /scripts/${CTR:-ctr-explore.sh}; exit \$?"
 echo "explore: container exit=$?"

@@ -3,7 +3,7 @@
 #   run.sh <checkout> <label> <archive>
 set -uo pipefail
 co=$1; label=$2; arc=$3
-keep=$HOME/lanes/mz5/objs/$label
+keep=<lanes>/mz5/objs/$label
 rm -rf "$keep"; mkdir -p "$keep"
 cd "$co" || exit 2
 git clean -xfdq
@@ -16,7 +16,7 @@ ls .wolf-bin
 for t in native release; do
   tools/build $t; echo "build $t exit=$?"
   tools/difftest $t; echo "difftest $t exit=$?"
-  taskset -c 0-3 tools/difftest $t >"$HOME/lanes/mz5/logs/$label-taskset-$t.out" 2>&1; echo "difftest $t under taskset -c 0-3 exit=$?"; grep -c '^PASS ' "$HOME/lanes/mz5/logs/$label-taskset-$t.out"; tail -1 "$HOME/lanes/mz5/logs/$label-taskset-$t.out"
+  taskset -c 0-3 tools/difftest $t >"<lanes>/mz5/logs/$label-taskset-$t.out" 2>&1; echo "difftest $t under taskset -c 0-3 exit=$?"; grep -c '^PASS ' "<lanes>/mz5/logs/$label-taskset-$t.out"; tail -1 "<lanes>/mz5/logs/$label-taskset-$t.out"
   mkdir -p "$keep/$t" "$keep/$t-raw"
   for o in build/$t/*.o; do
     b=$(basename "$o"); cp "$o" "$keep/$t-raw/$b"

@@ -2,7 +2,7 @@
 # mz6: what the checked machine and lupin 0.1.55 answer for muzzle, and
 # exit 2 at 0.2.34 (a compile error planted, never committed).
 set -uo pipefail
-L=$HOME/lanes/mz6
+L=<lanes>/mz6
 X=$L/x; W=$X/wolf-0.2.34-x86_64-unknown-linux-gnu/wolf; LU=$X/lupin-0.1.55-x86_64-unknown-linux-gnu/lupin
 cd $L/muzzle/src || exit 2
 echo "== commit $(git rev-parse HEAD) date=$(date -u +%FT%TZ)"

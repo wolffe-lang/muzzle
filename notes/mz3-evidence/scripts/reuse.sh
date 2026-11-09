@@ -2,7 +2,7 @@
 # mz3: mz2's pin check at its first real use. A checkout that built at
 # 0.2.29 (its .wolf-bin/ still holding 0.2.29) moves to the 0.2.30 pin.
 set -uo pipefail
-co=$HOME/lanes/mz3/base; arc=$HOME/lanes/mz3/dl/wolf-0.2.30-x86_64-unknown-linux-gnu.tar.gz
+co=<lanes>/mz3/base; arc=<lanes>/mz3/dl/wolf-0.2.30-x86_64-unknown-linux-gnu.tar.gz
 cd "$co" || exit 2
 git remote set-url origin https://github.com/wolffe-lang/muzzle.git; git fetch -q origin mz3 || exit 2
 echo "== before: $(git rev-parse HEAD), staged: $(ls .wolf-bin | tr '\n' ' ')"

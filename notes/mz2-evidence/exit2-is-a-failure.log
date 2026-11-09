@@ -1,5 +1,5 @@
 == commit dc3bcac9d7193ce6b85b39ff4e834b9ba138897b date=2026-10-13T22:44:53Z
-fetch-toolchain: wolf-0.2.29-x86_64-unknown-linux-gnu.tar.gz ae466e85418a4875… -> /home/mfwolffe/lanes/mz2/muzzle/.wolf-bin/wolf-0.2.29-x86_64-unknown-linux-gnu/wolf
+fetch-toolchain: wolf-0.2.29-x86_64-unknown-linux-gnu.tar.gz ae466e85418a4875… -> <lanes>/mz2/muzzle/.wolf-bin/wolf-0.2.29-x86_64-unknown-linux-gnu/wolf
 fetch-toolchain exit=0
  M src/string/string.lu
 == wolf build itself
@@ -30,32 +30,32 @@ tools/build native exit=2
 == tools/difftest native (after the failed build)
 difftest: tier=native glibc=glibc 2.44 clang version 23.1.1
 FAIL errno: muzzle column does not build
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/crt0.o'
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/libmuzzle.a'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/native/libmuzzle.a'
 FAIL exit: muzzle column does not build
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/crt0.o'
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/libmuzzle.a'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/native/libmuzzle.a'
 FAIL exit_c17: muzzle column does not build
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/crt0.o'
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/libmuzzle.a'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/native/libmuzzle.a'
 FAIL exit_posix: muzzle column does not build
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/crt0.o'
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/libmuzzle.a'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/native/libmuzzle.a'
 FAIL main_return: muzzle column does not build
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/crt0.o'
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/libmuzzle.a'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/native/libmuzzle.a'
 FAIL malloc: muzzle column does not build
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/crt0.o'
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/libmuzzle.a'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/native/libmuzzle.a'
 FAIL mem: muzzle column does not build
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/crt0.o'
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/libmuzzle.a'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/native/libmuzzle.a'
 FAIL str: muzzle column does not build
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/crt0.o'
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/libmuzzle.a'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/native/libmuzzle.a'
 FAIL write: muzzle column does not build
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/crt0.o'
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/native/libmuzzle.a'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/native/crt0.o'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/native/libmuzzle.a'
 difftest: tier=native pass=0 fail=9
 tools/difftest native exit=1
 == tests/stale-compiler native
@@ -83,32 +83,32 @@ tools/build release exit=2
 == tools/difftest release (after the failed build)
 difftest: tier=release glibc=glibc 2.44 clang version 23.1.1
 FAIL errno: muzzle column does not build
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/crt0.o'
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/libmuzzle.a'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/release/crt0.o'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/release/libmuzzle.a'
 FAIL exit: muzzle column does not build
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/crt0.o'
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/libmuzzle.a'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/release/crt0.o'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/release/libmuzzle.a'
 FAIL exit_c17: muzzle column does not build
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/crt0.o'
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/libmuzzle.a'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/release/crt0.o'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/release/libmuzzle.a'
 FAIL exit_posix: muzzle column does not build
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/crt0.o'
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/libmuzzle.a'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/release/crt0.o'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/release/libmuzzle.a'
 FAIL main_return: muzzle column does not build
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/crt0.o'
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/libmuzzle.a'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/release/crt0.o'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/release/libmuzzle.a'
 FAIL malloc: muzzle column does not build
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/crt0.o'
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/libmuzzle.a'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/release/crt0.o'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/release/libmuzzle.a'
 FAIL mem: muzzle column does not build
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/crt0.o'
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/libmuzzle.a'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/release/crt0.o'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/release/libmuzzle.a'
 FAIL str: muzzle column does not build
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/crt0.o'
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/libmuzzle.a'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/release/crt0.o'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/release/libmuzzle.a'
 FAIL write: muzzle column does not build
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/crt0.o'
-clang: error: no such file or directory: '/home/mfwolffe/lanes/mz2/muzzle/build/release/libmuzzle.a'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/release/crt0.o'
+clang: error: no such file or directory: '<lanes>/mz2/muzzle/build/release/libmuzzle.a'
 difftest: tier=release pass=0 fail=9
 tools/difftest release exit=1
 == tests/stale-compiler release

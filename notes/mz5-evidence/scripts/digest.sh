@@ -7,7 +7,7 @@
 # stage no driver.
 #   digest.sh <commit>
 set -uo pipefail
-co=$HOME/lanes/mz5/digest; dl=$HOME/lanes/mz5/dl
+co=<lanes>/mz5/digest; dl=<lanes>/mz5/dl
 cd "$co" || exit 2
 git fetch -q origin mz5 || exit 2
 git checkout -q "$1" || exit 2

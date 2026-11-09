@@ -1,6 +1,6 @@
 #!/bin/bash
-W=~/lanes/lc01/dist/wolf/wolf-0.2.24-x86_64-unknown-linux-gnu/wolf
-cd ~/lanes/lc01/probes
+W=<lanes>/lc01/dist/wolf/wolf-0.2.24-x86_64-unknown-linux-gnu/wolf
+cd <lanes>/lc01/probes
 run() { echo "\$ $*"; "$@"; echo "exit=$?"; }
 for tier in native release; do
   fl=""; [ $tier = release ] && fl=--release

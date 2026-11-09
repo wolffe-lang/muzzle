@@ -5,7 +5,7 @@
 # the new assertions are seen to fail against trunk's tools/build.
 #   fix7.sh <fix-commit> <pre-fix-commit>
 set -uo pipefail
-co=$HOME/lanes/mz4/base; arc=$HOME/lanes/mz4/dl/wolf-0.2.32-x86_64-unknown-linux-gnu.tar.gz
+co=<lanes>/mz4/base; arc=<lanes>/mz4/dl/wolf-0.2.32-x86_64-unknown-linux-gnu.tar.gz
 cd "$co" || exit 2
 git fetch -q origin mz4 || exit 2
 git checkout -q da22e9e || exit 2
@@ -18,12 +18,12 @@ for t in native release; do tools/build $t; echo "build $t (0.2.32 pinned, not f
 echo "== muzzle#7: what the refusals left"
 ls -d build/native build/release 2>&1; echo "ls build exit=$?"
 echo "== tools/difftest after the refusal"
-for t in native release; do tools/difftest $t >"$HOME/lanes/mz4/logs/fix7-difftest-$t.out" 2>&1; echo "difftest $t after the refusal exit=$?"; grep -c '^FAIL .*muzzle column does not build' "$HOME/lanes/mz4/logs/fix7-difftest-$t.out"; tail -1 "$HOME/lanes/mz4/logs/fix7-difftest-$t.out"; done
+for t in native release; do tools/difftest $t >"<lanes>/mz4/logs/fix7-difftest-$t.out" 2>&1; echo "difftest $t after the refusal exit=$?"; grep -c '^FAIL .*muzzle column does not build' "<lanes>/mz4/logs/fix7-difftest-$t.out"; tail -1 "<lanes>/mz4/logs/fix7-difftest-$t.out"; done
 WOLF_ARCHIVE=$arc tools/fetch-toolchain; echo "fetch-toolchain exit=$?"
 for t in native release; do
   tools/build $t; echo "build $t exit=$?"
   tools/difftest $t; echo "difftest $t exit=$?"
-  taskset -c 0-3 tools/difftest $t >"$HOME/lanes/mz4/logs/fix7-taskset-$t.out" 2>&1; echo "difftest $t under taskset -c 0-3 exit=$?"; tail -1 "$HOME/lanes/mz4/logs/fix7-taskset-$t.out"
+  taskset -c 0-3 tools/difftest $t >"<lanes>/mz4/logs/fix7-taskset-$t.out" 2>&1; echo "difftest $t under taskset -c 0-3 exit=$?"; tail -1 "<lanes>/mz4/logs/fix7-taskset-$t.out"
   tests/stale-compiler $t; echo "stale-compiler $t exit=$?"
 done
 echo "== the fix reverted alone: tools/build from $2, the test from $1"

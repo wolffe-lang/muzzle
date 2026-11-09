@@ -2,10 +2,10 @@
 # mz3: what the checked machine and lupin 0.1.53 answer for muzzle, and
 # exit 2 at 0.2.30 (a compile error planted, never committed).
 set -uo pipefail
-X=$HOME/lanes/mz3/x; W=$X/wolf-0.2.30-x86_64-unknown-linux-gnu/wolf; L=$X/lupin-0.1.53-x86_64-unknown-linux-gnu/lupin
-cd $HOME/lanes/mz3/muzzle/src || exit 2
+X=<lanes>/mz3/x; W=$X/wolf-0.2.30-x86_64-unknown-linux-gnu/wolf; L=$X/lupin-0.1.53-x86_64-unknown-linux-gnu/lupin
+cd <lanes>/mz3/muzzle/src || exit 2
 echo "== commit $(git rev-parse HEAD) date=$(date -u +%FT%TZ)"
-sha256sum $HOME/lanes/mz3/dl/*.tar.gz
+sha256sum <lanes>/mz3/dl/*.tar.gz
 $W --version; $L --version
 echo; echo "#### the checked machine: wolf conform-run --json --checked"
 echo "\$ $W conform-run --json --checked muzzle.lu"; $W conform-run --json --checked muzzle.lu; echo "exit=$?"

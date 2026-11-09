@@ -4,7 +4,7 @@
 # 0.2.33's objects) moves to the 0.2.34 pin commit given as $1.
 #   reuse.sh <commit>
 set -uo pipefail
-L=$HOME/lanes/mz6
+L=<lanes>/mz6
 co=$L/base; arc=$L/dl/wolf-0.2.34-x86_64-unknown-linux-gnu.tar.gz
 cd "$co" || exit 2
 git fetch -q origin mz6 || exit 2

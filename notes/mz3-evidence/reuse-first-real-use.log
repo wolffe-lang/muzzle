@@ -1,11 +1,11 @@
 == before: 44387d08dad8899b28f460a4654154921a773d5a, staged: wolf-0.2.29-x86_64-unknown-linux-gnu wolf-0.2.29-x86_64-unknown-linux-gnu.tar.gz 
 == now at 28079676c19b57780d5791427bd085b0b0fb93c6: version_line = "wolf 0.2.30 (wolfgang, pin 1b37f36)"
-build: the pin wants 'wolf 0.2.30 (wolfgang, pin 1b37f36)' (wolf-toolchain.toml) and there is no driver at /home/mfwolffe/lanes/mz3/base/.wolf-bin/wolf-0.2.30-x86_64-unknown-linux-gnu/wolf
-build: found 'wolf 0.2.29 (wolfgang, pin 6ffe7c6)' at /home/mfwolffe/lanes/mz3/base/.wolf-bin/wolf-0.2.29-x86_64-unknown-linux-gnu/wolf, which is not the pin's; not used
+build: the pin wants 'wolf 0.2.30 (wolfgang, pin 1b37f36)' (wolf-toolchain.toml) and there is no driver at <lanes>/mz3/base/.wolf-bin/wolf-0.2.30-x86_64-unknown-linux-gnu/wolf
+build: found 'wolf 0.2.29 (wolfgang, pin 6ffe7c6)' at <lanes>/mz3/base/.wolf-bin/wolf-0.2.29-x86_64-unknown-linux-gnu/wolf, which is not the pin's; not used
 build: run tools/fetch-toolchain, or set WOLF to the pinned driver
 build native (0.2.30 pinned, not fetched) exit=2
-build: the pin wants 'wolf 0.2.30 (wolfgang, pin 1b37f36)' (wolf-toolchain.toml) and there is no driver at /home/mfwolffe/lanes/mz3/base/.wolf-bin/wolf-0.2.30-x86_64-unknown-linux-gnu/wolf
-build: found 'wolf 0.2.29 (wolfgang, pin 6ffe7c6)' at /home/mfwolffe/lanes/mz3/base/.wolf-bin/wolf-0.2.29-x86_64-unknown-linux-gnu/wolf, which is not the pin's; not used
+build: the pin wants 'wolf 0.2.30 (wolfgang, pin 1b37f36)' (wolf-toolchain.toml) and there is no driver at <lanes>/mz3/base/.wolf-bin/wolf-0.2.30-x86_64-unknown-linux-gnu/wolf
+build: found 'wolf 0.2.29 (wolfgang, pin 6ffe7c6)' at <lanes>/mz3/base/.wolf-bin/wolf-0.2.29-x86_64-unknown-linux-gnu/wolf, which is not the pin's; not used
 build: run tools/fetch-toolchain, or set WOLF to the pinned driver
 build release (0.2.30 pinned, not fetched) exit=2
 build/native:
@@ -26,10 +26,10 @@ muzzle.c00.o
 muzzle.c01.o
 muzzle.c02.o
 ls build exit=0
-fetch-toolchain: wolf-0.2.30-x86_64-unknown-linux-gnu.tar.gz 4e55b39ed243d3e8… -> /home/mfwolffe/lanes/mz3/base/.wolf-bin/wolf-0.2.30-x86_64-unknown-linux-gnu/wolf
+fetch-toolchain: wolf-0.2.30-x86_64-unknown-linux-gnu.tar.gz 4e55b39ed243d3e8… -> <lanes>/mz3/base/.wolf-bin/wolf-0.2.30-x86_64-unknown-linux-gnu/wolf
 fetch-toolchain exit=0
 == staged now: wolf-0.2.29-x86_64-unknown-linux-gnu wolf-0.2.29-x86_64-unknown-linux-gnu.tar.gz wolf-0.2.30-x86_64-unknown-linux-gnu wolf-0.2.30-x86_64-unknown-linux-gnu.tar.gz 
-build: native: 6 objects, 19 exports defined, 19 internal references, 0 imports -> /home/mfwolffe/lanes/mz3/base/build/native/libmuzzle.a
+build: native: 6 objects, 19 exports defined, 19 internal references, 0 imports -> <lanes>/mz3/base/build/native/libmuzzle.a
 build native exit=0
 difftest: tier=native glibc=glibc 2.44 clang version 23.1.1
 PASS errno exit=0 lines=10
@@ -43,7 +43,7 @@ PASS str exit=0 lines=29
 PASS write exit=0 lines=9
 difftest: tier=native pass=9 fail=0
 difftest native exit=0
-build: release: 4 objects, 19 exports defined, 5 internal references, 0 imports -> /home/mfwolffe/lanes/mz3/base/build/release/libmuzzle.a
+build: release: 4 objects, 19 exports defined, 5 internal references, 0 imports -> <lanes>/mz3/base/build/release/libmuzzle.a
 build release exit=0
 difftest: tier=release glibc=glibc 2.44 clang version 23.1.1
 PASS errno exit=0 lines=10

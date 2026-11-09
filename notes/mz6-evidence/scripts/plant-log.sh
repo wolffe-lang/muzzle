@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # mz6: a CI plant run's evidence: the run, each job's step conclusions,
-# then `gh run view --log-failed`. Read from nomad-1 (gh only, no build).
+# then `gh run view --log-failed`. Read from the-mac (gh only, no build).
 #   plant-log.sh <run id> <what was planted>
 set -uo pipefail
 R=wolffe-lang/muzzle; id=$1; what=$2

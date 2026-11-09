@@ -2,7 +2,7 @@
 # mz5: compare two runs' objects, stripped then raw (the control).
 #   cmp.sh <labelA> <labelB>
 set -uo pipefail
-A=$HOME/lanes/mz5/objs/$1; B=$HOME/lanes/mz5/objs/$2
+A=<lanes>/mz5/objs/$1; B=<lanes>/mz5/objs/$2
 echo "== stripped objects (objcopy --strip-debug), $1 against $2"
 n=0; d=0
 for t in native release; do

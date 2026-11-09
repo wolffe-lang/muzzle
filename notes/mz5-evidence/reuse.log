@@ -9,12 +9,12 @@ producer native/muzzle.root.o: wolf v0 (wolfgang 0.2.32)
 producer native/muzzle.string.o: wolf v0 (wolfgang 0.2.32)
 producer native/muzzle.sys.o: wolf v0 (wolfgang 0.2.32)
 == now at b580fc326910181199bd1e6876076d6a8c9b5990: version_line = "wolf 0.2.33 (wolfgang, pin 85dab5d)"
-build: the pin wants 'wolf 0.2.33 (wolfgang, pin 85dab5d)' (wolf-toolchain.toml) and there is no driver at /home/mfwolffe/lanes/mz5/base/.wolf-bin/wolf-0.2.33-x86_64-unknown-linux-gnu/wolf
-build: found 'wolf 0.2.32 (wolfgang, pin 72de141)' at /home/mfwolffe/lanes/mz5/base/.wolf-bin/wolf-0.2.32-x86_64-unknown-linux-gnu/wolf, which is not the pin's; not used
+build: the pin wants 'wolf 0.2.33 (wolfgang, pin 85dab5d)' (wolf-toolchain.toml) and there is no driver at <lanes>/mz5/base/.wolf-bin/wolf-0.2.33-x86_64-unknown-linux-gnu/wolf
+build: found 'wolf 0.2.32 (wolfgang, pin 72de141)' at <lanes>/mz5/base/.wolf-bin/wolf-0.2.32-x86_64-unknown-linux-gnu/wolf, which is not the pin's; not used
 build: run tools/fetch-toolchain, or set WOLF to the pinned driver
 build native (0.2.33 pinned, not fetched) exit=2
-build: the pin wants 'wolf 0.2.33 (wolfgang, pin 85dab5d)' (wolf-toolchain.toml) and there is no driver at /home/mfwolffe/lanes/mz5/base/.wolf-bin/wolf-0.2.33-x86_64-unknown-linux-gnu/wolf
-build: found 'wolf 0.2.32 (wolfgang, pin 72de141)' at /home/mfwolffe/lanes/mz5/base/.wolf-bin/wolf-0.2.32-x86_64-unknown-linux-gnu/wolf, which is not the pin's; not used
+build: the pin wants 'wolf 0.2.33 (wolfgang, pin 85dab5d)' (wolf-toolchain.toml) and there is no driver at <lanes>/mz5/base/.wolf-bin/wolf-0.2.33-x86_64-unknown-linux-gnu/wolf
+build: found 'wolf 0.2.32 (wolfgang, pin 72de141)' at <lanes>/mz5/base/.wolf-bin/wolf-0.2.32-x86_64-unknown-linux-gnu/wolf, which is not the pin's; not used
 build: run tools/fetch-toolchain, or set WOLF to the pinned driver
 build release (0.2.33 pinned, not fetched) exit=2
 == what the refusals left
@@ -28,10 +28,10 @@ difftest: tier=native pass=0 fail=9
 difftest release after the refusal exit=1
 9
 difftest: tier=release pass=0 fail=9
-fetch-toolchain: wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz 4f955e8dfe6eaafa… -> /home/mfwolffe/lanes/mz5/base/.wolf-bin/wolf-0.2.33-x86_64-unknown-linux-gnu/wolf
+fetch-toolchain: wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz 4f955e8dfe6eaafa… -> <lanes>/mz5/base/.wolf-bin/wolf-0.2.33-x86_64-unknown-linux-gnu/wolf
 fetch-toolchain exit=0
 == staged now: wolf-0.2.32-x86_64-unknown-linux-gnu wolf-0.2.32-x86_64-unknown-linux-gnu.tar.gz wolf-0.2.33-x86_64-unknown-linux-gnu wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz 
-build: native: 6 objects, 19 exports defined, 19 internal references, 0 imports -> /home/mfwolffe/lanes/mz5/base/build/native/libmuzzle.a
+build: native: 6 objects, 19 exports defined, 19 internal references, 0 imports -> <lanes>/mz5/base/build/native/libmuzzle.a
 build native exit=0
 difftest: tier=native glibc=glibc 2.44 clang version 23.1.1
 PASS errno exit=0 lines=10
@@ -45,7 +45,7 @@ PASS str exit=0 lines=29
 PASS write exit=0 lines=9
 difftest: tier=native pass=9 fail=0
 difftest native exit=0
-build: release: 4 objects, 19 exports defined, 5 internal references, 0 imports -> /home/mfwolffe/lanes/mz5/base/build/release/libmuzzle.a
+build: release: 4 objects, 19 exports defined, 5 internal references, 0 imports -> <lanes>/mz5/base/build/release/libmuzzle.a
 build release exit=0
 difftest: tier=release glibc=glibc 2.44 clang version 23.1.1
 PASS errno exit=0 lines=10

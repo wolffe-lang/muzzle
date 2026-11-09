@@ -1,12 +1,12 @@
 == commit b580fc326910181199bd1e6876076d6a8c9b5990 label=0.2.33 host=Linux 7.2.8-1-cachyos x86_64 date=2026-10-19T19:27:22Z
-== archive 4f955e8dfe6eaafa441903eeba43c009c4ec2b45a8da09fe13431e8b12340af8  /home/mfwolffe/lanes/mz5/dl/wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz
+== archive 4f955e8dfe6eaafa441903eeba43c009c4ec2b45a8da09fe13431e8b12340af8  <lanes>/mz5/dl/wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz
 == this shell's signal masks: SigBlk: 0000000000000000 SigIgn: 0000000000000000 
 git status exit=0 (clean tree above this line = nothing listed)
-fetch-toolchain: wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz 4f955e8dfe6eaafa… -> /home/mfwolffe/lanes/mz5/muzzle/.wolf-bin/wolf-0.2.33-x86_64-unknown-linux-gnu/wolf
+fetch-toolchain: wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz 4f955e8dfe6eaafa… -> <lanes>/mz5/muzzle/.wolf-bin/wolf-0.2.33-x86_64-unknown-linux-gnu/wolf
 fetch-toolchain exit=0
 wolf-0.2.33-x86_64-unknown-linux-gnu
 wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz
-build: native: 6 objects, 19 exports defined, 19 internal references, 0 imports -> /home/mfwolffe/lanes/mz5/muzzle/build/native/libmuzzle.a
+build: native: 6 objects, 19 exports defined, 19 internal references, 0 imports -> <lanes>/mz5/muzzle/build/native/libmuzzle.a
 build native exit=0
 difftest: tier=native glibc=glibc 2.44 clang version 23.1.1
 PASS errno exit=0 lines=10
@@ -36,7 +36,7 @@ producer muzzle.process.o: wolf v0 (wolfgang 0.2.33)
 producer muzzle.root.o: wolf v0 (wolfgang 0.2.33)
 producer muzzle.string.o: wolf v0 (wolfgang 0.2.33)
 producer muzzle.sys.o: wolf v0 (wolfgang 0.2.33)
-build: release: 4 objects, 19 exports defined, 5 internal references, 0 imports -> /home/mfwolffe/lanes/mz5/muzzle/build/release/libmuzzle.a
+build: release: 4 objects, 19 exports defined, 5 internal references, 0 imports -> <lanes>/mz5/muzzle/build/release/libmuzzle.a
 build release exit=0
 difftest: tier=release glibc=glibc 2.44 clang version 23.1.1
 PASS errno exit=0 lines=10

@@ -2,7 +2,7 @@
 # mz6: compare two runs' objects, stripped then raw (the control).
 #   cmp.sh <labelA> <labelB>
 set -uo pipefail
-A=$HOME/lanes/mz6/objs/$1; B=$HOME/lanes/mz6/objs/$2
+A=<lanes>/mz6/objs/$1; B=<lanes>/mz6/objs/$2
 [ -d "$A/native" ] && [ -d "$B/native" ] || { echo "cmp.sh: no objects for $1 or $2"; exit 2; }
 echo "== stripped objects (objcopy --strip-debug), $1 against $2"
 n=0; d=0

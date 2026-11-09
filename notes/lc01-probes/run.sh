@@ -1,7 +1,7 @@
 #!/bin/bash
-# lc01 probes: wolf 0.2.24 by digest, kasumi. Every command echoed with its exit status.
-W=~/lanes/lc01/dist/wolf/wolf-0.2.24-x86_64-unknown-linux-gnu/wolf
-cd ~/lanes/lc01/probes
+# lc01 probes: wolf 0.2.24 by digest, test-host. Every command echoed with its exit status.
+W=<lanes>/lc01/dist/wolf/wolf-0.2.24-x86_64-unknown-linux-gnu/wolf
+cd <lanes>/lc01/probes
 run() { echo "\$ $*"; "$@"; echo "exit=$?"; }
 echo "== host"; run $W --version; run clang --version; uname -r
 echo "== q1: the address of a module var"

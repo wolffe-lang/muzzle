@@ -2,7 +2,7 @@
 # mz6: build and difftest both tiers from a clean tree, keep the objects.
 #   run.sh <checkout> <label> <archive>
 set -uo pipefail
-L=$HOME/lanes/mz6
+L=<lanes>/mz6
 co=$1; label=$2; arc=$3
 keep=$L/objs/$label
 rm -rf "$keep"; mkdir -p "$keep"

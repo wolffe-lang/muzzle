@@ -4,7 +4,7 @@
 # 0.2.32's objects) moves to the 0.2.33 pin commit given as $1.
 #   reuse.sh <commit>
 set -uo pipefail
-co=$HOME/lanes/mz5/base; arc=$HOME/lanes/mz5/dl/wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz
+co=<lanes>/mz5/base; arc=<lanes>/mz5/dl/wolf-0.2.33-x86_64-unknown-linux-gnu.tar.gz
 cd "$co" || exit 2
 git fetch -q origin mz5 || exit 2
 prod() {
@@ -22,7 +22,7 @@ for t in native release; do tools/build $t; echo "build $t (0.2.33 pinned, not f
 echo "== what the refusals left"
 ls -d build/native build/release 2>&1; echo "ls build exit=$?"
 echo "== tools/difftest after the refusal"
-for t in native release; do tools/difftest $t >"$HOME/lanes/mz5/logs/reuse-difftest-$t.out" 2>&1; echo "difftest $t after the refusal exit=$?"; grep -c '^FAIL .*muzzle column does not build' "$HOME/lanes/mz5/logs/reuse-difftest-$t.out"; tail -1 "$HOME/lanes/mz5/logs/reuse-difftest-$t.out"; done
+for t in native release; do tools/difftest $t >"<lanes>/mz5/logs/reuse-difftest-$t.out" 2>&1; echo "difftest $t after the refusal exit=$?"; grep -c '^FAIL .*muzzle column does not build' "<lanes>/mz5/logs/reuse-difftest-$t.out"; tail -1 "<lanes>/mz5/logs/reuse-difftest-$t.out"; done
 WOLF_ARCHIVE=$arc tools/fetch-toolchain; echo "fetch-toolchain exit=$?"
 echo "== staged now: $(ls .wolf-bin | tr '\n' ' ')"
 for t in native release; do
