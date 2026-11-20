@@ -73,7 +73,7 @@ say(re.search(r"^  pull_request:\n", wf, re.M) is not None, "T4 a pull request r
 say(re.search(r"^  schedule:\n(\s+#.*\n)*\s+- cron: ", wf, re.M) is not None, "T4 the nightly runs")
 say(re.search(r"^  workflow_dispatch:\n    inputs:\n      tier:\n", wf, re.M) is not None and "        options: [full]\n" in wf,
     "T4 a dispatch's tier input is full alone")
-say("    runs-on: ubuntu-latest\n" in blocks["difftest"] and "        tier: [native, release]\n" in blocks["difftest"],
+say("    runs-on: ubuntu-24.04\n" in blocks["difftest"] and "        tier: [native, release]\n" in blocks["difftest"],
     "T4 the suite is unchanged: ubuntu, both compiling tiers")
 
 
