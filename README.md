@@ -99,7 +99,7 @@ needed until muzzle sets up TLS (`docs/LEDGER.md`).
 On an x86-64 Linux host with clang:
 
 ```sh
-tools/fetch-toolchain        # wolf 0.2.36 by digest (wolf-toolchain.toml)
+tools/fetch-toolchain        # wolf 0.2.41 by digest (wolf-toolchain.toml)
 tools/build native           # or release; gates the archive's symbols
 tests/difftest-selftest native   # the differential can say no
 tools/difftest native        # every case against glibc; non-zero on any difference
