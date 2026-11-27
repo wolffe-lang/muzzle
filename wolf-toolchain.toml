@@ -39,5 +39,5 @@
 version = "0.2.41"
 repo = "wolffe-lang/wolf-lang"
 rev = "0261597230b46f17f7a894c5558452c19fa31b96"
-version_line = "wolf 0.2.41 (wolfgang, pin 0261597)"
+version_line = "wolf 0.2.41 (wolfgang, pin 0261598)"
 x86_64-unknown-linux-gnu = "e7ec4cde06db2f2235ae82e3dff1db06f6b8e37249c883a3a35bdee8c86b8c34"
