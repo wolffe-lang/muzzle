@@ -26,9 +26,18 @@
 # the printf family can now be written; that is lc02's (stdio). muzzle
 # declares no variadic yet, and this pin moves no case.
 
+# ## The pin: 0.2.41 (2026-11-27)
+#
+# The linux x86-64 digest was read from wolf-lang release 458496472 and
+# equals the release's own digest; the archive was hashed twice after
+# download. v0.2.41 names commit 0261597. Its freestanding runtime reaches
+# the ambient region through weak wolf_ambient_load and wolf_ambient_store;
+# muzzle allocates no region and links no runtime archive, so it imports
+# neither. Function placement changes the objects' bytes, and no case moves.
+
 [wolf]
-version = "0.2.36"
+version = "0.2.41"
 repo = "wolffe-lang/wolf-lang"
-rev = "5adf3d91f75b3545ff8d38e5b6693b0b9f367a05"
-version_line = "wolf 0.2.36 (wolfgang, pin 5adf3d9)"
-x86_64-unknown-linux-gnu = "d383c74c8cd123b9d9dfaa268271d4f004294f85c2b230237d0ef07027d9500d"
+rev = "0261597230b46f17f7a894c5558452c19fa31b96"
+version_line = "wolf 0.2.41 (wolfgang, pin 0261597)"
+x86_64-unknown-linux-gnu = "e7ec4cde06db2f2235ae82e3dff1db06f6b8e37249c883a3a35bdee8c86b8c34"
